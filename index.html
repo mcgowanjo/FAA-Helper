@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Department Console — FAA & NTSB</title>
+<title>Department Console — FAA • NTSB • Transit • Maritime</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Condensed:wght@400;600&display=swap" rel="stylesheet">
 <style>
   :root{
@@ -36,6 +36,7 @@
   label{display:block;margin:4px 0 4px;color:#344054;font-size:13px}
   .req::after{content:" *";color:#c62828;font-weight:700}
   input,select,textarea{width:100%;padding:9px;border:1px solid #cbd5e1;border-radius:10px;background:#fff}
+  textarea{min-height:96px}
   .hint{color:var(--muted);font-size:12px}
   .card{background:var(--panel);border:1px solid var(--grid);border-radius:12px;padding:12px}
   .cardRow{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
@@ -47,7 +48,6 @@
   .sectionTitle{display:flex;align-items:center;gap:10px}
   .pill{border:1px solid #cbd5e1;background:#f8fafc;border-radius:999px;padding:2px 8px;font-size:12px;color:#0f172a}
   .mutebar{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-  .mt8{margin-top:8px}
 </style>
 </head>
 <body>
@@ -56,20 +56,21 @@
     <div class="title">
       <button id="minBtn" class="btn alt" type="button">Minimize</button>
       <button id="wideBtn" class="btn" type="button">Wide</button>
-      <div>Department Console — FAA & NTSB</div>
+      <div>Department Console — FAA • NTSB • Transit • Maritime</div>
     </div>
     <div class="rolebar">
       <div class="topnav">
         <div class="seg active" data-agency="faa">FAA</div>
         <div class="seg" data-agency="ntsb">NTSB</div>
-        <!-- future: DOT, Transit, Maritime, etc. -->
+        <div class="seg" data-agency="transit">Transit</div>
+        <div class="seg" data-agency="maritime">Maritime</div>
       </div>
       <span id="opsBadge" class="badge">Agency: FAA</span>
     </div>
   </div>
 
   <div id="wrap">
-    <!-- AGENCY: FAA -->
+    <!-- ================= FAA ================= -->
     <div id="faa" class="panel active">
       <div class="tabs">
         <button class="tab active" data-tab="faa_atc">Air Traffic Control (ATC)</button>
@@ -77,7 +78,7 @@
         <button class="tab" data-tab="faa_refs">References</button>
       </div>
 
-      <!-- FAA → ATC (your existing console grouped) -->
+      <!-- FAA → ATC (your existing console) -->
       <div id="faa_atc" class="panel active">
         <div class="subtabs">
           <button class="sub active" data-sub="atis">ATIS</button>
@@ -98,7 +99,7 @@
             <div>
               <label class="req">Controller Name</label>
               <select id="aName"></select>
-              <div class="hint">Local list; editable below.</div>
+              <div class="hint">Local list; editable in code.</div>
             </div>
             <div>
               <label class="req">Position</label>
@@ -163,7 +164,6 @@
             </div>
           </div>
 
-          <!-- Per-airport status -->
           <div class="grid2">
             <div class="card">
               <div class="cardRow">
@@ -302,7 +302,7 @@
         </div>
       </div>
 
-      <!-- FAA → Operations (placeholder to expand) -->
+      <!-- FAA → Operations (placeholder) -->
       <div id="faa_ops" class="panel">
         <h3>FAA Operations (Coming Soon)</h3>
         <div class="grid2">
@@ -319,7 +319,7 @@
         </div>
       </div>
 
-      <!-- FAA → References (static quick sheet) -->
+      <!-- FAA → References -->
       <div id="faa_refs" class="panel">
         <h3>References</h3>
         <div class="grid2">
@@ -357,7 +357,7 @@
       </div>
     </div><!-- /FAA -->
 
-    <!-- AGENCY: NTSB -->
+    <!-- ================= NTSB ================= -->
     <div id="ntsb" class="panel">
       <div class="tabs">
         <button class="tab active" data-tab="ntsb_intake">Incident Intake</button>
@@ -390,7 +390,7 @@
           <div><label>Summary</label><textarea id="iSum" rows="3" placeholder="Brief factual summary…"></textarea></div>
         </div>
         <button class="btn ok" onclick="genNTSBIntake()">Generate Intake — copy to clipboard</button>
-        <div id="ntsbIntakeOut" class="code mt8"></div>
+        <div id="ntsbIntakeOut" class="code"></div>
       </div>
 
       <div id="ntsb_check" class="panel">
@@ -413,9 +413,114 @@
           <div><label>Key Points</label><textarea id="bPoints" rows="4" placeholder="- Maintain stabilized approach…&#10;- Adhere to noise abatement…"></textarea></div>
         </div>
         <button class="btn" onclick="genBulletin()">Generate Bulletin — copy</button>
-        <div id="bOut" class="code mt8"></div>
+        <div id="bOut" class="code"></div>
       </div>
     </div><!-- /NTSB -->
+
+    <!-- ================= Transit ================= -->
+    <div id="transit" class="panel">
+      <div class="tabs">
+        <button class="tab active" data-tab="tr_bus">Bus Dispatch</button>
+        <button class="tab" data-tab="tr_train">Train Service Notice</button>
+        <button class="tab" data-tab="tr_alert">System Alert</button>
+      </div>
+
+      <div id="tr_bus" class="panel active">
+        <h3>Bus Dispatch</h3>
+        <div class="row">
+          <div><label class="req">Route</label><input id="busRoute" placeholder="Route 12 — Del Perro"></div>
+          <div><label class="req">Block / Vehicle</label><input id="busVeh" placeholder="Block 12B / Bus 1432"></div>
+          <div><label class="req">Action</label>
+            <select id="busAct"><option>Pull out on time</option><option>Cover trip</option><option>Short turn</option><option>Breakdown — swap bus</option></select>
+          </div>
+        </div>
+        <div class="row">
+          <div><label>Notes</label><input id="busNotes" placeholder="Relief at Vespucci Hub; fuel after PM"></div>
+        </div>
+        <button class="btn ok" onclick="genBus()">Generate — copy</button>
+        <div id="busOut" class="code"></div>
+      </div>
+
+      <div id="tr_train" class="panel">
+        <h3>Train Service Notice</h3>
+        <div class="row">
+          <div><label class="req">Line</label><input id="trainLine" placeholder="Blue Line"></div>
+          <div><label class="req">Status</label><select id="trainStatus"><option>Normal service</option><option>Delay</option><option>Single tracking</option><option>Suspended</option></select></div>
+          <div><label>Delay (mins)</label><input id="trainDelay" type="number" placeholder="10"></div>
+        </div>
+        <div class="row">
+          <div><label>Reason</label><select id="trainReason"><option>Signal problem</option><option>Disabled train</option><option>Police activity</option><option>Weather</option><option>Track work</option></select></div>
+          <div><label>Alt Service</label><input id="trainAlt" placeholder="Bus bridge between Burton & Del Perro"></div>
+        </div>
+        <button class="btn ok" onclick="genTrain()">Generate — copy</button>
+        <div id="trainOut" class="code"></div>
+      </div>
+
+      <div id="tr_alert" class="panel">
+        <h3>System Alert</h3>
+        <div class="row">
+          <div><label class="req">Severity</label><select id="sysSev"><option>Info</option><option>Advisory</option><option>Major</option></select></div>
+          <div><label class="req">Area</label><input id="sysArea" placeholder="Citywide / Downtown / Eastside"></div>
+        </div>
+        <div class="row">
+          <div><label class="req">Message</label><textarea id="sysMsg" placeholder="Elevated delays during event at Maze Bank Arena…"></textarea></div>
+        </div>
+        <button class="btn warn" onclick="genSysAlert()">Generate — copy</button>
+        <div id="sysOut" class="code"></div>
+      </div>
+    </div><!-- /Transit -->
+
+    <!-- ================= Maritime ================= -->
+    <div id="maritime" class="panel">
+      <div class="tabs">
+        <button class="tab active" data-tab="m_ferry">Ferry Status</button>
+        <button class="tab" data-tab="m_port">Harbor/Port Notice</button>
+        <button class="tab" data-tab="m_craft">Small Craft Advisory</button>
+      </div>
+
+      <div id="m_ferry" class="panel active">
+        <h3>Ferry Status</h3>
+        <div class="row">
+          <div><label class="req">Route</label><input id="ferRoute" placeholder="LS Pier ⇄ Cayo Perico"></div>
+          <div><label class="req">Status</label><select id="ferStatus"><option>On time</option><option>Delayed</option><option>Cancelled</option></select></div>
+          <div><label>Delay (mins)</label><input id="ferDelay" type="number" placeholder="15"></div>
+        </div>
+        <div class="row">
+          <div><label>Reason</label><select id="ferReason"><option>Weather</option><option>Mechanical</option><option>Crew availability</option><option>Harbor traffic</option></select></div>
+          <div><label>Notes</label><input id="ferNotes" placeholder="Next sailing at :30 past"></div>
+        </div>
+        <button class="btn ok" onclick="genFerry()">Generate — copy</button>
+        <div id="ferOut" class="code"></div>
+      </div>
+
+      <div id="m_port" class="panel">
+        <h3>Harbor / Port Notice</h3>
+        <div class="row">
+          <div><label class="req">Area</label><input id="portArea" placeholder="Port of LS / Alamo Sea Marina"></div>
+          <div><label class="req">Condition</label><select id="portCond"><option>Normal</option><option>Restricted</option><option>Closed</option></select></div>
+          <div><label>Reason</label><select id="portReason"><option>Fog</option><option>High winds</option><option>Security</option><option>Salvage ops</option><option>Oil spill response</option></select></div>
+        </div>
+        <div class="row">
+          <div><label>Advisory</label><input id="portAdv" placeholder="Use channel 12 VHF; tugs required for entry"></div>
+        </div>
+        <button class="btn warn" onclick="genPort()">Generate — copy</button>
+        <div id="portOut" class="code"></div>
+      </div>
+
+      <div id="m_craft" class="panel">
+        <h3>Small Craft Advisory</h3>
+        <div class="row">
+          <div><label class="req">Zone</label><input id="craftZone" placeholder="Coastline / Alamo Sea"></div>
+          <div><label class="req">Winds</label><input id="craftWind" placeholder="NW 25–30kt, gusts 35kt"></div>
+          <div><label class="req">Seas</label><input id="craftSeas" placeholder="6–9 ft"></div>
+        </div>
+        <div class="row">
+          <div><label>Notes</label><input id="craftNotes" placeholder="Small vessels should remain in port"></div>
+        </div>
+        <button class="btn warn" onclick="genCraft()">Generate — copy</button>
+        <div id="craftOut" class="code"></div>
+      </div>
+    </div><!-- /Maritime -->
 
   </div>
 </div>
@@ -444,29 +549,32 @@ qa('.topnav .seg').forEach(s=>{
     qa('.topnav .seg').forEach(x=>x.classList.remove('active'));
     s.classList.add('active');
     const agency=s.dataset.agency;
-    qa('body > .app #wrap > .panel').forEach(p=>p.classList.remove('active'));
+    qa('#wrap > .panel').forEach(p=>p.classList.remove('active'));
     q('#'+agency).classList.add('active');
     q('#opsBadge').textContent='Agency: '+agency.toUpperCase();
     localStorage.setItem('AGENCY',agency);
   });
 });
-// restore last agency
-(function(){
-  const ag=localStorage.getItem('AGENCY')||'faa';
-  const seg=q('.topnav .seg[data-agency="'+ag+'"]');
-  if(seg) seg.click();
-})();
+(function(){ const ag=localStorage.getItem('AGENCY')||'faa'; const seg=q('.topnav .seg[data-agency="'+ag+'"]'); if(seg) seg.click(); })();
 
-/* ===== FAA tab switching ===== */
-function setFaaTab(id){
-  qa('#faa > .tabs .tab').forEach(b=>b.classList.remove('active'));
-  qa('#faa > .panel').forEach(p=>p.classList.remove('active'));
-  q('#faa > .tabs .tab[data-tab="'+id+'"]').classList.add('active');
-  q('#'+id).classList.add('active');
+/* ===== Generic tab switchers (for each agency) ===== */
+function wireTabs(scopeSel){
+  qa(scopeSel+' .tabs .tab').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      const id=btn.dataset.tab;
+      qa(scopeSel+' .tabs .tab').forEach(b=>b.classList.remove('active'));
+      qa(scopeSel+' > .panel').forEach(p=>p.classList.remove('active'));
+      btn.classList.add('active');
+      q('#'+id).classList.add('active');
+    });
+  });
 }
-qa('#faa > .tabs .tab').forEach(b=>b.addEventListener('click',()=>setFaaTab(b.dataset.tab)));
+wireTabs('#faa');
+wireTabs('#ntsb');
+wireTabs('#transit');
+wireTabs('#maritime');
 
-/* FAA → ATC subtabs */
+/* ===== FAA → ATC subtabs ===== */
 function setATCSub(id){
   qa('#faa_atc .subtabs .sub').forEach(b=>b.classList.remove('active'));
   qa('#faa_atc .subpanel').forEach(p=>p.style.display='none');
@@ -486,7 +594,7 @@ function setClrSub(id){
 qa('#clearance .subtabs .sub').forEach(b=>b.addEventListener('click',()=>setClrSub(b.dataset.sub2)));
 setClrSub('ifr');
 
-/* ===== ATC data ===== */
+/* ===== FAA ATC data & ATIS ===== */
 const CONTROLLERS = [
   {name:'John', role:'Supervisor', enabled:true},
   {name:'Ava', role:'Controller', enabled:true},
@@ -498,18 +606,15 @@ const WIND_PROFILES={ CALM:"000/00", LIGHT:"220/06", BREEZY:"230/12", WINDY:"250
 const REASONS=[{code:"STAFF",ui:"Staffing",gme:"airport closed due to staffing unavailability"},{code:"POWER",ui:"Power outage",gme:"airport closed due to power outage"},{code:"EMERG",ui:"Emergency response",gme:"airport closed for emergency operations"},{code:"SEC",ui:"Security",gme:"airport closed due to a security incident"},{code:"EQUIP",ui:"Mechanical/Equipment",gme:"airport closed due to essential equipment outage"},{code:"INC",ui:"Incursion",gme:"airport closed due to a runway incursion investigation"},{code:"EXC",ui:"Aircraft overrun",gme:"airport closed due to a runway excursion"},{code:"WXMIN",ui:"Weather below minima",gme:"airport closed due to weather below landing minima"},{code:"NOTAM",ui:"NOTAM closure",gme:"airport closed per NOTAM"},{code:"OTHER",ui:"Other…",gme:"{OTHER}"}];
 const AIRPORTS=["LSIA","SSIA","GPSD","PBAY"];
 
-/* init ATIS UI */
+/* init ATIS */
 (function initATIS(){
-  // Controller select
   const sel = q('#aName'); sel.innerHTML='';
   CONTROLLERS.filter(u=>u.enabled).forEach(u=>{
     const o=document.createElement('option'); o.value=u.name; o.textContent=`${u.name} — ${u.role}`; sel.appendChild(o);
   });
-  // Letter
   const saved = localStorage.getItem('ATIS_LETTER')||'ALPHA';
   q('#aLetter').value = saved;
 
-  // Reasons & enable/disable logic
   AIRPORTS.forEach(ap=>{
     const r=q('#ap'+ap+'_reason'); r.innerHTML='';
     const optBlank=document.createElement('option'); optBlank.value=''; optBlank.text='— Select reason —'; r.appendChild(optBlank);
@@ -519,7 +624,6 @@ const AIRPORTS=["LSIA","SSIA","GPSD","PBAY"];
     ok.addEventListener('change',flip); flip();
   });
 
-  // Auto/custom wind/vis/clouds
   const syncAuto=()=>{
     const wx=q('#aWx').value; const prof=q('#aWindProfile').value; const custom=(prof==='CUSTOM');
     q('#aCustomRow').style.display=custom?'flex':'none';
@@ -545,7 +649,6 @@ const AIRPORTS=["LSIA","SSIA","GPSD","PBAY"];
   q('#btnATIS').onclick=genATIS;
 })();
 
-/* ATIS validation & output */
 function setErrs(msgs){ const box=q('#aErr'); if(!msgs.length){ box.style.display='none'; box.innerHTML=''; return; } box.style.display='block'; box.innerHTML="<b>Fix these:</b><ul>"+msgs.map(m=>`<li>${m}</li>`).join('')+"</ul>"; }
 function validateATIS(){
   const msgs=[]; ['#aName','#aPos','#aTod','#aWx','#aWindProfile'].forEach(s=>q(s).classList.remove('err'));
@@ -598,7 +701,6 @@ function genATIS(){
 
   const line='/gme '+parts.join(' ');
   q('#atisOut').textContent=line;
-  // advance letter
   const cur=(q('#aLetter').value||'ALPHA').toUpperCase();
   const i=(LETTERS.indexOf(cur)+1+LETTERS.length)%LETTERS.length;
   const nxt=LETTERS[i]; q('#aLetter').value=nxt; localStorage.setItem('ATIS_LETTER',nxt);
@@ -642,6 +744,61 @@ q('#plCopy').onclick=()=>{
   const line=`/gme ^*^9Pilot of ${cs} requesting ${tp}.^*`;
   q('#pilotOut').textContent=line; copy(line);
 };
+
+/* ===== NTSB generators ===== */
+function genNTSBIntake(){
+  const t=q('#iType').value, loc=q('#iLoc').value||'—', time=q('#iTime').value||zZulu();
+  const ac=q('#iAC').value||'n/a', inj=q('#iInj').value, wx=q('#iWx').value;
+  const sum=(q('#iSum').value||'Summary pending').trim();
+  const line=`/gme ~y~NTSB Intake: ${t} at ${loc} ${time}. ~b~A/C: ${ac}; Injuries: ${inj}; WX: ${wx}. ~g~Summary: ${sum}`;
+  q('#ntsbIntakeOut').textContent=line; copy(line);
+}
+function genBulletin(){
+  const s=q('#bSubj').value||'Safety Bulletin', a=q('#bAud').value||'All';
+  const pts=(q('#bPoints').value||'').trim().split('\n').filter(Boolean).map(p=>p.replace(/^\-+\s*/,'')).join(' • ');
+  const line=`/gme ~y~Safety Bulletin: ${s} — Audience: ${a}. ~b~${pts||'Details forthcoming.'}`;
+  q('#bOut').textContent=line; copy(line);
+}
+
+/* ===== Transit generators ===== */
+function genBus(){
+  const r=q('#busRoute').value||'Route', v=q('#busVeh').value||'Vehicle', a=q('#busAct').value, n=q('#busNotes').value||'';
+  const line=`/gme ~g~Transit Bus: ${r}, ${v}. ~b~Action: ${a}. ${n?('Notes: '+n):''}`.trim();
+  q('#busOut').textContent=line; copy(line);
+}
+function genTrain(){
+  const l=q('#trainLine').value||'Line', s=q('#trainStatus').value, d=q('#trainDelay').value||'0';
+  const r=q('#trainReason').value, alt=q('#trainAlt').value||'';
+  const core=(s==='Delay')?`${s} ~y~${d} min`:`${s}`;
+  const line=`/gme ~g~Transit Train: ${l}. ~b~Status: ${core}. Reason: ${r}. ${alt?('Alt: '+alt):''}`.trim();
+  q('#trainOut').textContent=line; copy(line);
+}
+function genSysAlert(){
+  const sev=q('#sysSev').value, area=q('#sysArea').value||'Systemwide', msg=(q('#sysMsg').value||'').trim();
+  const tag = (sev==='Major')?'~r~':'~y~';
+  const line=`/gme ${tag}${sev} Alert — ${area}: ${msg||'Operational advisory in effect.'}`;
+  q('#sysOut').textContent=line; copy(line);
+}
+
+/* ===== Maritime generators ===== */
+function genFerry(){
+  const r=q('#ferRoute').value||'Ferry Route', s=q('#ferStatus').value, d=q('#ferDelay').value||'0';
+  const why=q('#ferReason').value, notes=q('#ferNotes').value||'';
+  const core=(s==='Delayed')?`${s} ~y~${d} min`:`${s}`;
+  const line=`/gme ~g~Ferry: ${r}. ~b~Status: ${core}. Reason: ${why}. ${notes?('Notes: '+notes):''}`.trim();
+  q('#ferOut').textContent=line; copy(line);
+}
+function genPort(){
+  const a=q('#portArea').value||'Harbor', c=q('#portCond').value, r=q('#portReason').value, adv=q('#portAdv').value||'';
+  const tag = (c==='Closed')?'~r~':'~y~';
+  const line=`/gme ${tag}Port Notice — ${a}: ${c}. Reason: ${r}. ${adv?('Advisory: '+adv):''}`.trim();
+  q('#portOut').textContent=line; copy(line);
+}
+function genCraft(){
+  const z=q('#craftZone').value||'Coastal Waters', w=q('#craftWind').value||'—', s=q('#craftSeas').value||'—', n=q('#craftNotes').value||'';
+  const line=`/gme ~y~Small Craft Advisory — ${z}: Winds ${w}, seas ${s}. ${n}`.trim();
+  q('#craftOut').textContent=line; copy(line);
+}
 </script>
 </body>
 </html>
