@@ -21,9 +21,12 @@
   .tabs button{flex:1;border:0;background:#e2e8f0;color:var(--ink);padding:12px;cursor:pointer}
   .tabs .active{background:#fff;font-weight:700;border-bottom:3px solid currentColor}
   .panel{display:none;padding:16px}.panel.active{display:block}
+
+  /* Subtabs */
   .subtabs{margin:10px 0}
   .subtabs button{margin-right:6px;border:1px solid #93c5fd;background:#e0f2fe;color:#0c4a6e;padding:6px 10px;border-radius:8px;cursor:pointer}
   .subtabs .active{background:#bae6fd}
+
   .row{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:10px}
   .row>div{flex:1 1 280px}
   label{display:block;margin:4px 0 4px;color:#344054;font-size:13px}
@@ -38,364 +41,304 @@
   .errbox{display:none;background:#fee2e2;border:1px solid #fecaca;color:#7f1d1d;border-radius:10px;padding:10px;margin:8px 0}
   .err{border-color:#e53935!important;box-shadow:0 0 0 3px rgba(229,57,53,.18)}
   ul.compact{margin:6px 0 0 18px}
+
+  /* Keep things spacious so no “touching” inputs */
+  .row>div > input, .row>div > select { margin-top:4px }
+
+  /* Make app wide by default */
+  .app{max-width:1600px;margin:0 auto}
 </style>
 </head>
 <body>
-<div class="header">
-  <div class="title">
-    Department Console — FAA • NTSB • Transit • Maritime
-    <span id="lockState" class="badge">Locked</span>
-  </div>
-  <div>
-    <input id="lockPass" type="password" placeholder="User code…"/>
-    <button id="unlockBtn" class="btn ok">Unlock</button>
-    <button id="lockBtn" class="btn warn">Lock</button>
-  </div>
-</div>
-
-<div id="wrap">
-  <!-- ================= FAA ================= -->
-  <div id="faa" class="panel active">
-    <div class="tabs">
-      <button class="tab active" data-tab="faa_atc">Air Traffic Control (ATC)</button>
-      <button class="tab" data-tab="faa_refs">References</button>
+<div class="app">
+  <div class="header">
+    <div class="title">Department Console — FAA • NTSB • Transit • Maritime <span id="lockState" class="badge">Locked</span></div>
+    <div>
+      <input id="lockPass" type="password" placeholder="User code…"/>
+      <button id="unlockBtn" class="btn ok">Unlock</button>
+      <button id="lockBtn" class="btn warn">Lock</button>
     </div>
+  </div>
 
-    <!-- ATC (PROTECTED) -->
-    <div id="faa_atc" class="panel active" data-protected="true">
-      <div class="subtabs">
-        <button class="sub active" data-sub="atis">ATIS</button>
-        <button class="sub" data-sub="clearance">Clearance</button>
-        <button class="sub" data-sub="ground">Ground / Tower / Center</button>
-        <button class="sub" data-sub="pilot">Pilot Tools</button>
+  <div id="wrap">
+    <!-- ================= FAA ================= -->
+    <div id="faa" class="panel active">
+      <div class="tabs">
+        <button class="tab active" data-tab="faa_atc">Air Traffic Control (ATC)</button>
+        <button class="tab" data-tab="faa_refs">References</button>
       </div>
 
-      <!-- ATIS -->
-      <div id="atis" class="subpanel">
-        <div class="row">
-          <div>
-            <label class="req">Controller Name</label>
-            <select id="aName"></select>
-            <div class="hint">Pulled from USERS list below.</div>
-          </div>
-          <div>
-            <label class="req">Position</label>
-            <select id="aPos"><option>Tower</option><option>Approach</option><option>Departure</option><option>Center</option></select>
-          </div>
-          <div>
-            <label class="req">Time of Day</label>
-            <select id="aTod"><option value="">— Select —</option><option>Day</option><option>Night</option></select>
-          </div>
-          <div>
-            <label class="req">Weather Preset</label>
-            <select id="aWx">
-              <option value="">— Select —</option>
-              <option value="CLEAR">Clear</option><option value="RAIN">Rain</option>
-              <option value="FOG">Fog</option><option value="WINDY">Windy</option>
-              <option value="OVERCAST">Overcast</option><option value="STORM">Storm</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="row">
-          <div>
-            <label class="req">Wind Profile</label>
-            <select id="aWindProfile">
-              <option value="">— Select —</option>
-              <option value="CALM">Calm (000/00)</option><option value="LIGHT">Light (220/06)</option>
-              <option value="BREEZY">Breezy (230/12)</option><option value="WINDY">Windy (250/22G30)</option>
-              <option value="CROSS">Crosswind (090/18)</option><option value="CUSTOM">Custom…</option>
-            </select>
-          </div>
-          <div><label>Wind (auto)</label><input id="aWindAuto" disabled></div>
-          <div><label>Visibility (auto)</label><input id="aVisAuto" disabled></div>
-          <div><label>Clouds (auto)</label><input id="aCloudsAuto" disabled></div>
-        </div>
-
-        <div class="row" id="aCustomRow" style="display:none">
-          <div><label class="req">Wind (ddd/ss[Ggg])</label><input id="aWind" placeholder="220/06"></div>
-          <div><label class="req">Visibility (SM)</label><input id="aVis" placeholder="10"></div>
-          <div><label class="req">Clouds</label><input id="aClouds" placeholder="SKC / SCT030 / BKN025 / OVC008"></div>
-        </div>
-
-        <div class="row">
-          <div>
-            <label class="req">Global Ops Mode</label>
-            <select id="aOps"><option>Normal</option><option>Reverse</option></select>
-            <div class="hint">Normal = standard practice per airport.</div>
-          </div>
-          <div class="card">
-            <label class="req">ATIS Letter</label>
-            <div class="row" style="gap:10px;align-items:center">
-              <input id="aLetter" disabled style="max-width:140px">
-              <button class="btn" id="nextLetterBtn">Next Letter</button>
-            </div>
-            <div class="hint" style="text-align:right">Saved locally</div>
-          </div>
-          <div class="card">
-            <label>Flags</label>
-            <div>
-              <label><input type="checkbox" id="aAllOk" checked> All airports operational</label><br/>
-              <label><input type="checkbox" id="aNoise"> Noise abatement in effect</label><br/>
-              <label><input type="checkbox" id="aInclClr" checked> Include “Contact Clearance 122.2”</label>
-            </div>
-          </div>
-        </div>
-
-        <div class="grid2">
-          <div class="card">
-            <b>LSIA</b>
-            <div class="row">
-              <div><label><input type="checkbox" id="apLSIA_ok" checked> Operational</label></div>
-              <div><label>Ops</label><select id="apLSIA_ops"><option value="">(Global)</option><option>Normal</option><option>Reverse</option></select></div>
-              <div><label>Reason</label><select id="apLSIA_reason" disabled></select></div>
-              <div><label>Note</label><input id="apLSIA_note" placeholder="(optional)" disabled></div>
-            </div>
-          </div>
-          <div class="card">
-            <b>SDSH</b>
-            <div class="row">
-              <div><label><input type="checkbox" id="apSDSH_ok" checked> Operational</label></div>
-              <div><label>Ops</label><select id="apSDSH_ops"><option value="">(Global)</option><option>Normal</option><option>Reverse</option></select></div>
-              <div><label>Reason</label><select id="apSDSH_reason" disabled></select></div>
-              <div><label>Note</label><input id="apSDSH_note" placeholder="(optional)" disabled></div>
-            </div>
-          </div>
-          <div class="card">
-            <b>GPSD</b>
-            <div class="row">
-              <div><label><input type="checkbox" id="apGPSD_ok" checked> Operational</label></div>
-              <div><label>Ops</label><select id="apGPSD_ops"><option value="">(Global)</option><option>Normal</option><option>Reverse</option></select></div>
-              <div><label>Reason</label><select id="apGPSD_reason" disabled></select></div>
-              <div><label>Note</label><input id="apGPSD_note" placeholder="(optional)" disabled></div>
-            </div>
-          </div>
-          <div class="card">
-            <b>PBAY</b>
-            <div class="row">
-              <div><label><input type="checkbox" id="apPBAY_ok" checked> Operational</label></div>
-              <div><label>Ops</label><select id="apPBAY_ops"><option value="">(Global)</option><option>Normal</option><option>Reverse</option></select></div>
-              <div><label>Reason</label><select id="apPBAY_reason" disabled></select></div>
-              <div><label>Note</label><input id="apPBAY_note" placeholder="(optional)" disabled></div>
-            </div>
-          </div>
-        </div>
-
-        <div id="aErr" class="errbox"></div>
-        <button id="btnATIS" class="btn ok">Generate ATIS — Click to copy, then paste in Skybox</button>
-        <div id="atisOut" class="code"></div>
-      </div>
-
-      <!-- CLEARANCE -->
-      <div id="clearance" class="subpanel" style="display:none">
+      <!-- ATC (PROTECTED) -->
+      <div id="faa_atc" class="panel active" data-protected="true">
         <div class="subtabs">
-          <button class="sub active" data-sub2="ifr">IFR</button>
-          <button class="sub" data-sub2="vfr">VFR</button>
-          <button class="sub" data-sub2="heli">Helicopter</button>
+          <button class="sub active" data-sub="atis">ATIS</button>
+          <button class="sub" data-sub="clearance">Clearance</button>
+          <button class="sub" data-sub="gndtower">Ground / Tower / Center</button>
+          <button class="sub" data-sub="pilot">Pilot Tools</button>
         </div>
 
-        <!-- IFR -->
-        <div id="ifr" class="subpanel2">
+        <!-- ATIS -->
+        <div id="atis" class="subpanel">
+          <h3>ATIS Generator (Statewide compact)</h3>
           <div class="row">
-            <div><label class="req">Callsign</label><input id="ifrCall" placeholder="N123AB / LSX21"></div>
-            <div><label class="req">Aircraft</label><input id="ifrAcft" placeholder="A320 / B738 / C172"></div>
+            <div><label class="req">Controller Name</label><select id="aName"></select></div>
+            <div><label class="req">Position</label><select id="aPos"><option>Tower</option><option>Approach</option><option>Departure</option><option>Center</option></select></div>
+            <div><label class="req">Time of Day</label><select id="aTod"><option value="">— Select —</option><option>Day</option><option>Night</option></select></div>
+            <div><label class="req">Weather Preset</label>
+              <select id="aWx"><option value="">— Select —</option><option value="CLEAR">Clear</option><option value="RAIN">Rain</option><option value="FOG">Fog</option><option value="WINDY">Windy</option><option value="OVERCAST">Overcast</option><option value="STORM">Storm</option></select>
+            </div>
           </div>
           <div class="row">
-            <div>
-              <label class="req">Route (From → To)</label>
-              <select id="ifrRoute">
+            <div><label class="req">Wind Profile</label>
+              <select id="aWindProfile"><option value="">— Select —</option><option value="CALM">Calm (000/00)</option><option value="LIGHT">Light (220/06)</option><option value="BREEZY">Breezy (230/12)</option><option value="WINDY">Windy (250/22G30)</option><option value="CROSS">Crosswind (090/18)</option><option value="CUSTOM">Custom…</option></select>
+            </div>
+            <div><label>Wind (auto)</label><input id="aWindAuto" disabled></div>
+            <div><label>Visibility (auto)</label><input id="aVisAuto" disabled></div>
+            <div><label>Clouds (auto)</label><input id="aCloudsAuto" disabled></div>
+          </div>
+          <div class="row" id="aCustomRow" style="display:none">
+            <div><label class="req">Wind (ddd/ss[Ggg])</label><input id="aWind" placeholder="220/06"></div>
+            <div><label class="req">Visibility (SM)</label><input id="aVis" placeholder="10"></div>
+            <div><label class="req">Clouds</label><input id="aClouds" placeholder="SKC / SCT030 / BKN025 / OVC008"></div>
+          </div>
+          <div class="row">
+            <div><label class="req">Global Ops Mode</label><select id="aOps"><option>Normal</option><option>Reverse</option></select></div>
+            <div class="card">
+              <label class="req">ATIS Letter</label>
+              <div class="row" style="gap:10px;align-items:center">
+                <input id="aLetter" disabled style="max-width:140px">
+                <button class="btn" id="nextLetterBtn">Next Letter</button>
+              </div>
+              <div class="hint" style="text-align:right">Saved locally</div>
+            </div>
+            <div class="card">
+              <label>Flags</label>
+              <div>
+                <label><input type="checkbox" id="aAllOk" checked> All airports operational</label><br/>
+                <label><input type="checkbox" id="aNoise"> Noise abatement in effect</label><br/>
+                <label><input type="checkbox" id="aInclClr" checked> Include “Contact Clearance 122.2”</label>
+              </div>
+            </div>
+          </div>
+
+          <div class="grid2">
+            <div class="card"><b>LSIA</b>
+              <div class="row">
+                <div><label><input type="checkbox" id="apLSIA_ok" checked> Operational</label></div>
+                <div><label>Ops</label><select id="apLSIA_ops"><option value="">(Global)</option><option>Normal</option><option>Reverse</option></select></div>
+                <div><label>Reason</label><select id="apLSIA_reason" disabled></select></div>
+                <div><label>Note</label><input id="apLSIA_note" placeholder="(optional)" disabled></div>
+              </div>
+            </div>
+            <div class="card"><b>SDSH</b>
+              <div class="row">
+                <div><label><input type="checkbox" id="apSDSH_ok" checked> Operational</label></div>
+                <div><label>Ops</label><select id="apSDSH_ops"><option value="">(Global)</option><option>Normal</option><option>Reverse</option></select></div>
+                <div><label>Reason</label><select id="apSDSH_reason" disabled></select></div>
+                <div><label>Note</label><input id="apSDSH_note" placeholder="(optional)" disabled></div>
+              </div>
+            </div>
+            <div class="card"><b>GPSD</b>
+              <div class="row">
+                <div><label><input type="checkbox" id="apGPSD_ok" checked> Operational</label></div>
+                <div><label>Ops</label><select id="apGPSD_ops"><option value="">(Global)</option><option>Normal</option><option>Reverse</option></select></div>
+                <div><label>Reason</label><select id="apGPSD_reason" disabled></select></div>
+                <div><label>Note</label><input id="apGPSD_note" placeholder="(optional)" disabled></div>
+              </div>
+            </div>
+            <div class="card"><b>PBAY</b>
+              <div class="row">
+                <div><label><input type="checkbox" id="apPBAY_ok" checked> Operational</label></div>
+                <div><label>Ops</label><select id="apPBAY_ops"><option value="">(Global)</option><option>Normal</option><option>Reverse</option></select></div>
+                <div><label>Reason</label><select id="apPBAY_reason" disabled></select></div>
+                <div><label>Note</label><input id="apPBAY_note" placeholder="(optional)" disabled></div>
+              </div>
+            </div>
+          </div>
+
+          <div id="aErr" class="errbox"></div>
+          <button id="btnATIS" class="btn ok">Generate ATIS — Click to copy, then paste in Skybox</button>
+          <div id="atisOut" class="code"></div>
+        </div>
+
+        <!-- CLEARANCE (single form) -->
+        <div id="clearance" class="subpanel" style="display:none">
+          <h3>Clearance Delivery — Single Form</h3>
+          <div class="row">
+            <div><label class="req">Position</label><select id="clrPos"><option>Clearance Delivery</option><option>Ground</option></select></div>
+            <div><label class="req">Type</label><select id="clrType"><option>IFR</option><option>VFR</option><option>Special Ops — Helicopter</option></select></div>
+            <div><label class="req">Callsign</label><input id="clrCall" placeholder="N123AB / AIR-1 / LSX21"></div>
+            <div><label class="req">Aircraft</label><input id="clrAcft" placeholder="A320 / C172 / AS350"></div>
+          </div>
+
+          <div class="row" id="clrIFRRow">
+            <div><label class="req">Route (From → To)</label>
+              <select id="clrRoute">
                 <option>LSIA → SDSH</option><option>LSIA → PBAY</option><option>LSIA → GPSD</option>
                 <option>SDSH → LSIA</option><option>SDSH → PBAY</option><option>SDSH → GPSD</option>
                 <option>PBAY → LSIA</option><option>PBAY → SDSH</option><option>PBAY → GPSD</option>
                 <option>GPSD → LSIA</option><option>GPSD → SDSH</option><option>GPSD → PBAY</option>
               </select>
             </div>
-            <div><label>SID (auto)</label><input id="ifrSid" placeholder="Auto" disabled></div>
-          </div>
-          <div class="row">
-            <div><label>Initial Altitude (auto)</label><input id="ifrInit" disabled></div>
-            <div><label>Cruise Altitude (auto)</label><input id="ifrCruise" disabled></div>
-            <div><label>Departure Freq</label><input id="ifrDepFreq" value="122.5" disabled></div>
-          </div>
-          <div class="row">
-            <div><label>Squawk (auto per departure area)</label><input id="ifrSquawk" disabled></div>
+            <div><label>SID (auto)</label><input id="clrSid" disabled></div>
+            <div><label>Initial Altitude (auto)</label><input id="clrInit" disabled></div>
+            <div><label>Cruise Altitude (auto)</label><input id="clrCruise" disabled></div>
+            <div><label>Departure Freq</label><input id="clrDepFreq" value="122.5"></div>
+            <div><label>Squawk (auto)</label><input id="clrSquawk" disabled></div>
           </div>
 
-          <div id="ifrErr" class="errbox"></div>
-          <button id="btnIFR" class="btn">Generate IFR — Click to copy, then paste in Skybox</button>
-          <div id="ifrOut" class="code"></div>
-        </div>
-
-        <!-- VFR -->
-        <div id="vfr" class="subpanel2" style="display:none">
-          <div class="row">
-            <div><label class="req">Callsign</label><input id="vfrCall" placeholder="N123AB / AIR-1"></div>
-            <div><label class="req">Departure</label>
-              <select id="vfrDep"><option>LSIA</option><option>SDSH</option><option>GPSD</option><option>PBAY</option></select>
-            </div>
-            <div><label class="req">Direction</label>
-              <select id="vfrDir"><option>North</option><option>East</option><option>South</option><option>West</option></select>
-            </div>
-          </div>
-          <div class="row">
+          <div class="row" id="clrVFRRow" style="display:none">
+            <div><label class="req">Departure</label><select id="vfrDep"><option>LSIA</option><option>SDSH</option><option>GPSD</option><option>PBAY</option></select></div>
+            <div><label class="req">Direction</label><select id="vfrDir"><option>North</option><option>East</option><option>South</option><option>West</option></select></div>
             <div><label>Min Altitude (auto)</label><input id="vfrMin" disabled></div>
-            <div><label>Departure Freq</label><input value="122.5" disabled></div>
           </div>
-          <div id="vfrErr" class="errbox"></div>
-          <button id="btnVFR" class="btn">Generate VFR — Click to copy, then paste in Skybox</button>
-          <div id="vfrOut" class="code"></div>
-        </div>
 
-        <!-- HELI -->
-        <div id="heli" class="subpanel2" style="display:none">
-          <div class="row">
-            <div><label class="req">Callsign</label><input id="heliCall" placeholder="AIR-1 / MED-1 / RESCUE-2"></div>
-            <div><label class="req">Department</label>
-              <select id="heliDept"><option>Police</option><option>EMS</option><option>Fire</option><option>Coast Guard</option></select>
-            </div>
-            <div><label class="req">Departure</label>
-              <select id="heliDep"><option>LSIA</option><option>SDSH</option><option>GPSD</option><option>PBAY</option></select>
-            </div>
-            <div><label class="req">Direction</label>
-              <select id="heliDir"><option>North</option><option>East</option><option>South</option><option>West</option></select>
-            </div>
-          </div>
-          <div class="row">
+          <div class="row" id="clrHeliRow" style="display:none">
+            <div><label class="req">Department</label><select id="heliDept"><option>Police</option><option>EMS</option><option>Fire</option><option>Coast Guard</option></select></div>
+            <div><label class="req">Departure</label><select id="heliDep"><option>LSIA</option><option>SDSH</option><option>GPSD</option><option>PBAY</option></select></div>
+            <div><label class="req">Direction</label><select id="heliDir"><option>North</option><option>East</option><option>South</option><option>West</option></select></div>
             <div><label>Min Altitude (auto)</label><input id="heliMin" disabled></div>
             <div><label>Ops Area (auto)</label><input id="heliArea" disabled></div>
           </div>
-          <div id="heliErr" class="errbox"></div>
-          <button id="btnHELI" class="btn">Generate Helicopter — Click to copy, then paste in Skybox</button>
-          <div id="heliOut" class="code"></div>
+
+          <div id="clrErr" class="errbox"></div>
+          <button id="btnCLR" class="btn">Generate Clearance — Click to copy, then paste in Skybox</button>
+          <div id="clrOut" class="code"></div>
+        </div>
+
+        <!-- GROUND / TOWER / CENTER -->
+        <div id="gndtower" class="subpanel" style="display:none">
+          <div class="row">
+            <div class="card" style="flex:1 1 420px">
+              <b>Ground</b>
+              <div class="row">
+                <button class="btn" data-g="/gme Pushback approved.">Pushback Approved</button>
+                <button class="btn" data-g="/gme Pushback and start approved, advise when ready to taxi.">Push & Start</button>
+                <button class="btn" data-g="/gme Start approved, advise when ready to taxi.">Start Only Approved</button>
+                <button class="btn" data-g="/gme Taxi to RWY 24R via A-B, contact Tower 122.4 when ready for departure.">Taxi to Runway</button>
+                <button class="btn" data-g="/gme Taxi to parking via A, monitor Ground 122.3.">Taxi to Parking</button>
+              </div>
+            </div>
+            <div class="card" style="flex:1 1 420px">
+              <b>Tower</b>
+              <div class="row">
+                <button class="btn" data-t="/gme Hold short RWY 24R.">Hold Short</button>
+                <button class="btn" data-t="/gme Line up and wait RWY 24R.">Line Up & Wait</button>
+                <button class="btn" data-t="/gme RWY 24R cleared for takeoff, contact Departure 122.5.">Cleared for Takeoff</button>
+                <button class="btn" data-t="/gme RWY 24R cleared to land, wind 220/06.">Cleared to Land</button>
+                <button class="btn" data-t="/gme Go around, fly runway heading, climb to pattern altitude, right traffic.">Go Around</button>
+                <button class="btn" data-t="/gme Noise abatement in effect, after liftoff fly runway heading to 500 feet then left turn per published procedure.">Noise-Abatement Takeoff</button>
+              </div>
+            </div>
+            <div class="card" style="flex:1 1 420px">
+              <b>Center</b>
+              <div class="row">
+                <button class="btn" data-c="/gme Climb and maintain FL280.">Climb</button>
+                <button class="btn" data-c="/gme Descend and maintain 1 2 thousand.">Descend</button>
+                <button class="btn" data-c="/gme Fly heading 2 7 0, vectors westbound.">Heading</button>
+                <button class="btn" data-c="/gme Proceed direct COAST.">Direct</button>
+                <button class="btn" data-c="/gme Contact next sector on 122.7.">Handoff</button>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="card" style="flex:1 1 100%"><div id="gndtowerOut" class="code"></div></div>
+          </div>
+        </div>
+
+        <!-- PILOT TOOLS -->
+        <div id="pilot" class="subpanel" style="display:none">
+          <h3>Pilot Quick Message</h3>
+          <div class="row">
+            <div><label class="req">Callsign</label><input id="plCall" placeholder="AIR-1 / MED-1 / N123AB"></div>
+            <div><label class="req">Type</label><select id="plType"><option>IFR</option><option>VFR</option><option>Helicopter</option></select></div>
+          </div>
+          <button class="btn" id="plCopy">Click to copy → paste in Skybox (if no controller available)</button>
+          <div id="pilotOut" class="code"></div>
         </div>
       </div>
 
-      <!-- GROUND / TOWER / CENTER -->
-      <div id="ground" class="subpanel" style="display:none">
-        <div class="row">
+      <!-- References (PUBLIC) -->
+      <div id="faa_refs" class="panel" data-public="true">
+        <h3>References</h3>
+        <div class="grid2">
           <div class="card">
-            <b>Ground / Taxi</b>
-            <div class="row">
-              <button class="btn" onclick="guard(()=>quick('/gme Pushback and start approved, advise when ready to taxi.','#groundOut'))">Push & Start</button>
-              <button class="btn" onclick="guard(()=>quick('/gme Taxi to RWY 24R via A-B, contact Tower 122.4 when ready for departure.','#groundOut'))">Taxi to Runway</button>
-              <button class="btn" onclick="guard(()=>quick('/gme Taxi to parking via A, monitor Ground 122.3.','#groundOut'))">Taxi to Parking</button>
-            </div>
+            <b>Frequencies</b>
+            <ul class="hint compact">
+              <li>ATIS 122.1</li>
+              <li>Clearance 122.2</li>
+              <li>Ground 122.3</li>
+              <li>Tower 122.4</li>
+              <li>Departure/Approach 122.5</li>
+              <li>Center 122.7</li>
+            </ul>
           </div>
-          <div class="card" style="flex:1 1 500px"><div id="groundOut" class="code"></div></div>
-        </div>
-        <div class="row">
           <div class="card">
-            <b>Tower</b>
-            <div class="row">
-              <button class="btn" onclick="guard(()=>quick('/gme Line up and wait runway 24R.','#towerOut'))">Line Up & Wait</button>
-              <button class="btn" onclick="guard(()=>quick('/gme RWY 24R cleared for takeoff, contact Departure 122.5.','#towerOut'))">Takeoff</button>
-              <button class="btn" onclick="guard(()=>quick('/gme RWY 24R cleared to land, wind 220/06.','#towerOut'))">Landing</button>
-              <button class="btn" onclick="guard(()=>quick('/gme Go around, fly runway heading, climb to pattern altitude, right traffic.','#towerOut'))">Go Around</button>
-            </div>
+            <b>Airports</b>
+            <ul class="hint compact">
+              <li>LSIA — Los Santos Intl</li>
+              <li>SDSH — Sandy Shores Airfield</li>
+              <li>GPSD — Grapeseed Airfield</li>
+              <li>PBAY — Paleto Airpark</li>
+            </ul>
           </div>
-          <div class="card" style="flex:1 1 500px"><div id="towerOut" class="code"></div></div>
-        </div>
-        <div class="row">
           <div class="card">
-            <b>Center</b>
-            <div class="row">
-              <button class="btn" onclick="guard(()=>quick('/gme Climb and maintain FL280.','#centerOut'))">Climb</button>
-              <button class="btn" onclick="guard(()=>quick('/gme Descend and maintain 1 2 thousand.','#centerOut'))">Descend</button>
-              <button class="btn" onclick="guard(()=>quick('/gme Fly heading 2 7 0, vectors westbound.','#centerOut'))">Heading</button>
-              <button class="btn" onclick="guard(()=>quick('/gme Proceed direct COAST.','#centerOut'))">Direct</button>
-              <button class="btn" onclick="guard(()=>quick('/gme Contact next sector on 122.7.','#centerOut'))">Handoff</button>
-            </div>
+            <b>Phraseology</b>
+            <ul class="hint compact">
+              <li>“Climb and maintain 5,000”</li>
+              <li>“Descend and maintain 1 2 thousand”</li>
+              <li>“Proceed direct COAST”</li>
+              <li>“Cleared for takeoff runway two four right”</li>
+              <li>“Cleared to land runway two four right”</li>
+            </ul>
           </div>
-          <div class="card" style="flex:1 1 500px"><div id="centerOut" class="code"></div></div>
         </div>
       </div>
-
-      <!-- PILOT TOOLS -->
-      <div id="pilot" class="subpanel" style="display:none">
-        <div class="row">
-          <div class="card" style="flex:1 1 380px">
-            <b>Pilot Quick Message</b>
-            <div class="row">
-              <div><label class="req">Callsign</label><input id="plCall" placeholder="AIR-1 / MED-1 / N123AB"></div>
-              <div><label class="req">Type</label><select id="plType"><option>IFR</option><option>VFR</option><option>Helicopter</option></select></div>
-            </div>
-            <button class="btn" id="plCopy">Click to copy → paste in Skybox (if no controller available)</button>
-          </div>
-          <div class="card" style="flex:2 1 600px"><div id="pilotOut" class="code"></div></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- References (PUBLIC) -->
-    <div id="faa_refs" class="panel" data-public="true">
-      <div class="grid2">
-        <div class="card">
-          <b>Frequencies</b>
-          <ul class="hint compact">
-            <li>ATIS 122.1</li>
-            <li>Clearance 122.2</li>
-            <li>Ground 122.3</li>
-            <li>Tower 122.4</li>
-            <li>Departure/Approach 122.5</li>
-            <li>Center 122.7</li>
-          </ul>
-        </div>
-        <div class="card">
-          <b>Airports</b>
-          <ul class="hint compact">
-            <li>LSIA — Los Santos Intl</li>
-            <li>SDSH — Sandy Shores Airfield</li>
-            <li>GPSD — Grapeseed Airfield</li>
-            <li>PBAY — Paleto Airpark</li>
-          </ul>
-        </div>
-        <div class="card">
-          <b>Phraseology</b>
-          <ul class="hint compact">
-            <li>“Climb and maintain 5,000”</li>
-            <li>“Descend and maintain 1 2 thousand”</li>
-            <li>“Proceed direct COAST”</li>
-            <li>“Cleared for takeoff runway two four right”</li>
-            <li>“Cleared to land runway two four right”</li>
-          </ul>
-        </div>
-      </div>
-    </div>
-  </div><!-- /FAA -->
-</div><!-- /wrap -->
+    </div><!-- /FAA -->
+  </div><!-- /wrap -->
+</div><!-- /app -->
 
 <script>
-/* ================= CONFIG ================= */
-// Users with personal codes
-const USERS = [
-  {name:'John',     role:'Supervisor', code:'JOHN-2468', enabled:true},
-  {name:'Ava',      role:'Controller', code:'AVA-1357',  enabled:true},
-  {name:'Maverick', role:'Trainee',    code:'MAV-2460',  enabled:true},
-];
-const CONTROLLERS = USERS.filter(u=>u.enabled);
+/* ================= USERS / LOGIN ================= */
+const USERS = {
+  "john123":{name:'John', role:'Supervisor', enabled:true},
+  "ava456": {name:'Ava',  role:'Controller', enabled:true},
+  "mav789": {name:'Maverick', role:'Trainee', enabled:true},
+};
+let CURRENT_USER = null;
 
-// ATIS settings
+function lockState(){
+  const tag = CURRENT_USER ? `Logged in as ${CURRENT_USER.name} (${CURRENT_USER.role})` : 'Locked';
+  document.querySelector('#lockState').textContent = tag;
+}
+function unlockWith(code){
+  const u = USERS[code];
+  if(u && u.enabled){ CURRENT_USER = u; localStorage.setItem('APP_USER',code); lockState(); refreshGates(); initControllers(); }
+  else alert('Incorrect code.');
+}
+function lockAll(){
+  CURRENT_USER=null; localStorage.removeItem('APP_USER'); lockState(); refreshGates();
+}
+document.querySelector('#unlockBtn').onclick=()=>unlockWith(document.querySelector('#lockPass').value.trim());
+document.querySelector('#lockBtn').onclick=lockAll;
+(function(){ const saved=localStorage.getItem('APP_USER'); if(saved && USERS[saved]){ CURRENT_USER=USERS[saved]; } lockState(); refreshGates(); initControllers(); })();
+
+/* ================= COMMON HELPERS ================= */
+const q = s=>document.querySelector(s);
+const qa = s=>[...document.querySelectorAll(s)];
+const copy = txt => {
+  try { if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(txt);
+        else { const ta=document.createElement('textarea'); ta.value=txt; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove(); } }
+  catch(e){ console.warn('Copy failed', e); }
+};
 const LETTERS = ["ALPHA","BRAVO","CHARLIE","DELTA","ECHO","FOXTROT","GOLF","HOTEL","INDIA","JULIETT","KILO","LIMA","MIKE","NOVEMBER","OSCAR","PAPA","QUEBEC","ROMEO","SIERRA","TANGO","UNIFORM","VICTOR","WHISKEY","XRAY","YANKEE","ZULU"];
 const WX_PRESETS={ CLEAR:{vis:"10",clouds:"SKC"}, RAIN:{vis:"6",clouds:"BKN025"}, FOG:{vis:"2",clouds:"OVC008"}, WINDY:{vis:"8",clouds:"SCT030"}, OVERCAST:{vis:"8",clouds:"OVC015"}, STORM:{vis:"3",clouds:"BKN015"} };
 const WIND_PROFILES={ CALM:"000/00", LIGHT:"220/06", BREEZY:"230/12", WINDY:"250/22G30", CROSS:"090/18" };
 const REASONS=[{code:"STAFF",ui:"Staffing",gme:"airport closed due to staffing unavailability"},{code:"POWER",ui:"Power outage",gme:"airport closed due to power outage"},{code:"EMERG",ui:"Emergency response",gme:"airport closed for emergency operations"},{code:"SEC",ui:"Security",gme:"airport closed due to a security incident"},{code:"EQUIP",ui:"Mechanical/Equipment",gme:"airport closed due to essential equipment outage"},{code:"INC",ui:"Incursion",gme:"airport closed due to a runway incursion investigation"},{code:"EXC",ui:"Aircraft overrun",gme:"airport closed due to a runway excursion"},{code:"WXMIN",ui:"Weather below minima",gme:"airport closed due to weather below landing minima"},{code:"NOTAM",ui:"NOTAM closure",gme:"airport closed per NOTAM"},{code:"OTHER",ui:"Other…",gme:"{OTHER}"}];
 const AIRPORTS=["LSIA","SDSH","GPSD","PBAY"];
-
-// Ops → default active runways per airport by ops mode
-const RUNWAYS={
-  LSIA:{Normal:"24L/24R", Reverse:"06L/06R"},
-  SDSH:{Normal:"30",      Reverse:"12"},
-  GPSD:{Normal:"17",      Reverse:"35"},
-  PBAY:{Normal:"26",      Reverse:"08"}
-};
-
-// Altimeter (for ATIS text only; not used in clearance)
+const RUNWAYS={ LSIA:{Normal:"24L/24R",Reverse:"06L/06R"}, SDSH:{Normal:"30",Reverse:"12"}, GPSD:{Normal:"17",Reverse:"35"}, PBAY:{Normal:"26",Reverse:"08"} };
 const ALTIMETERS={LSIA:"29.92", SDSH:"29.86", GPSD:"29.88", PBAY:"29.90"};
-
-// Initial altitude per area (by departure airport)
 const INIT_ALT={LSIA:"5,000", SDSH:"7,000", GPSD:"6,000", PBAY:"6,000"};
-
-// Cruise altitude per route pair (From→To)
 const CRUISE={
   "LSIA→SDSH":"FL240","SDSH→LSIA":"FL240",
   "LSIA→PBAY":"FL280","PBAY→LSIA":"FL280",
@@ -404,8 +347,6 @@ const CRUISE={
   "SDSH→GPSD":"FL240","GPSD→SDSH":"FL240",
   "GPSD→PBAY":"FL260","PBAY→GPSD":"FL260"
 };
-
-// SID mapping per route
 const SIDMAP={
   "LSIA→SDSH":"Coast Two",
   "LSIA→PBAY":"Vinewood One",
@@ -420,179 +361,101 @@ const SIDMAP={
   "GPSD→SDSH":"Farm One",
   "GPSD→PBAY":"Chiliad One"
 };
-
-// VFR minima (fixed wing) & heli minima by airport
 const VFR_MIN={LSIA:1500,SDSH:1200,GPSD:1200,PBAY:1500};
 const HELI_MIN={LSIA:800,SDSH:600,GPSD:600,PBAY:700};
-
-// Heli ops areas (plain-English)
 const HELI_AREAS={
   LSIA:"Los Santos city limits and port complex",
   SDSH:"Sandy Shores town and Alamo Sea shoreline",
   GPSD:"Grapeseed farms and windmill ridge",
   PBAY:"Paleto Bay town and coastline"
 };
-
-// Squawk sequences (per departure airport), persisted in localStorage
 const SQUAWK_BASE={LSIA:1001,SDSH:3037,GPSD:2001,PBAY:4020};
-
-/* ================= Helpers ================= */
-const q = sel => document.querySelector(sel);
-const qa = sel => [...document.querySelectorAll(sel)];
-const copy = txt => {
-  try {
-    if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(txt);
-    else { const ta=document.createElement('textarea'); ta.value=txt; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove(); }
-  } catch(e){ console.warn('Copy failed', e); }
-};
-const zZulu = () => { const d=new Date(); return String(d.getUTCHours()).padStart(2,'0')+String(d.getUTCMinutes()).padStart(2,'0')+'z'; };
-function quick(text, targetSel){ const t=q(targetSel); t.textContent=text; copy(text); }
-function spokenThousands(nstr){ // "5000" -> "5 thousand", "12000" -> "1 2 thousand"
+function zZulu(){ const d=new Date(); return String(d.getUTCHours()).padStart(2,'0')+String(d.getUTCMinutes()).padStart(2,'0')+'z'; }
+function spokenThousands(nstr){
   const n=parseInt(String(nstr).replace(/[^\d]/g,''),10)||0;
   if(n%1000===0){ const k=n/1000; return (k>=10?String(k).split('').join(' '):String(k))+' thousand'; }
   return n.toLocaleString();
 }
 
-/* ================= Login / Gate ================= */
-let UNLOCKED = (localStorage.getItem('APP_UNLOCKED')==='1');
-let CURRENT_USER = UNLOCKED ? JSON.parse(localStorage.getItem('APP_USER')||'null') : null;
-
-const lockState = ()=>{
-  const tag = UNLOCKED && CURRENT_USER ? `Logged in as ${CURRENT_USER.name} (${CURRENT_USER.role})` : 'Locked';
-  q('#lockState').textContent = tag;
-};
-
-q('#unlockBtn')?.addEventListener('click',()=>{
-  const code = q('#lockPass').value.trim();
-  const user = USERS.find(u=>u.code===code && u.enabled);
-  if (user){
-    UNLOCKED = true; CURRENT_USER = user;
-    localStorage.setItem('APP_UNLOCKED','1');
-    localStorage.setItem('APP_USER', JSON.stringify(user));
-    lockState(); refreshGates(); initControllers();
-  } else {
-    alert('Invalid code.');
-  }
-});
-q('#lockBtn')?.addEventListener('click',()=>{
-  UNLOCKED = false; CURRENT_USER = null;
-  localStorage.removeItem('APP_UNLOCKED');
-  localStorage.removeItem('APP_USER');
-  lockState(); refreshGates();
-});
-
-function inlineUnlock(code){
-  const user = USERS.find(u=>u.code===code && u.enabled);
-  if (user){
-    UNLOCKED = true; CURRENT_USER = user;
-    localStorage.setItem('APP_UNLOCKED','1');
-    localStorage.setItem('APP_USER', JSON.stringify(user));
-    lockState(); refreshGates(); initControllers();
-  } else {
-    alert('Invalid code.');
-  }
-}
-
-(function(){
-  const saved = localStorage.getItem('APP_USER');
-  if (saved){
-    try { CURRENT_USER = JSON.parse(saved); UNLOCKED = true; } catch { UNLOCKED=false; CURRENT_USER=null; }
-  }
-  lockState();
-})();
-
+/* ================= PROTECTED GATE ================= */
 function applyGate(panel){
   if(!panel) return;
   const isProtected = panel.dataset && panel.dataset.protected === 'true';
   if(!isProtected) return;
   const existing = panel.querySelector(':scope > .gate');
-  if (UNLOCKED && CURRENT_USER){
+  if (CURRENT_USER){
     if (existing) existing.remove();
     return;
   }
   if (!existing){
     const g = document.createElement('div');
     g.className = 'gate';
-    g.innerHTML = '<h4>Restricted Area</h4>'
-      + '<div class="hint">Enter your personal code to unlock tools.</div>'
+    g.innerHTML = '<h4>Restricted Area</h4><div class="hint">Enter your personal code to unlock tools.</div>'
       + '<div class="row" style="justify-content:center"><input id="inlinePass" type="password" placeholder="User code…" style="max-width:200px"> '
       + '<button class="btn ok" id="inlineUnlock">Unlock</button></div>';
     panel.appendChild(g);
     g.querySelector('#inlineUnlock').addEventListener('click',()=>{
       const code = g.querySelector('#inlinePass').value.trim();
-      inlineUnlock(code);
+      unlockWith(code);
     });
   }
 }
 function refreshGates(){ qa('[data-protected="true"]').forEach(applyGate); }
-refreshGates();
 
-/* ================= Tabs ================= */
+/* ================= TOP TABS (FAA only here) ================= */
 qa('#faa .tabs .tab').forEach(btn=>{
-  btn.addEventListener('click', ()=>{
+  btn.addEventListener('click', (ev)=>{
     qa('#faa .tabs .tab').forEach(b=>b.classList.remove('active'));
     qa('#faa > .panel').forEach(p=>p.classList.remove('active'));
     btn.classList.add('active');
     const id = btn.dataset.tab; q('#'+id).classList.add('active');
     applyGate(q('#'+id));
-  });
+    ev.stopPropagation();
+  }, {capture:true});
 });
 
-// ATC outer subtabs — direct child only
+/* ================= ATC SUBTABS (robust) ================= */
 (function(){
-  const scope = q('#faa_atc'); if(!scope) return;
   function showATCSub(id){
     qa('#faa_atc > .subtabs .sub').forEach(x=>x.classList.remove('active'));
     qa('#faa_atc > .subpanel').forEach(p=>p.style.display='none');
-    const btn   = q('#faa_atc > .subtabs .sub[data-sub="'+id+'"]');
+    const btn = q(`#faa_atc > .subtabs .sub[data-sub="${id}"]`);
     const panel = q('#'+id);
     if(btn) btn.classList.add('active');
     if(panel) panel.style.display='block';
-    applyGate(scope);
+    applyGate(q('#faa_atc'));
   }
   qa('#faa_atc > .subtabs .sub').forEach(b=>{
-    b.addEventListener('click', (e)=>{
-      const id = b.dataset.sub; if(!id) return;
-      showATCSub(id); e.stopPropagation();
-    }, {capture:true});
+    b.addEventListener('click', (e)=>{ e.preventDefault(); e.stopPropagation(); showATCSub(b.dataset.sub); }, {capture:true});
   });
   showATCSub('atis');
 })();
 
-// Clearance inner subtabs
-function setClrSub(id){
-  qa('#clearance .subtabs .sub').forEach(b=>b.classList.remove('active'));
-  qa('#clearance .subpanel2').forEach(p=>p.style.display='none');
-  const btn = q(`#clearance .subtabs .sub[data-sub2="${id}"]`);
-  const panel = q('#'+id);
-  if(btn) btn.classList.add('active');
-  if(panel) panel.style.display='block';
-}
-qa('#clearance .subtabs .sub').forEach(b=>b.addEventListener('click',()=>setClrSub(b.dataset.sub2)));
-setClrSub('ifr');
-
-/* ================= ATIS init & generation ================= */
+/* ================= CONTROLLER LIST INIT ================= */
 function initControllers(){
   const sel=q('#aName'); if(!sel) return;
-  sel.innerHTML=''; CONTROLLERS.forEach(u=>{
+  sel.innerHTML='';
+  Object.values(USERS).filter(u=>u.enabled).forEach(u=>{
     const o=document.createElement('option'); o.value=u.name; o.textContent=`${u.name} — ${u.role}`; sel.appendChild(o);
   });
 }
-initControllers();
 
+/* ================= ATIS ================= */
 (function initATIS(){
   const saved = localStorage.getItem('ATIS_LETTER')||'ALPHA';
   if(q('#aLetter')) q('#aLetter').value = saved;
 
-  // Reasons & enable/disable per-airport fields
-  AIRPORTS.forEach(ap=>{
-    const r=q('#ap'+ap+'_reason'); if(!r) return;
-    r.innerHTML=''; const optBlank=document.createElement('option'); optBlank.value=''; optBlank.text='— Select reason —'; r.appendChild(optBlank);
-    REASONS.forEach(rr=>{ const o=document.createElement('option'); o.value=rr.code; o.text=rr.ui; r.appendChild(o); });
-    const ok=q('#ap'+ap+'_ok'); const note=q('#ap'+ap+'_note'); const flip=()=>{
-      const disabled = ok.checked; r.disabled=disabled; note.disabled=disabled;
-      if(disabled){ r.classList.remove('err'); note.classList.remove('err'); }
-    };
+  // Reasons + toggle enable per airport
+  const REASON_FIELDS = ['LSIA','SDSH','GPSD','PBAY'].map(ap=>({
+    ok:q(`#ap${ap}_ok`), reason:q(`#ap${ap}_reason`), note:q(`#ap${ap}_note`)
+  }));
+  ['LSIA','SDSH','GPSD','PBAY'].forEach((ap,i)=>{
+    const r=q(`#ap${ap}_reason`); if(r){
+      r.innerHTML=''; const blank=document.createElement('option'); blank.value=''; blank.text='— Select reason —'; r.appendChild(blank);
+      REASONS.forEach(rr=>{ const o=document.createElement('option'); o.value=rr.code; o.text=rr.ui; r.appendChild(o); });
+    }
+    const ok=q(`#ap${ap}_ok`), note=q(`#ap${ap}_note`);
+    function flip(){ const dis=ok.checked; r.disabled=dis; note.disabled=dis; if(dis){ r.classList.remove('err'); note.classList.remove('err'); } }
     ok?.addEventListener('change',flip); flip();
   });
 
@@ -613,10 +476,15 @@ initControllers();
   });
 
   q('#aAllOk')?.addEventListener('change',e=>{
-    const all=e.target.checked; AIRPORTS.forEach(ap=>{ const box=q('#ap'+ap+'_ok'); if(box){ box.checked=all; box.dispatchEvent(new Event('change')); } });
+    const all=e.target.checked; ['LSIA','SDSH','GPSD','PBAY'].forEach(ap=>{
+      const box=q('#ap'+ap+'_ok'); if(box){ box.checked=all; box.dispatchEvent(new Event('change')); }
+    });
   });
 
-  q('#btnATIS')?.addEventListener('click',()=>guard(genATIS));
+  q('#btnATIS')?.addEventListener('click',()=>{
+    if(!CURRENT_USER) return alert('Locked. Enter your code to unlock.');
+    genATIS();
+  });
 })();
 
 function setErrs(boxSel, msgs){
@@ -647,9 +515,8 @@ function genATIS(){
   const noise = q('#aNoise')?.checked;
   const inclClr = q('#aInclClr')?.checked;
 
-  // per-airport states
   const per={};
-  AIRPORTS.forEach(ap=>{
+  ['LSIA','SDSH','GPSD','PBAY'].forEach(ap=>{
     const ok=q('#ap'+ap+'_ok')?.checked;
     const op=q('#ap'+ap+'_ops')?.value||'';
     const rs=q('#ap'+ap+'_reason')?.value||'';
@@ -661,139 +528,151 @@ function genATIS(){
   if(errs.length){ setErrs('#aErr',errs); return; }
   setErrs('#aErr',[]);
 
-  const z=zZulu();
-
-  // Build airport ops summary
   function opsText(ap){
-    if(per[ap].ok){
-      return `${ap} ${RUNWAYS[ap][per[ap].ops]} active`;
-    }else{
-      const r=REASONS.find(x=>x.code===per[ap].reason);
-      const why = r ? r.gme.replace('{OTHER}', per[ap].note||'unspecified reason') : 'closed';
-      return `${ap} CLOSED — ${why}${per[ap].note?` (${per[ap].note})`:''}`;
-    }
+    if(per[ap].ok) return `${ap} ${RUNWAYS[ap][per[ap].ops]} active`;
+    const r=REASONS.find(x=>x.code===per[ap].reason);
+    const why = r ? r.gme.replace('{OTHER}', per[ap].note||'unspecified reason') : 'closed';
+    return `${ap} CLOSED — ${why}${per[ap].note?` (${per[ap].note})`:''}`;
   }
-  const opsLine = AIRPORTS.map(opsText).join(', ');
-
-  // Altimeters summary (compact)
-  const alti = AIRPORTS.map(ap=>`${ap} ${ALTIMETERS[ap]}`).join(', ');
-
-  const parts = [];
-  parts.push(`/gme ATIS updated — Information ${letter}.`);
-  parts.push(`Winds ${wind}, vis ${vis}SM, clouds ${clouds}. ${tod}.`);
-  parts.push(`Runway ops: ${opsLine}.`);
-  if(noise) parts.push(`Noise abatement in effect; comply with published procedures.`);
-  parts.push(`Altimeter ${alti}.`);
-  if(inclClr) parts.push(`Contact Clearance 122.2.`);
-  parts.push(`Advise on initial contact you have ${letter}. Time ${z}.`);
-
-  const out = parts.join(' ');
-  q('#atisOut').textContent = out;
-  copy(out);
+  const opsLine = ['LSIA','SDSH','GPSD','PBAY'].map(opsText).join(', ');
+  const alti = ['LSIA','SDSH','GPSD','PBAY'].map(ap=>`${ap} ${ALTIMETERS[ap]}`).join(', ');
+  const z=zZulu();
+  const out = [
+    `/gme ${name} (${pos}) updates ATIS — Information ${letter}.`,
+    `Winds ${wind}, vis ${vis}SM, clouds ${clouds}. ${tod}.`,
+    `Runway ops: ${opsLine}.`,
+    noise ? `Noise abatement in effect; comply with published procedures.` : ``,
+    `Altimeter ${alti}.`,
+    (inclClr?`Contact Clearance 122.2.`:``),
+    `Advise on initial contact you have ${letter}. Time ${z}.`
+  ].filter(Boolean).join(' ');
+  q('#atisOut').textContent=out; copy(out);
 }
 
-/* ================= Clearance (IFR/VFR/HELI) ================= */
+/* ================= CLEARANCE (single form) ================= */
+function routePieces(route){ const [from,to] = route.split('→').map(s=>s.trim()); return {from,to}; }
 function nextSquawk(dep){
   const key='SQ_'+dep;
   let cur=parseInt(localStorage.getItem(key)||SQUAWK_BASE[dep]||1001,10);
   const next=cur+1; localStorage.setItem(key,String(next));
   return String(cur).padStart(4,'0');
 }
-function routePieces(route){
-  const [from,to] = route.split('→').map(s=>s.trim());
-  return {from,to};
+function previewSquawk(dep){
+  const key='SQ_'+dep;
+  let cur=parseInt(localStorage.getItem(key)||SQUAWK_BASE[dep]||1001,10);
+  return String(cur).padStart(4,'0');
 }
+
+function syncClrView(){
+  const t=q('#clrType').value;
+  q('#clrIFRRow').style.display = (t==='IFR')?'flex':'none';
+  q('#clrVFRRow').style.display = (t==='VFR')?'flex':'none';
+  q('#clrHeliRow').style.display = (t==='Special Ops — Helicopter')?'flex':'none';
+}
+q('#clrType').addEventListener('change', syncClrView); syncClrView();
+
 function updateIFRAutos(){
-  const route=q('#ifrRoute').value;
-  const {from,to}=routePieces(route);
-  q('#ifrSid').value = SIDMAP[route] || 'As assigned';
-  q('#ifrInit').value = INIT_ALT[from] || '';
-  q('#ifrCruise').value = CRUISE[route] || 'FL240';
-  q('#ifrSquawk').value = nextSquawk(from); // preview next; it will increment again on generate, so show current
-  // Adjust preview back one to avoid skip on display:
-  const key='SQ_'+from; const back=parseInt(localStorage.getItem(key)||SQUAWK_BASE[from],10)-1; localStorage.setItem(key,String(back));
+  if(q('#clrType').value!=='IFR') return;
+  const {from,to}=routePieces(q('#clrRoute').value);
+  q('#clrSid').value = SIDMAP[q('#clrRoute').value] || 'As assigned';
+  q('#clrInit').value = INIT_ALT[from] || '';
+  q('#clrCruise').value = CRUISE[q('#clrRoute').value] || 'FL240';
+  q('#clrSquawk').value = previewSquawk(from);
 }
-q('#ifrRoute')?.addEventListener('change',updateIFRAutos); updateIFRAutos();
+q('#clrRoute').addEventListener('change', updateIFRAutos); updateIFRAutos();
 
-q('#btnIFR')?.addEventListener('click',()=>guard(()=>{
-  const errs=[];
-  const call=q('#ifrCall').value.trim(); if(!call) errs.push('Callsign');
-  const ac=q('#ifrAcft').value.trim(); if(!ac) errs.push('Aircraft');
-  const route=q('#ifrRoute').value;
-  const {from,to}=routePieces(route);
-  if(!from||!to) errs.push('Route');
-  if(errs.length){ setErrs('#ifrErr',errs); return; }
-  setErrs('#ifrErr',[]);
-
-  const sid = SIDMAP[route] || 'assigned SID';
-  const init= INIT_ALT[from] || '5,000';
-  const cruise= CRUISE[route] || 'FL240';
-  const depFreq = q('#ifrDepFreq').value || '122.5';
-  const squawk = nextSquawk(from);
-
-  const out = `/gme ATC reads clearance to ${call}. Cleared to ${to} via ${sid}, then as filed; maintain ${init} (${spokenThousands(init)}), expect ${cruise} 10 minutes after departure; departure frequency ${depFreq}; squawk ${squawk}.`;
-  q('#ifrOut').textContent = out; copy(out);
-}));
-
-// VFR
 function updateVFRMin(){
-  const dep=q('#vfrDep').value;
-  q('#vfrMin').value = VFR_MIN[dep] ? `${VFR_MIN[dep]} AGL` : '';
+  if(q('#clrType').value!=='VFR') return;
+  const dep=q('#vfrDep').value; q('#vfrMin').value = VFR_MIN[dep] ? `${VFR_MIN[dep]} AGL` : '';
 }
-q('#vfrDep')?.addEventListener('change',updateVFRMin); updateVFRMin();
+q('#vfrDep').addEventListener('change', updateVFRMin); updateVFRMin();
 
-q('#btnVFR')?.addEventListener('click',()=>guard(()=>{
-  const errs=[];
-  const call=q('#vfrCall').value.trim(); if(!call) errs.push('Callsign');
-  const dep=q('#vfrDep').value; const dir=q('#vfrDir').value;
-  if(!dep) errs.push('Departure'); if(!dir) errs.push('Direction');
-  if(errs.length){ setErrs('#vfrErr',errs); return; }
-  setErrs('#vfrErr',[]);
-
-  const min = `${VFR_MIN[dep]} AGL`;
-  const landmarks = {
-    LSIA:{North:"Vespucci / Downtown",East:"La Mesa / Freeway",South:"Port / Coastline",West:"Del Perro / Coast"},
-    SDSH:{North:"Alamo Sea / Grape Corridor",East:"Grand Senora / Power Station",South:"Harmony / Prison",West:"Zancudo River / Canyons"},
-    GPSD:{North:"Chiliad foothills",East:"County line",South:"Grape farms / Windmills",West:"Alamo Sea"},
-    PBAY:{North:"Coast / County line",East:"Mount Chiliad ridge",South:"Zancudo area",West:"Open water"}
-  };
-  const ref=(landmarks[dep] && landmarks[dep][dir])?landmarks[dep][dir]:'assigned sector';
-
-  const out = `/gme ${call} VFR, cleared ${dir.toLowerCase()}bound from ${dep}, remain clear of ${ref}, maintain ${min}; departure 122.5.`;
-  q('#vfrOut').textContent=out; copy(out);
-}));
-
-// Helicopter
 function updateHeliAutos(){
+  if(q('#clrType').value!=='Special Ops — Helicopter') return;
   const dep=q('#heliDep').value;
   q('#heliMin').value = HELI_MIN[dep] ? `${HELI_MIN[dep]} AGL` : '';
   q('#heliArea').value = HELI_AREAS[dep] || '';
 }
-q('#heliDep')?.addEventListener('change',updateHeliAutos); updateHeliAutos();
+q('#heliDep').addEventListener('change', updateHeliAutos); updateHeliAutos();
 
-q('#btnHELI')?.addEventListener('click',()=>guard(()=>{
+function markError(el, on){ if(!el) return; if(on) el.classList.add('err'); else el.classList.remove('err'); }
+
+q('#btnCLR').addEventListener('click', ()=>{
+  if(!CURRENT_USER) return alert('Locked. Enter your code to unlock.');
+
   const errs=[];
-  const call=q('#heliCall').value.trim(); if(!call) errs.push('Callsign');
-  const dept=q('#heliDept').value; const dep=q('#heliDep').value; const dir=q('#heliDir').value;
-  if(!dept) errs.push('Department'); if(!dep) errs.push('Departure'); if(!dir) errs.push('Direction');
-  if(errs.length){ setErrs('#heliErr',errs); return; }
-  setErrs('#heliErr',[]);
+  const pos=q('#clrPos').value;
+  const type=q('#clrType').value;
+  const call=q('#clrCall').value.trim();
+  const acft=q('#clrAcft').value.trim();
 
-  const min = `${HELI_MIN[dep]} AGL`;
-  const area = HELI_AREAS[dep] || 'assigned area';
-  const out = `/gme ${dept} helicopter ${call}, cleared ${dir.toLowerCase()} sector within ${area}; operate at or above ${min}; contact Departure 122.5.`;
-  q('#heliOut').textContent=out; copy(out);
-}));
+  markError(q('#clrCall'), !call);
+  markError(q('#clrAcft'), !acft);
+  if(!call) errs.push('Callsign');
+  if(!acft) errs.push('Aircraft');
 
-/* ================= Ground/Tower/Center & Pilot Tools ================= */
-function guard(fn){ if(!UNLOCKED){ alert('Locked. Enter your code to unlock.'); return; } fn(); }
+  let out='';
+  if(type==='IFR'){
+    const route=q('#clrRoute').value; const {from,to}=routePieces(route);
+    if(!from||!to) errs.push('Route');
+    markError(q('#clrRoute'), !from||!to);
+    if(errs.length){ setErrs('#clrErr',errs); return; } setErrs('#clrErr',[]);
 
-q('#plCopy')?.addEventListener('click',()=>{
+    const sid=q('#clrSid').value || 'assigned SID';
+    const init=q('#clrInit').value || '5,000';
+    const cruise=q('#clrCruise').value || 'FL240';
+    const depFreq=q('#clrDepFreq').value || '122.5';
+    const squawk=nextSquawk(from);
+
+    out = `/gme ${pos} issues clearance to ${call}. Cleared to ${to} via ${sid}, then as filed; maintain ${init} (${spokenThousands(init)}), expect ${cruise} 10 minutes after departure; departure frequency ${depFreq}; squawk ${squawk}.`;
+  } else if(type==='VFR'){
+    const dep=q('#vfrDep').value; const dir=q('#vfrDir').value;
+    markError(q('#vfrDep'), !dep); markError(q('#vfrDir'), !dir);
+    if(!dep) errs.push('Departure (VFR)'); if(!dir) errs.push('Direction (VFR)');
+    if(errs.length){ setErrs('#clrErr',errs); return; } setErrs('#clrErr',[]);
+
+    const min = `${VFR_MIN[dep]} AGL`;
+    const landmarks = {
+      LSIA:{North:"Vespucci / Downtown",East:"La Mesa / Freeway",South:"Port / Coastline",West:"Del Perro / Coast"},
+      SDSH:{North:"Alamo Sea / Grape Corridor",East:"Grand Senora / Power Station",South:"Harmony / Prison",West:"Zancudo River / Canyons"},
+      GPSD:{North:"Chiliad foothills",East:"County line",South:"Grape farms / Windmills",West:"Alamo Sea"},
+      PBAY:{North:"Coast / County line",East:"Mount Chiliad ridge",South:"Zancudo area",West:"Open water"}
+    };
+    const ref=(landmarks[dep] && landmarks[dep][dir])?landmarks[dep][dir]:'assigned sector';
+    out = `/gme ${pos} issues clearance to ${call}. VFR ${dir.toLowerCase()}bound from ${dep}; remain clear of ${ref}; maintain ${min}; departure 122.5.`;
+  } else { // Heli
+    const dept=q('#heliDept').value; const dep=q('#heliDep').value; const dir=q('#heliDir').value;
+    markError(q('#heliDept'), !dept); markError(q('#heliDep'), !dep); markError(q('#heliDir'), !dir);
+    if(!dept) errs.push('Department (Heli)'); if(!dep) errs.push('Departure (Heli)'); if(!dir) errs.push('Direction (Heli)');
+    if(errs.length){ setErrs('#clrErr',errs); return; } setErrs('#clrErr',[]);
+
+    const min = `${HELI_MIN[dep]} AGL`;
+    const area = HELI_AREAS[dep] || 'assigned area';
+    out = `/gme ${pos} issues clearance to ${call}. ${dept} helicopter, cleared ${dir.toLowerCase()} sector within ${area}; operate at or above ${min}; contact Departure 122.5.`;
+  }
+
+  q('#clrOut').textContent = out; copy(out);
+});
+
+/* ================= GROUND/TOWER/CENTER QUICK ================= */
+function quickMsg(txt){ q('#gndtowerOut').textContent = txt; copy(txt); }
+qa('#gndtower [data-g]').forEach(b=>b.addEventListener('click',()=>{ if(!CURRENT_USER) return alert('Locked. Enter your code.'); quickMsg(b.getAttribute('data-g')); }));
+qa('#gndtower [data-t]').forEach(b=>b.addEventListener('click',()=>{ if(!CURRENT_USER) return alert('Locked. Enter your code.'); quickMsg(b.getAttribute('data-t')); }));
+qa('#gndtower [data-c]').forEach(b=>b.addEventListener('click',()=>{ if(!CURRENT_USER) return alert('Locked. Enter your code.'); quickMsg(b.getAttribute('data-c')); }));
+
+/* ================= PILOT TOOLS ================= */
+q('#plCopy').addEventListener('click',()=>{
   const c=q('#plCall').value.trim()||'CALLSIGN';
   const t=q('#plType').value;
-  const msg = `/gme Pilot of ${c} ${t} — ready to copy clearance.`;
+  const msg=`/gme Click to copy — pilot use only if no controller available: Pilot of ${c} ${t} ready to copy.`;
   q('#pilotOut').textContent=msg; copy(msg);
 });
+
+/* ================= ATIS DYNAMIC WIRING AFTER LOGIN ================= */
+(function wireATIS(){
+  // show/hide custom rows and auto fields already set in init
+})();
+
 </script>
 </body>
 </html>
