@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>ATC Console — Standalone</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Condensed:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --brand:#1a237e; --brand2:#3949ab; --brand3:#5c6bc0;
+    --ink:#111827; --muted:#6b7280; --bg:#f7f9fc;
+    --chip:#eef2ff; --chipInk:#1e3a8a;
+    --panel:#ffffff; --grid:#e5e7eb; --code:#212121;
+  }
+  html,body{height:100%}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:"IBM Plex Sans Condensed",system-ui,Arial,sans-serif}
+  .app{max-width:1200px;margin:0 auto}
+  .header{background:var(--brand);color:#fff;padding:10px 16px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+  .title{display:flex;align-items:center;gap:10px;font-size:20px}
+  .rolebar{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .badge{background:var(--chip);color:var(--chipInk);border-radius:999px;padding:3px 10px;font-size:12px}
+  .btn{border:0;border-radius:10px;padding:8px 12px;background:#1976d2;color:#fff;font-weight:600;cursor:pointer}
+  .btn.alt{background:#455a64}.btn.ok{background:#2e7d32}.btn.off{background:#9e9e9e;cursor:not-allowed}
+  .tabs{display:flex;background:var(--brand2)}
+  .tabs button{flex:1;border:0;background:var(--brand2);color:#fff;padding:12px;cursor:pointer}
+  .tabs .active{background:var(--brand3);font-weight:700}
+  .panel{display:none;padding:16px}.panel.active{display:block}
+  .subtabs{margin:10px 0}.subtabs button{margin-right:6px;border:1px solid var(--brand2);background:#e8eaf6;padding:6px 10px;cursor:pointer}
+  .subtabs .active{background:#c5cae9}
+  .row{display:flex;gap:20px;flex-wrap:wrap;margin-bottom:10px}
+  .row>div{flex:1 1 320px}
+  label{display:block;margin:4px 0 4px;color:#344054;font-size:13px}
+  .req::after{content:" *";color:#c62828;font-weight:700}
+  input,select,textarea{width:100%;padding:9px;border:1px solid #cbd5e1;border-radius:10px;background:#fff}
+  .hint{color:var(--muted);font-size:12px}
+  .card{background:var(--panel);border:1px solid var(--grid);border-radius:12px;padding:12px}
+  .cardRow{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .code{background:var(--code);color:#fff;border-radius:10px;padding:10px;white-space:pre-wrap;font-family:Consolas,Menlo,monospace}
+  .err{border-color:#e53935!important;box-shadow:0 0 0 3px rgba(229,57,53,.18)}
+  .errbox{display:none;background:#fee2e2;border:1px solid #fecaca;color:#7f1d1d;border-radius:10px;padding:10px;margin:8px 0}
+  .errbox ul{margin:6px 0 0 18px}
+  .topbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .right{margin-left:auto}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <div class="title">
+      <button id="minBtn" class="btn alt" type="button">Minimize</button>
+      <button class="btn" type="button" id="wideBtn">Wide</button>
+      <div>ATC Console — Standalone</div>
+    </div>
+    <div class="rolebar">
+      <label>Role</label>
+      <select id="roleSel"><option>Controller</option><option>Trainee</option><option>Pilot</option></select>
+      <span id="opsBadge" class="badge">Ops: —</span>
+    </div>
+  </div>
+
+  <div id="wrap">
+    <div class="tabs">
+      <button class="tab active" data-tab="atis">ATIS</button>
+      <button class="tab" data-tab="clearance">Clearance</button>
+      <button class="tab" data-tab="ground">Ground/Taxi</button>
+      <button class="tab" data-tab="tower">Tower</button>
+      <button class="tab" data-tab="center">Center</button>
+      <button class="tab" data-tab="pilot">Pilot Tools</button>
+    </div>
+
+    <!-- ATIS -->
+    <div id="atis" class="panel active">
+      <div class="topbar">
+        <h3>ATIS Generator (Statewide, compact)</h3>
+        <div class="right hint">Letters & recent choices are remembered on this device.</div>
+      </div>
+
+      <div class="row">
+        <div>
+          <label class="req">Controller Name</label>
+          <select id="aName"></select>
+          <div class="hint">Local list below; editable in code.</div>
+        </div>
+        <div>
+          <label class="req">Position</label>
+          <select id="aPos"><option>Tower</option><option>Approach</option><option>Departure</option><option>Center</option></select>
+        </div>
+        <div>
+          <label class="req">Time of Day</label>
+          <select id="aTod"><option value="">— Select —</option><option>Day</option><option>Night</option></select>
+        </div>
+        <div>
+          <label class="req">Weather Preset</label>
+          <select id="aWx">
+            <option value="">— Select —</option>
+            <option value="CLEAR">Clear</option><option value="RAIN">Rain</option>
+            <option value="FOG">Fog</option><option value="WINDY">Windy</option>
+            <option value="OVERCAST">Overcast</option><option value="STORM">Storm</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="row">
+        <div>
+          <label class="req">Wind Profile</label>
+          <select id="aWindProfile">
+            <option value="">— Select —</option>
+            <option value="CALM">Calm (000/00)</option><option value="LIGHT">Light (220/06)</option>
+            <option value="BREEZY">Breezy (230/12)</option><option value="WINDY">Windy (250/22G30)</option>
+            <option value="CROSS">Crosswind (090/18)</option><option value="CUSTOM">Custom…</option>
+          </select>
+        </div>
+        <div id="aAutoRow_w"><label>Wind (auto)</label><input id="aWindAuto" disabled></div>
+        <div id="aAutoRow_v"><label>Visibility (auto)</label><input id="aVisAuto" disabled></div>
+        <div id="aAutoRow_c"><label>Clouds (auto)</label><input id="aCloudsAuto" disabled></div>
+      </div>
+
+      <div class="row" id="aCustomRow" style="display:none">
+        <div><label class="req">Wind (ddd/ss[Ggg])</label><input id="aWind" placeholder="220/06"></div>
+        <div><label class="req">Visibility (SM)</label><input id="aVis" placeholder="10"></div>
+        <div><label class="req">Clouds</label><input id="aClouds" placeholder="SKC / SCT030 / BKN025 / OVC008"></div>
+      </div>
+
+      <div class="row">
+        <div>
+          <label class="req">Global Ops Mode</label>
+          <select id="aOps"><option>Normal</option><option>Reverse</option></select>
+          <div class="hint">Normal = standard practice per airport.</div>
+        </div>
+        <div class="card">
+          <div><label><input type="checkbox" id="aAllOk" checked> All airports operational</label></div>
+          <div><label><input type="checkbox" id="aNoise"> Noise abatement in effect</label></div>
+          <div><label><input type="checkbox" id="aInclClr" checked> Include “Contact Clearance 122.2”</label></div>
+        </div>
+        <div class="card">
+          <label class="req">ATIS Letter</label>
+          <div class="row" style="gap:10px;align-items:center">
+            <input id="aLetter" disabled style="max-width:140px">
+            <button class="btn alt" id="nextLetterBtn">Next Letter</button>
+          </div>
+          <div class="hint" style="text-align:right">Saved locally</div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="card">
+          <div class="cardRow">
+            <strong>LSIA</strong>
+            <label><input type="checkbox" id="apLSIA_ok" checked> Operational</label>
+            <select id="apLSIA_ops"><option value="">(Global)</option><option>Normal</option><option>Reverse</option></select>
+            <select id="apLSIA_reason" disabled></select>
+            <input id="apLSIA_note" placeholder="(optional note)" disabled>
+          </div>
+        </div>
+        <div class="card">
+          <div class="cardRow">
+            <strong>SSIA</strong>
+            <label><input type="checkbox" id="apSSIA_ok" checked> Operational</label>
+            <select id="apSSIA_ops"><option value="">(Global)</option><option>Normal</option><option>Reverse</option></select>
+            <select id="apSSIA_reason" disabled></select>
+            <input id="apSSIA_note" placeholder="(optional note)" disabled>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="card">
+          <div class="cardRow">
+            <strong>GPSD</strong>
+            <label><input type="checkbox" id="apGPSD_ok" checked> Operational</label>
+            <select id="apGPSD_ops"><option value="">(Global)</option><option>Normal</option><option>Reverse</option></select>
+            <select id="apGPSD_reason" disabled></select>
+            <input id="apGPSD_note" placeholder="(optional note)" disabled>
+          </div>
+        </div>
+        <div class="card">
+          <div class="cardRow">
+            <strong>PBAY</strong>
+            <label><input type="checkbox" id="apPBAY_ok" checked> Operational</label>
+            <select id="apPBAY_ops"><option value="">(Global)</option><option>Normal</option><option>Reverse</option></select>
+            <select id="apPBAY_reason" disabled></select>
+            <input id="apPBAY_note" placeholder="(optional note)" disabled>
+          </div>
+        </div>
+      </div>
+
+      <div id="aErr" class="errbox"></div>
+      <button id="btnATIS" class="btn ok">Generate ATIS — Click to copy, then paste in Skybox</button>
+      <div id="atisOut" class="code"></div>
+    </div>
+
+    <!-- CLEARANCE -->
+    <div id="clearance" class="panel">
+      <h3>Clearance Delivery</h3>
+      <div class="subtabs">
+        <button class="sub active" data-sub="ifr">IFR</button>
+        <button class="sub" data-sub="vfr">VFR</button>
+        <button class="sub" data-sub="heli">Helicopter</button>
+      </div>
+
+      <div id="ifr" class="subpanel">
+        <div class="row">
+          <div><label class="req">Callsign</label><input id="ifrCall" placeholder="N123AB / LSX21"></div>
+          <div><label class="req">Aircraft</label><input id="ifrAcft" placeholder="A320 / B738 / C172"></div>
+        </div>
+        <div class="row">
+          <div>
+            <label class="req">Route (From → To)</label>
+            <select id="ifrRoute">
+              <option>LSIA → SSIA</option><option>LSIA → PBAY</option><option>LSIA → GPSD</option>
+              <option>SSIA → LSIA</option><option>PBAY → LSIA</option><option>GPSD → LSIA</option>
+            </select>
+          </div>
+          <div><label>SID</label><input id="ifrSid" placeholder="Auto"></div>
+        </div>
+        <button id="btnIFR" class="btn">Generate IFR Clearance</button>
+        <div id="ifrOut" class="code"></div>
+      </div>
+
+      <div id="vfr" class="subpanel" style="display:none">
+        <div class="row">
+          <div><label class="req">Callsign</label><input id="vfrCall" placeholder="N123AB / AIR-1"></div>
+          <div><label>Direction</label>
+            <select id="vfrDir"><option>North</option><option>East</option><option>South</option><option>West</option></select>
+          </div>
+        </div>
+        <button id="btnVFR" class="btn">Generate VFR Clearance</button>
+        <div id="vfrOut" class="code"></div>
+      </div>
+
+      <div id="heli" class="subpanel" style="display:none">
+        <div class="row">
+          <div><label class="req">Callsign</label><input id="heliCall" placeholder="AIR-1 / MED-1 / RESCUE-2"></div>
+          <div><label class="req">Department</label>
+            <select id="heliDept"><option>Police</option><option>EMS</option><option>Fire</option><option>Coast Guard</option></select>
+          </div>
+        </div>
+        <button id="btnHELI" class="btn">Generate Helicopter Clearance</button>
+        <div id="heliOut" class="code"></div>
+      </div>
+    </div>
+
+    <!-- GROUND -->
+    <div id="ground" class="panel">
+      <h3>Ground / Taxi</h3>
+      <button class="btn" onclick="quick('/gme Pushback and start approved, advise when ready to taxi.','#groundOut')">Push & Start</button>
+      <button class="btn" onclick="quick('/gme Taxi to RWY 24R via A-B, contact Tower 122.4 when ready for departure.','#groundOut')">Taxi to Runway</button>
+      <button class="btn" onclick="quick('/gme Taxi to parking via A, monitor Ground 122.3.','#groundOut')">Taxi to Parking</button>
+      <div id="groundOut" class="code"></div>
+    </div>
+
+    <!-- TOWER -->
+    <div id="tower" class="panel">
+      <h3>Tower</h3>
+      <button class="btn" onclick="quick('/gme Line up and wait RWY 24R.','#towerOut')">Line Up & Wait</button>
+      <button class="btn" onclick="quick('/gme RWY 24R cleared for takeoff, contact Departure 122.5.','#towerOut')">Takeoff</button>
+      <button class="btn" onclick="quick('/gme RWY 24R cleared to land, wind 220/06.','#towerOut')">Landing</button>
+      <button class="btn" onclick="quick('/gme Go around, fly runway heading, climb to pattern altitude, right traffic.','#towerOut')">Go Around</button>
+      <div id="towerOut" class="code"></div>
+    </div>
+
+    <!-- CENTER -->
+    <div id="center" class="panel">
+      <h3>Center</h3>
+      <button class="btn" onclick="quick('/gme Climb and maintain FL280.','#centerOut')">Climb</button>
+      <button class="btn" onclick="quick('/gme Descend and maintain 1 2 thousand.','#centerOut')">Descend</button>
+      <button class="btn" onclick="quick('/gme Fly heading 2 7 0, vectors westbound.','#centerOut')">Heading</button>
+      <button class="btn" onclick="quick('/gme Proceed direct COAST.','#centerOut')">Direct</button>
+      <button class="btn" onclick="quick('/gme Contact next sector on 122.7.','#centerOut')">Handoff</button>
+      <div id="centerOut" class="code"></div>
+    </div>
+
+    <!-- PILOT TOOLS -->
+    <div id="pilot" class="panel">
+      <h3>Pilot Tools</h3>
+      <p class="hint">Use if no controller is available.</p>
+      <div class="row">
+        <div><label class="req">Callsign</label><input id="plCall" placeholder="AIR-1 / MED-1"></div>
+        <div><label class="req">Type</label><select id="plType"><option>IFR</option><option>VFR</option><option>Helicopter</option></select></div>
+      </div>
+      <button class="btn" id="plCopy">Click to copy → paste in Skybox (if no controller available)</button>
+      <div id="pilotOut" class="code"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ---------- helpers ---------- */
+const q = sel => document.querySelector(sel);
+const qa = sel => [...document.querySelectorAll(sel)];
+const copy = txt => {
+  try {
+    if (navigator.clipboard && window.isSecureContext) { navigator.clipboard.writeText(txt); }
+    else { const ta=document.createElement('textarea'); ta.value=txt; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove(); }
+  } catch(e){ console.warn('Copy failed', e); }
+};
+const zZulu = () => { const d=new Date(); return String(d.getUTCHours()).padStart(2,'0')+String(d.getUTCMinutes()).padStart(2,'0')+'z'; };
+
+function setPanel(id){ qa('.panel').forEach(p=>p.classList.remove('active')); q('#'+id).classList.add('active');
+  qa('.tabs .tab').forEach(b=>b.classList.remove('active')); q('.tabs .tab[data-tab="'+id+'"]').classList.add('active'); }
+qa('.tabs .tab').forEach(b=>b.addEventListener('click',()=>setPanel(b.dataset.tab)));
+
+function setSub(id){ qa('.subpanel').forEach(p=>p.style.display='none'); q('#'+id).style.display='block';
+  qa('.subtabs .sub').forEach(b=>b.classList.remove('active')); q('.subtabs .sub[data-sub="'+id+'"]').classList.add('active'); }
+qa('.subtabs .sub').forEach(b=>b.addEventListener('click',()=>setSub(b.dataset.sub)));
+
+/* ---------- layout controls ---------- */
+let minimized=false;
+q('#minBtn').onclick=()=>{ minimized=!minimized; q('#wrap').style.display=minimized?'none':'block'; q('#minBtn').textContent=minimized?'Restore':'Minimize'; };
+q('#wideBtn').onclick=()=>{ document.body.style.maxWidth ? document.body.style.maxWidth='' : document.body.style.maxWidth='1400px'; };
+
+/* ---------- data (local only) ---------- */
+const CONTROLLERS = [
+  {name:'John', role:'Supervisor', enabled:true},
+  {name:'Ava', role:'Controller', enabled:true},
+  {name:'Maverick', role:'Trainee', enabled:true}
+];
+const LETTERS = ["ALPHA","BRAVO","CHARLIE","DELTA","ECHO","FOXTROT","GOLF","HOTEL","INDIA","JULIETT","KILO","LIMA","MIKE","NOVEMBER","OSCAR","PAPA","QUEBEC","ROMEO","SIERRA","TANGO","UNIFORM","VICTOR","WHISKEY","XRAY","YANKEE","ZULU"];
+const WX_PRESETS={ CLEAR:{vis:"10",clouds:"SKC"}, RAIN:{vis:"6",clouds:"BKN025"}, FOG:{vis:"2",clouds:"OVC008"}, WINDY:{vis:"8",clouds:"SCT030"}, OVERCAST:{vis:"8",clouds:"OVC015"}, STORM:{vis:"3",clouds:"BKN015"} };
+const WIND_PROFILES={ CALM:"000/00", LIGHT:"220/06", BREEZY:"230/12", WINDY:"250/22G30", CROSS:"090/18" };
+const REASONS=[{code:"STAFF",ui:"Staffing",gme:"airport closed due to staffing unavailability"},{code:"POWER",ui:"Power outage",gme:"airport closed due to power outage"},{code:"EMERG",ui:"Emergency response",gme:"airport closed for emergency operations"},{code:"SEC",ui:"Security",gme:"airport closed due to a security incident"},{code:"EQUIP",ui:"Mechanical/Equipment",gme:"airport closed due to essential equipment outage"},{code:"INC",ui:"Incursion",gme:"airport closed due to a runway incursion investigation"},{code:"EXC",ui:"Aircraft overrun",gme:"airport closed due to a runway excursion"},{code:"WXMIN",ui:"Weather below minima",gme:"airport closed due to weather below landing minima"},{code:"NOTAM",ui:"NOTAM closure",gme:"airport closed per NOTAM"},{code:"OTHER",ui:"Other…",gme:"{OTHER}"}];
+const AIRPORTS=["LSIA","SSIA","GPSD","PBAY"];
+
+/* ---------- init UI ---------- */
+(function init(){
+  // controllers
+  const sel = q('#aName'); sel.innerHTML='';
+  CONTROLLERS.filter(u=>u.enabled).forEach(u=>{
+    const o=document.createElement('option');
+    o.value=u.name; o.textContent=`${u.name} — ${u.role}`; sel.appendChild(o);
+  });
+
+  // letter
+  const saved = localStorage.getItem('ATIS_LETTER')||'ALPHA';
+  q('#aLetter').value = saved;
+
+  // reasons selects
+  AIRPORTS.forEach(ap=>{
+    const r=q('#ap'+ap+'_reason'); r.innerHTML='';
+    const optBlank=document.createElement('option'); optBlank.value=''; optBlank.text='— Select reason —'; r.appendChild(optBlank);
+    REASONS.forEach(rr=>{ const o=document.createElement('option'); o.value=rr.code; o.text=rr.ui; r.appendChild(o); });
+    const ok=q('#ap'+ap+'_ok');
+    const note=q('#ap'+ap+'_note');
+    const ops=q('#ap'+ap+'_ops');
+    const flip=()=>{ const disabled = ok.checked; r.disabled=disabled; note.disabled=disabled; if(disabled){ r.classList.remove('err'); note.classList.remove('err'); } };
+    ok.addEventListener('change',flip); flip();
+  });
+
+  // wind/vis/clouds auto/custom
+  const syncAuto=()=>{
+    const wx=q('#aWx').value; const prof=q('#aWindProfile').value; const custom=(prof==='CUSTOM');
+    q('#aCustomRow').style.display=custom?'flex':'none';
+    q('#aAutoRow_w').style.display=custom?'none':'block';
+    q('#aAutoRow_v').style.display=custom?'none':'block';
+    q('#aAutoRow_c').style.display=custom?'none':'block';
+    if(!custom){
+      q('#aWindAuto').value=WIND_PROFILES[prof]||'';
+      const p=WX_PRESETS[wx]||{}; q('#aVisAuto').value=p.vis||''; q('#aCloudsAuto').value=p.clouds||'';
+    }
+  };
+  ['#aWx','#aWindProfile'].forEach(s=>q(s).addEventListener('change',syncAuto)); syncAuto();
+
+  // buttons
+  q('#nextLetterBtn').onclick=()=>{
+    const cur=(q('#aLetter').value||'ALPHA').toUpperCase();
+    const i=(LETTERS.indexOf(cur)+1+LETTERS.length)%LETTERS.length;
+    const nxt=LETTERS[i]; q('#aLetter').value=nxt; localStorage.setItem('ATIS_LETTER',nxt);
+  };
+  q('#aAllOk').addEventListener('change',e=>{
+    const all=e.target.checked; AIRPORTS.forEach(ap=>{ q('#ap'+ap+'_ok').checked=all; q('#ap'+ap+'_ok').dispatchEvent(new Event('change')); });
+  });
+
+  // role lock
+  applyRoleLock();
+  q('#roleSel').addEventListener('change',applyRoleLock);
+
+  // generate handlers
+  q('#btnATIS').onclick=genATIS;
+  q('#btnIFR').onclick=()=>genClear('ifr');
+  q('#btnVFR').onclick=()=>genClear('vfr');
+  q('#btnHELI').onclick=()=>genClear('heli');
+  q('#plCopy').onclick=pilotCopy;
+
+  // subtabs default
+  setSub('ifr');
+})();
+
+function applyRoleLock(){
+  const r=q('#roleSel').value;
+  const isCtrl=r==='Controller', isTr=r==='Trainee';
+  const atisBtn=q('#btnATIS'); atisBtn.disabled=!(isCtrl||isTr);
+  ['btnIFR','btnVFR','btnHELI'].forEach(id=>{ const el=q('#'+id); el.disabled=(r==='Pilot'); });
+}
+
+/* ---------- ATIS ---------- */
+function validateATIS(){
+  const msgs=[];
+  const role=q('#roleSel').value;
+  if(role==='Pilot') msgs.push('Pilots cannot generate ATIS.');
+
+  ['#aName','#aPos','#aTod','#aWx','#aWindProfile'].forEach(s=>q(s).classList.remove('err'));
+  [['#aName','Controller Name'],['#aPos','Position'],['#aTod','Time of Day'],['#aWx','Weather Preset'],['#aWindProfile','Wind Profile']].forEach(([sel,label])=>{
+    if(!q(sel).value){ msgs.push(`${label} is required.`); q(sel).classList.add('err'); }
+  });
+
+  if(q('#aWindProfile').value==='CUSTOM'){
+    const w=q('#aWind').value.trim(), v=q('#aVis').value.trim(), c=q('#aClouds').value.trim();
+    if(!/^\d{3}\/\d{2}(G\d{2})?$/.test(w)){ msgs.push('Wind must look like 220/06 or 250/22G30.'); q('#aWind').classList.add('err'); }
+    if(!v || isNaN(Number(v))){ msgs.push('Visibility (SM) must be a number.'); q('#aVis').classList.add('err'); }
+    if(!c){ msgs.push('Clouds required (e.g., SKC, SCT030, BKN025).'); q('#aClouds').classList.add('err'); }
+  }
+
+  AIRPORTS.forEach(ap=>{
+    const ok=q('#ap'+ap+'_ok').checked; const rs=q('#ap'+ap+'_reason').value;
+    if(!ok && !rs){ msgs.push(`${ap}: reason required when not operational.`); q('#ap'+ap+'_reason').classList.add('err'); }
+  });
+
+  const box=q('#aErr');
+  if(msgs.length){ box.style.display='block'; box.innerHTML="<b>Fix these:</b><ul>"+msgs.map(m=>`<li>${m}</li>`).join('')+"</ul>"; }
+  else { box.style.display='none'; box.innerHTML=''; }
+  return msgs.length===0;
+}
+
+function apOps(ap){
+  const o=q('#ap'+ap+'_ops').value; return o || q('#aOps').value;
+}
+
+function reasonText(code, note){
+  const r=REASONS.find(x=>x.code===code);
+  if(!r) return 'airport closed';
+  if(r.code==='OTHER') return (note&&note.trim())?note.trim():'airport closed';
+  return r.gme;
+}
+
+function genATIS(){
+  if(!validateATIS()) return;
+
+  const name=q('#aName').value.split(' — ')[0] || q('#aName').value;
+  const pos=q('#aPos').value;
+  const custom=(q('#aWindProfile').value==='CUSTOM');
+  const wind=custom?q('#aWind').value.trim():(q('#aWindAuto').value||'').trim();
+  const vis=custom?q('#aVis').value.trim():(q('#aVisAuto').value||'').trim();
+  const cld=custom?q('#aClouds').value.trim():(q('#aCloudsAuto').value||'').trim();
+  const ops=q('#aOps').value, inclClr=q('#aInclClr').checked, noise=q('#aNoise').checked;
+  const letter=(q('#aLetter').value||'ALPHA').toUpperCase(), time=zZulu();
+
+  const groupsActiveByOps={}, closedReasons={}; let anyClosed=false;
+  AIRPORTS.forEach(ap=>{
+    const ok=q('#ap'+ap+'_ok').checked, rs=q('#ap'+ap+'_reason').value, nt=q('#ap'+ap+'_note').value||"", aops=apOps(ap);
+    if(ok){ const key=aops||ops; (groupsActiveByOps[key]??=[]).push(ap); }
+    else { anyClosed=true; const reason=reasonText(rs,nt); (closedReasons[reason]??=[]).push(ap); }
+  });
+
+  const parts=[];
+  parts.push(`^*^9ATIS updated by ${name} (${pos}) to Information ${letter} ${time}.^*`);
+  parts.push(`~b~Wind ${wind}, vis ${vis}SM, ${cld}.`);
+  parts.push(`~g~Ops ${ops}.`);
+
+  const activeChunks=[];
+  Object.keys(groupsActiveByOps).forEach(k=>{
+    const list=groupsActiveByOps[k].join('/');
+    const tag=(k!==ops||Object.keys(groupsActiveByOps).length>1)?` (${k})`:"";
+    activeChunks.push(`${list}${tag}`);
+  });
+  if(activeChunks.length) parts.push(`~g~Active: ${activeChunks.join('; ')}.`);
+  if(anyClosed){
+    const cc=[]; Object.keys(closedReasons).forEach(reason=>cc.push(`${reason}: ${closedReasons[reason].join('/')}`));
+    parts.push(`~r~Closed: ${cc.join('; ')}.`);
+  }
+  if(noise) parts.push(`~y~Noise abatement in effect; comply with published procedures.`);
+  if(inclClr) parts.push(`~y~Contact Clearance 122.2.`);
+  parts.push(`~y~Advise you have ${letter}.`);
+
+  const line = '/gme ' + parts.join(' ');
+  q('#atisOut').textContent = line;
+  // advance letter (controllers & trainees)
+  if(q('#roleSel').value!=='Pilot'){
+    const cur=(q('#aLetter').value||'ALPHA').toUpperCase();
+    const i=(LETTERS.indexOf(cur)+1+LETTERS.length)%LETTERS.length;
+    const nxt=LETTERS[i]; q('#aLetter').value=nxt; localStorage.setItem('ATIS_LETTER',nxt);
+  }
+  copy(line);
+  q('#opsBadge').textContent='Ops: '+ops;
+}
+
+/* ---------- Clearances ---------- */
+function genClear(type){
+  if(q('#roleSel').value==='Pilot'){ alert('Pilot cannot generate controller clearances here.'); return; }
+  let out='';
+  if(type==='ifr'){
+    const c=q('#ifrCall').value||'CALLSIGN';
+    const r=q('#ifrRoute').value;
+    const dest=r.split('→')[1].trim();
+    const sid=(q('#ifrSid').value||'SID');
+    out=`/gme ^*^9ATC reads clearance to ${c}.^* ~b~Cleared to ${dest} via ${sid}. ~g~Climb and maintain 5,000, expect FL240 10 minutes after departure. ~y~Departure 122.5. ~r~Squawk 1234.`;
+    q('#ifrOut').textContent=out;
+  }
+  if(type==='vfr'){
+    const c=q('#vfrCall').value||'CALLSIGN';
+    const d=(q('#vfrDir').value||'north').toLowerCase();
+    out=`/gme ^*^9ATC reads clearance to ${c}.^* ~b~VFR ${d}. ~g~Maintain 1,500 AGL. ~y~Departure 122.5. ~r~Squawk 4567.`;
+    q('#vfrOut').textContent=out;
+  }
+  if(type==='heli'){
+    const c=q('#heliCall').value||'CALLSIGN';
+    const dept=q('#heliDept').value||'Police';
+    out=`/gme ^*^9ATC reads clearance to ${c}.^* ~b~${dept} helicopter operations within local area. ~g~Maintain 700 AGL. ~y~Departure 122.5. ~r~Squawk 7890.`;
+    q('#heliOut').textContent=out;
+  }
+  copy(out);
+}
+
+/* ---------- Quick messages ---------- */
+function quick(text, targetSel){ const t=q(targetSel); t.textContent=text; copy(text); }
+
+/* ---------- Pilot helper ---------- */
+function pilotCopy(){
+  const cs=(q('#plCall').value||'CALLSIGN').trim();
+  const tp=q('#plType').value;
+  const line=`/gme ^*^9Pilot of ${cs} requesting ${tp}.^*`;
+  q('#pilotOut').textContent=line; copy(line);
+}
+</script>
+</body>
+</html>
