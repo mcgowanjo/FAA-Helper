@@ -8,63 +8,70 @@
 <style>
   :root{
     --faa:#2563eb; --ntsb:#d32f2f; --transit:#2e7d32; --maritime:#006d77;
-    --bg:#f6f8fb; --panel:#ffffff; --grid:#e5e7eb; --ink:#0f172a; --muted:#64748b;
-    --codebg:#0b1020; --codefg:#e5e7eb; --ok:#2e7d32; --warn:#ef6c00; --alt:#455a64;
-    --chip:#eef2ff; --chipInk:#1e3a8a;
+    --bg:#0b1220; --panel:#0f172a; --grid:#1f2937; --ink:#e5e7eb; --muted:#94a3b8;
+    --codebg:#0b1020; --codefg:#e5e7eb; --ok:#22c55e; --warn:#f59e0b; --alt:#64748b;
+    --chip:#1e293b; --chipInk:#93c5fd;
+    --focus:#a78bfa;
   }
   html,body{height:100%}
-  body{margin:0;background:var(--bg);color:var(--ink);font-family:"IBM Plex Sans Condensed",system-ui,Arial,sans-serif}
+  body{margin:0;background:radial-gradient(1200px 600px at 10% -10%, rgba(59,130,246,.18), transparent),
+                       radial-gradient(900px 500px at 100% 0%, rgba(16,185,129,.16), transparent),
+                       var(--bg);color:var(--ink);font-family:"IBM Plex Sans Condensed",system-ui,Arial,sans-serif}
   .app{max-width:1600px;margin:0 auto}
 
   /* Header / theme */
-  .header{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;color:#fff;padding:10px 16px}
-  .header.faa{background:linear-gradient(90deg,var(--faa),#3b82f6)}
-  .header.ntsb{background:linear-gradient(90deg,var(--ntsb),#ef5350)}
-  .header.transit{background:linear-gradient(90deg,var(--transit),#43a047)}
-  .header.maritime{background:linear-gradient(90deg,var(--maritime),#0891b2)}
+  .header{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;color:#fff;padding:12px 16px;border-bottom:1px solid #1f2a44;position:sticky;top:0;backdrop-filter:blur(6px);z-index:10}
+  .header.faa{background:linear-gradient(90deg,rgba(37,99,235,.9),rgba(59,130,246,.85))}
+  .header.ntsb{background:linear-gradient(90deg,rgba(211,47,47,.92),rgba(239,83,80,.85))}
+  .header.transit{background:linear-gradient(90deg,rgba(46,125,50,.92),rgba(67,160,71,.85))}
+  .header.maritime{background:linear-gradient(90deg,rgba(0,109,119,.92),rgba(8,145,178,.85))}
   .title{display:flex;align-items:center;gap:10px;font-size:20px}
-  .badge{background:var(--chip);color:var(--chipInk);border-radius:999px;padding:3px 10px;font-size:12px}
+  .badge{background:var(--chip);color:var(--chipInk);border-radius:999px;padding:4px 12px;font-size:12px;border:1px solid #334155}
   .topnav{display:flex;gap:8px;flex-wrap:wrap;padding:10px 16px}
-  .seg{background:#ffffff33;color:#fff;padding:6px 12px;border-radius:999px;cursor:pointer;border:1px solid #ffffff88}
+  .seg{background:#ffffff20;color:#fff;padding:8px 14px;border-radius:999px;cursor:pointer;border:1px solid #ffffff55;transition:transform .15s ease, box-shadow .15s ease}
+  .seg:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(0,0,0,.25)}
   .seg.active{background:#fff;color:#000}
 
-  .btn{border:0;border-radius:10px;padding:8px 12px;background:#1976d2;color:#fff;font-weight:600;cursor:pointer}
+  .btn{border:0;border-radius:12px;padding:10px 14px;background:#1976d2;color:#fff;font-weight:700;cursor:pointer;transition:all .15s ease;box-shadow:0 2px 0 #0b4ea3}
+  .btn:hover{transform:translateY(-1px);box-shadow:0 6px 16px rgba(25,118,210,.35)}
+  .btn:focus{outline:2px solid var(--focus);outline-offset:2px}
   .btn.alt{background:var(--alt)} .btn.ok{background:var(--ok)} .btn.warn{background:var(--warn)}
-  .btn.off{background:#9e9e9e;cursor:not-allowed}
+  .btn.off{background:#64748b;cursor:not-allowed;box-shadow:none}
 
   /* Tabs */
-  .tabs{display:flex;background:#e2e8f0;border-bottom:1px solid var(--grid)}
-  .tabs button{flex:1;border:0;background:#e2e8f0;color:#0f172a;padding:12px;cursor:pointer}
-  .tabs .active{background:#fff;font-weight:700;border-bottom:3px solid currentColor}
+  .tabs{display:flex;background:#0d1425;border-bottom:1px solid var(--grid)}
+  .tabs button{flex:1;border:0;background:#0d1425;color:#cbd5e1;padding:12px;cursor:pointer}
+  .tabs .active{background:#0f172a;font-weight:700;border-bottom:3px solid currentColor;color:#fff}
   .panel{display:none;padding:16px}.panel.active{display:block}
 
   /* Subtabs + layout */
   .subtabs{margin:10px 0}
-  .subtabs button{margin-right:6px;border:1px solid #93c5fd;background:#e0f2fe;color:#0c4a6e;padding:6px 10px;border-radius:8px;cursor:pointer}
-  .subtabs .active{background:#bae6fd}
+  .subtabs button{margin-right:6px;border:1px solid #334155;background:#0b2440;color:#93c5fd;padding:6px 10px;border-radius:10px;cursor:pointer}
+  .subtabs .active{background:#102c57;color:#e2e8f0}
   .row{display:flex;gap:20px;flex-wrap:wrap;margin-bottom:10px}
   .row>div{flex:1 1 320px}
-  label{display:block;margin:4px 0 4px;color:#344054;font-size:13px}
-  .req::after{content:" *";color:#c62828;font-weight:700}
-  input,select,textarea{width:100%;padding:9px;border:1px solid #cbd5e1;border-radius:10px;background:#fff}
+  label{display:block;margin:4px 0 4px;color:#cbd5e1;font-size:13px}
+  .req::after{content:" *";color:#fca5a5;font-weight:700}
+  input,select,textarea{width:100%;padding:10px;border:1px solid #334155;border-radius:12px;background:#0b1220;color:#e5e7eb}
   textarea{min-height:96px}
   .hint{color:var(--muted);font-size:12px}
-  .card{background:var(--panel);border:1px solid var(--grid);border-radius:12px;padding:12px}
+  .card{background:var(--panel);border:1px solid var(--grid);border-radius:14px;padding:12px;transition:transform .15s ease, box-shadow .15s ease}
+  .card:hover{transform:translateY(-2px);box-shadow:0 12px 24px rgba(2,6,23,.45)}
   .cardRow{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-  .code{background:var(--codebg);color:var(--codefg);border-radius:10px;padding:10px;white-space:pre-wrap;font-family:Consolas,Menlo,monospace}
-  .err{border-color:#e53935!important;box-shadow:0 0 0 3px rgba(229,57,53,.18)}
-  .errbox{display:none;background:#fee2e2;border:1px solid #fecaca;color:#7f1d1d;border-radius:10px;padding:10px;margin:8px 0}
+  .code{background:var(--codebg);color:var(--codefg);border-radius:12px;padding:12px;white-space:pre-wrap;font-family:Consolas,Menlo,monospace}
+  .err{border-color:#ef4444!important;box-shadow:0 0 0 3px rgba(239,68,68,.22)}
+  .errbox{display:none;background:#3f1d1d;border:1px solid #7f1d1d;color:#fecaca;border-radius:12px;padding:10px;margin:8px 0}
   .errbox ul{margin:6px 0 0 18px}
   .grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
   .sectionTitle{display:flex;align-items:center;gap:10px}
-  .pill{border:1px solid #cbd5e1;background:#f8fafc;border-radius:999px;padding:2px 8px;font-size:12px;color:#0f172a}
-  .mutebar{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .pill{border:1px solid #334155;background:#111827;border-radius:999px;padding:2px 10px;font-size:12px;color:#93c5fd}
+  .mutebar{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 
   /* Gate overlay */
-  .gate{border:1px dashed #cbd5e1;background:#f8fafc;border-radius:12px;padding:16px;text-align:center}
+  .gate{border:1px dashed #334155;background:#0b1220;border-radius:12px;padding:16px;text-align:center}
   .gate h4{margin:4px 0}
   .gateRow{display:flex;gap:8px;justify-content:center;align-items:center;flex-wrap:wrap;margin-top:8px}
-  .tag{display:inline-block;border-radius:999px;background:#f1f5f9;border:1px solid #e2e8f0;color:#0f172a;padding:2px 8px;font-size:12px}
+  .tag{display:inline-block;border-radius:999px;background:#0b2440;border:1px solid #334155;color:#93c5fd;padding:2px 10px;font-size:12px}
 
   /* Login bar */
   .loginbar{display:flex;align-items:center;gap:8px}
@@ -72,6 +79,14 @@
 
   /* Minimize/wide */
   #wrap.hidden{display:none}
+
+  /* Fun hover accents */
+  .seg.active, .btn.ok { position:relative; overflow:hidden }
+  .seg.active::after, .btn.ok::after{
+    content:""; position:absolute; inset:-150% -20%; background:conic-gradient(from 0deg, transparent, rgba(255,255,255,.35), transparent 30%);
+    animation:shine 3.2s linear infinite; pointer-events:none; mix-blend-mode:overlay;
+  }
+  @keyframes shine{ to{ transform:rotate(1turn); } }
 </style>
 </head>
 <body>
@@ -122,7 +137,7 @@
         <div id="atis" class="subpanel">
           <div class="sectionTitle">
             <h3>ATIS Generator (Statewide, compact)</h3>
-            <span class="pill">LSIA / SSIA / GPSD / PBAY</span>
+            <span class="pill">LSIA / SDSH / GPSD / PBAY</span>
           </div>
           <div class="row">
             <div>
@@ -167,7 +182,7 @@
           <div class="row" id="aCustomRow" style="display:none">
             <div><label class="req">Wind (ddd/ss[Ggg])</label><input id="aWind" placeholder="220/06"></div>
             <div><label class="req">Visibility (SM)</label><input id="aVis" placeholder="10"></div>
-            <div><label class="req">Clouds</label><input id="aClouds" placeholder="SKC / SCT030 / BKN025 / OVC008"></div>
+            <div><label>Clouds</label><input id="aClouds" placeholder="SKC / SCT030 / BKN025 / OVC008"></div>
           </div>
 
           <div class="row">
@@ -205,11 +220,11 @@
             </div>
             <div class="card">
               <div class="cardRow">
-                <strong>SSIA</strong>
-                <label><input type="checkbox" id="apSSIA_ok" checked> Operational</label>
-                <select id="apSSIA_ops"><option value="">(Global)</option><option>Normal</option><option>Reverse</option></select>
-                <select id="apSSIA_reason" disabled></select>
-                <input id="apSSIA_note" placeholder="(optional note)" disabled>
+                <strong>SDSH</strong>
+                <label><input type="checkbox" id="apSDSH_ok" checked> Operational</label>
+                <select id="apSDSH_ops"><option value="">(Global)</option><option>Normal</option><option>Reverse</option></select>
+                <select id="apSDSH_reason" disabled></select>
+                <input id="apSDSH_note" placeholder="(optional note)" disabled>
               </div>
             </div>
             <div class="card">
@@ -255,8 +270,8 @@
               <div>
                 <label class="req">Route (From → To)</label>
                 <select id="ifrRoute">
-                  <option>LSIA → SSIA</option><option>LSIA → PBAY</option><option>LSIA → GPSD</option>
-                  <option>SSIA → LSIA</option><option>PBAY → LSIA</option><option>GPSD → LSIA</option>
+                  <option>LSIA → SDSH</option><option>LSIA → PBAY</option><option>LSIA → GPSD</option>
+                  <option>SDSH → LSIA</option><option>PBAY → LSIA</option><option>GPSD → LSIA</option>
                 </select>
               </div>
               <div><label>SID</label><input id="ifrSid" placeholder="Auto"></div>
@@ -367,7 +382,7 @@
             <b>Airports</b>
             <ul class="hint">
               <li>LSIA — Los Santos Intl</li>
-              <li>SSIA — Sandy Shores Airfield</li>
+              <li>SDSH — Sandy Shores Airfield</li>
               <li>GPSD — Grapeseed Airfield</li>
               <li>PBAY — Paleto Airpark</li>
             </ul>
@@ -412,7 +427,7 @@
               <option>Midair Conflict (NMAC)</option>
             </select>
           </div>
-          <div><label class="req">Location</label><input id="iLoc" placeholder="LSIA RWY 24R / SSIA ramp / GPSD pattern"></div>
+          <div><label class="req">Location</label><input id="iLoc" placeholder="LSIA RWY 24R / SDSH ramp / GPSD pattern"></div>
           <div><label class="req">Time (Z)</label><input id="iTime" placeholder="2320z"></div>
         </div>
         <div class="row">
@@ -576,7 +591,10 @@ const REASONS=[
   {code:"NOTAM",ui:"NOTAM closure",gme:"airport closed per NOTAM"},
   {code:"OTHER",ui:"Other…",gme:"{OTHER}"}
 ];
-const AIRPORTS=["LSIA","SSIA","GPSD","PBAY"];
+const AIRPORTS=["LSIA","SDSH","GPSD","PBAY"];
+
+/* ======== FIX: initialize UNLOCKED before anything may use it ======== */
+let UNLOCKED = (localStorage.getItem('APP_UNLOCKED')==='1');
 
 /* ================= Helpers ================= */
 const q = sel => document.querySelector(sel);
@@ -592,7 +610,7 @@ function quick(text, targetSel){ const t=q(targetSel); t.textContent=text; copy(
 /* ================= Layout controls ================= */
 let minimized=false;
 q('#minBtn').onclick=()=>{ minimized=!minimized; q('#wrap').classList.toggle('hidden', minimized); q('#minBtn').textContent=minimized?'Restore':'Minimize'; };
-q('#wideBtn').onclick=()=>{ const app=q('.app'); app.style.maxWidth = (app.style.maxWidth==='1600px') ? '1800px' : '1600px'; };
+q('#wideBtn').onclick=()=>{ const app=q('.app'); app.style.maxWidth = (app.style.maxWidth==='1800px') ? '1600px' : '1800px'; };
 
 /* ================= Agency switching + theme ================= */
 qa('.topnav .seg').forEach(seg=>{
@@ -649,7 +667,6 @@ qa('#clearance .subtabs .sub').forEach(b=>b.addEventListener('click',()=>setClrS
 setClrSub('ifr');
 
 /* ================= Login / Gate ================= */
-let UNLOCKED = (localStorage.getItem('APP_UNLOCKED')==='1');
 const lockState = ()=>{ q('#lockState').textContent = UNLOCKED?'Unlocked':'Locked'; };
 lockState();
 
@@ -746,7 +763,7 @@ function validateATIS(){
   ['#aName','#aPos','#aTod','#aWx','#aWindProfile'].forEach(sel=>{
     const el=q(sel); if(el) el.classList.remove('err');
   });
-  const reqs=[['#aName','Controller Name'],['#aPos','Position'],['#aTod','Time of Day'],['#aWx','Weather Preset'],['#aWindProfile','Wind Profile']];
+  const reqs=[["#aName","Controller Name"],["#aPos","Position"],["#aTod","Time of Day"],["#aWx","Weather Preset"],["#aWindProfile","Wind Profile"]];
   reqs.forEach(([sel,label])=>{
     const el=q(sel); if(el && !el.value){ msgs.push(`${label} is required.`); el.classList.add('err'); }
   });
@@ -841,7 +858,7 @@ function genClear(type){
   let out='';
   if(type==='ifr'){
     const c=q('#ifrCall').value||'CALLSIGN';
-    const r=q('#ifrRoute').value||'LSIA → SSIA';
+    const r=q('#ifrRoute').value||'LSIA → SDSH';
     const dest=r.split('→')[1].trim();
     const sid=(q('#ifrSid').value||'SID');
     out=`/gme ^*^9ATC reads clearance to ${c}.^* ~b~Cleared to ${dest} via ${sid}. ~g~Climb and maintain 5,000, expect FL240 10 minutes after departure. ~y~Departure 122.5. ~r~Squawk 1234.`;
@@ -883,7 +900,8 @@ function genNTSBIntake(){
 }
 function genBulletin(){
   const s=q('#bSubj').value||'Safety Bulletin', a=q('#bAud').value||'All';
-  const pts=(q('#bPoints').value||'').trim().split('\n').filter(Boolean).map(p=>p.replace(/^\-+\s*/,'')).join(' • ');
+  const pts=(q('#bPoints').value||'').trim().split('\n').filter(Boolean).map(p=>p.replace(/^\-+\s*/,''))
+              .join(' • ');
   const line=`/gme ~y~Safety Bulletin: ${s} — Audience: ${a}. ~b~${pts||'Details forthcoming.'}`;
   q('#bOut').textContent=line; copy(line);
 }
@@ -928,6 +946,10 @@ function genCraft(){
   const line=`/gme ~y~Small Craft Advisory — ${z}: Winds ${w}, seas ${s}. ${n}`.trim();
   q('#craftOut').textContent=line; copy(line);
 }
+
+/* ================= Self-tests (non-intrusive) ================= */
+console.assert(typeof UNLOCKED !== 'undefined','UNLOCKED should be defined before use');
+(function(){ try{ applyGate(q('#faa_atc')); console.log('[self-test] gate OK'); }catch(e){ console.warn('[self-test] gate fail', e); } })();
 
 /* ================= Initial gate pass ================= */
 refreshGates();
