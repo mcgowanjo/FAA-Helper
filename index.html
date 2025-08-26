@@ -15,7 +15,7 @@
   .header{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;padding:10px 16px;color:#fff;background:linear-gradient(90deg,var(--faa),#3b82f6)}
   .title{font-size:20px}
   .badge{background:var(--chip);color:var(--chipInk);border-radius:999px;padding:3px 10px;font-size:12px;margin-left:8px}
-  .btn{border:0;border-radius:10px;padding:8px 12px;background:#1976d2;color:#fff;font-weight:600;cursor:pointer}
+  .btn{border:0;border-radius:10px;padding:8px 12px;background:#1976d2;color:#fff;font-weight:600;cursor:pointer;margin:2px}
   .btn.ok{background:var(--ok)} .btn.warn{background:var(--warn)}
   .tabs{display:flex;background:#e2e8f0;border-bottom:1px solid var(--grid)}
   .tabs button{flex:1;border:0;background:#e2e8f0;color:var(--ink);padding:12px;cursor:pointer}
@@ -29,7 +29,7 @@
 
   .row{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:10px}
   .row>div{flex:1 1 280px}
-  label{display:block;margin:4px 0 4px;color:#344054;font-size:13px}
+  label{display:block;margin:6px 0 4px;color:#344054;font-size:13px}
   .req::after{content:" *";color:#c62828;font-weight:700}
   input,select,textarea{width:100%;padding:9px;border:1px solid #cbd5e1;border-radius:10px;background:#fff}
   textarea{min-height:96px}
@@ -40,12 +40,12 @@
   .gate{border:1px dashed #cbd5e1;background:#f8fafc;border-radius:12px;padding:16px;text-align:center}
   .errbox{display:none;background:#fee2e2;border:1px solid #fecaca;color:#7f1d1d;border-radius:10px;padding:10px;margin:8px 0}
   .err{border-color:#e53935!important;box-shadow:0 0 0 3px rgba(229,57,53,.18)}
-  ul.compact{margin:6px 0 0 18px}
 
-  /* Keep things spacious so no “touching” inputs */
-  .row>div > input, .row>div > select { margin-top:4px }
-
-  /* Make app wide by default */
+  /* Recent flights board */
+  .board{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
+  .col{background:#0b1020;color:#e5e7eb;border-radius:12px;padding:10px;min-height:180px}
+  .col h4{margin:0 0 8px 0;font-size:14px;border-bottom:1px dashed #334155;padding-bottom:6px}
+  .mini{font-size:12px;color:#cbd5e1}
   .app{max-width:1600px;margin:0 auto}
 </style>
 </head>
@@ -74,12 +74,11 @@
           <button class="sub active" data-sub="atis">ATIS</button>
           <button class="sub" data-sub="clearance">Clearance</button>
           <button class="sub" data-sub="gndtower">Ground / Tower / Center</button>
-          <button class="sub" data-sub="pilot">Pilot Tools</button>
         </div>
 
         <!-- ATIS -->
         <div id="atis" class="subpanel">
-          <h3>ATIS Generator (Statewide compact)</h3>
+          <h3>ATIS Generator (Compact, 4 airports)</h3>
           <div class="row">
             <div><label class="req">Controller Name</label><select id="aName"></select></div>
             <div><label class="req">Position</label><select id="aPos"><option>Tower</option><option>Approach</option><option>Departure</option><option>Center</option></select></div>
@@ -161,7 +160,7 @@
           <div id="atisOut" class="code"></div>
         </div>
 
-        <!-- CLEARANCE (single form) -->
+        <!-- CLEARANCE -->
         <div id="clearance" class="subpanel" style="display:none">
           <h3>Clearance Delivery — Single Form</h3>
           <div class="row">
@@ -202,7 +201,7 @@
           </div>
 
           <div id="clrErr" class="errbox"></div>
-          <button id="btnCLR" class="btn">Generate Clearance — Click to copy, then paste in Skybox</button>
+          <button id="btnCLR" class="btn ok">Generate Clearance — Click to copy, then paste in Skybox</button>
           <div id="clrOut" class="code"></div>
         </div>
 
@@ -210,51 +209,53 @@
         <div id="gndtower" class="subpanel" style="display:none">
           <div class="row">
             <div class="card" style="flex:1 1 420px">
-              <b>Ground</b>
+              <b>Quick Actions</b>
               <div class="row">
-                <button class="btn" data-g="/gme Pushback approved.">Pushback Approved</button>
-                <button class="btn" data-g="/gme Pushback and start approved, advise when ready to taxi.">Push & Start</button>
-                <button class="btn" data-g="/gme Start approved, advise when ready to taxi.">Start Only Approved</button>
-                <button class="btn" data-g="/gme Taxi to RWY 24R via A-B, contact Tower 122.4 when ready for departure.">Taxi to Runway</button>
-                <button class="btn" data-g="/gme Taxi to parking via A, monitor Ground 122.3.">Taxi to Parking</button>
+                <div>
+                  <label>Pick Callsign (optional)</label>
+                  <select id="quickCallsign"></select>
+                  <div class="hint">If empty, pick from the Recent Flights board.</div>
+                </div>
+              </div>
+              <div class="row">
+                <div style="flex:1 1 220px">
+                  <b>Ground</b><br/>
+                  <button class="btn" data-g="Pushback approved.">Pushback Approved</button>
+                  <button class="btn" data-g="Pushback and start approved, advise when ready to taxi.">Push & Start</button>
+                  <button class="btn" data-g="Start approved, advise when ready to taxi.">Start Only Approved</button>
+                  <button class="btn" data-g="Taxi to RWY 24R via A-B, contact Tower 122.4 when ready for departure.">Taxi to Runway</button>
+                  <button class="btn" data-g="Taxi to parking via A, monitor Ground 122.3.">Taxi to Parking</button>
+                </div>
+                <div style="flex:1 1 220px">
+                  <b>Tower</b><br/>
+                  <button class="btn" data-t="Hold short RWY 24R.">Hold Short</button>
+                  <button class="btn" data-t="Line up and wait RWY 24R.">Line Up & Wait</button>
+                  <button class="btn" data-t="RWY 24R cleared for takeoff, contact Departure 122.5.">Cleared for Takeoff</button>
+                  <button class="btn" data-t="RWY 24R cleared to land, wind 220/06.">Cleared to Land</button>
+                  <button class="btn" data-t="Go around, fly runway heading, climb to pattern altitude, right traffic.">Go Around</button>
+                  <button class="btn" data-t="Noise abatement in effect, after liftoff fly runway heading to 500 feet then left turn per published procedure.">Noise-Abatement Takeoff</button>
+                </div>
+                <div style="flex:1 1 220px">
+                  <b>Center</b><br/>
+                  <button class="btn" data-c="Climb and maintain FL280.">Climb</button>
+                  <button class="btn" data-c="Descend and maintain 1 2 thousand.">Descend</button>
+                  <button class="btn" data-c="Fly heading 2 7 0, vectors westbound.">Heading</button>
+                  <button class="btn" data-c="Proceed direct COAST.">Direct</button>
+                  <button class="btn" data-c="Contact next sector on 122.7.">Handoff</button>
+                </div>
               </div>
             </div>
-            <div class="card" style="flex:1 1 420px">
-              <b>Tower</b>
-              <div class="row">
-                <button class="btn" data-t="/gme Hold short RWY 24R.">Hold Short</button>
-                <button class="btn" data-t="/gme Line up and wait RWY 24R.">Line Up & Wait</button>
-                <button class="btn" data-t="/gme RWY 24R cleared for takeoff, contact Departure 122.5.">Cleared for Takeoff</button>
-                <button class="btn" data-t="/gme RWY 24R cleared to land, wind 220/06.">Cleared to Land</button>
-                <button class="btn" data-t="/gme Go around, fly runway heading, climb to pattern altitude, right traffic.">Go Around</button>
-                <button class="btn" data-t="/gme Noise abatement in effect, after liftoff fly runway heading to 500 feet then left turn per published procedure.">Noise-Abatement Takeoff</button>
+            <div class="card" style="flex:2 1 700px">
+              <b>Recent Flights (auto from last 5 clearances)</b>
+              <div class="board" id="board">
+                <!-- 5 columns populated by script -->
               </div>
-            </div>
-            <div class="card" style="flex:1 1 420px">
-              <b>Center</b>
-              <div class="row">
-                <button class="btn" data-c="/gme Climb and maintain FL280.">Climb</button>
-                <button class="btn" data-c="/gme Descend and maintain 1 2 thousand.">Descend</button>
-                <button class="btn" data-c="/gme Fly heading 2 7 0, vectors westbound.">Heading</button>
-                <button class="btn" data-c="/gme Proceed direct COAST.">Direct</button>
-                <button class="btn" data-c="/gme Contact next sector on 122.7.">Handoff</button>
-              </div>
+              <div class="mini">Tip: click any button under a callsign column to include that callsign in the generated /gme.</div>
             </div>
           </div>
           <div class="row">
             <div class="card" style="flex:1 1 100%"><div id="gndtowerOut" class="code"></div></div>
           </div>
-        </div>
-
-        <!-- PILOT TOOLS -->
-        <div id="pilot" class="subpanel" style="display:none">
-          <h3>Pilot Quick Message</h3>
-          <div class="row">
-            <div><label class="req">Callsign</label><input id="plCall" placeholder="AIR-1 / MED-1 / N123AB"></div>
-            <div><label class="req">Type</label><select id="plType"><option>IFR</option><option>VFR</option><option>Helicopter</option></select></div>
-          </div>
-          <button class="btn" id="plCopy">Click to copy → paste in Skybox (if no controller available)</button>
-          <div id="pilotOut" class="code"></div>
         </div>
       </div>
 
@@ -264,7 +265,7 @@
         <div class="grid2">
           <div class="card">
             <b>Frequencies</b>
-            <ul class="hint compact">
+            <ul class="hint" style="margin:6px 0 0 18px">
               <li>ATIS 122.1</li>
               <li>Clearance 122.2</li>
               <li>Ground 122.3</li>
@@ -275,7 +276,7 @@
           </div>
           <div class="card">
             <b>Airports</b>
-            <ul class="hint compact">
+            <ul class="hint" style="margin:6px 0 0 18px">
               <li>LSIA — Los Santos Intl</li>
               <li>SDSH — Sandy Shores Airfield</li>
               <li>GPSD — Grapeseed Airfield</li>
@@ -284,7 +285,7 @@
           </div>
           <div class="card">
             <b>Phraseology</b>
-            <ul class="hint compact">
+            <ul class="hint" style="margin:6px 0 0 18px">
               <li>“Climb and maintain 5,000”</li>
               <li>“Descend and maintain 1 2 thousand”</li>
               <li>“Proceed direct COAST”</li>
@@ -340,29 +341,29 @@ const RUNWAYS={ LSIA:{Normal:"24L/24R",Reverse:"06L/06R"}, SDSH:{Normal:"30",Rev
 const ALTIMETERS={LSIA:"29.92", SDSH:"29.86", GPSD:"29.88", PBAY:"29.90"};
 const INIT_ALT={LSIA:"5,000", SDSH:"7,000", GPSD:"6,000", PBAY:"6,000"};
 const CRUISE={
-  "LSIA→SDSH":"FL240","SDSH→LSIA":"FL240",
-  "LSIA→PBAY":"FL280","PBAY→LSIA":"FL280",
-  "LSIA→GPSD":"FL260","GPSD→LSIA":"FL260",
-  "SDSH→PBAY":"FL260","PBAY→SDSH":"FL260",
-  "SDSH→GPSD":"FL240","GPSD→SDSH":"FL240",
-  "GPSD→PBAY":"FL260","PBAY→GPSD":"FL260"
+  "LSIA → SDSH":"FL240","SDSH → LSIA":"FL240",
+  "LSIA → PBAY":"FL280","PBAY → LSIA":"FL280",
+  "LSIA → GPSD":"FL260","GPSD → LSIA":"FL260",
+  "SDSH → PBAY":"FL260","PBAY → SDSH":"FL260",
+  "SDSH → GPSD":"FL240","GPSD → SDSH":"FL240",
+  "GPSD → PBAY":"FL260","PBAY → GPSD":"FL260"
 };
 const SIDMAP={
-  "LSIA→SDSH":"Coast Two",
-  "LSIA→PBAY":"Vinewood One",
-  "LSIA→GPSD":"Port One",
-  "SDSH→LSIA":"Desert One",
-  "SDSH→PBAY":"Sonora Two",
-  "SDSH→GPSD":"Desert One",
-  "PBAY→LSIA":"Chiliad One",
-  "PBAY→SDSH":"Coastline One",
-  "PBAY→GPSD":"Chiliad One",
-  "GPSD→LSIA":"Farm One",
-  "GPSD→SDSH":"Farm One",
-  "GPSD→PBAY":"Chiliad One"
+  "LSIA → SDSH":"Coast Two",
+  "LSIA → PBAY":"Vinewood One",
+  "LSIA → GPSD":"Port One",
+  "SDSH → LSIA":"Desert One",
+  "SDSH → PBAY":"Sonora Two",
+  "SDSH → GPSD":"Desert One",
+  "PBAY → LSIA":"Chiliad One",
+  "PBAY → SDSH":"Coastline One",
+  "PBAY → GPSD":"Chiliad One",
+  "GPSD → LSIA":"Farm One",
+  "GPSD → SDSH":"Farm One",
+  "GPSD → PBAY":"Chiliad One"
 };
-const VFR_MIN={LSIA:1500,SDSH:1200,GPSD:1200,PBAY:1500};
-const HELI_MIN={LSIA:800,SDSH:600,GPSD:600,PBAY:700};
+const VFR_MIN_DEFAULT = 1500;           // AGL
+const HELI_MIN_DEFAULT = 500;           // AGL (statewide default as requested)
 const HELI_AREAS={
   LSIA:"Los Santos city limits and port complex",
   SDSH:"Sandy Shores town and Alamo Sea shoreline",
@@ -395,7 +396,7 @@ function applyGate(panel){
       + '<button class="btn ok" id="inlineUnlock">Unlock</button></div>';
     panel.appendChild(g);
     g.querySelector('#inlineUnlock').addEventListener('click',()=>{
-      const code = g.querySelector('#inlinePass').value.trim();
+      const code=g.querySelector('#inlinePass').value.trim();
       unlockWith(code);
     });
   }
@@ -414,7 +415,7 @@ qa('#faa .tabs .tab').forEach(btn=>{
   }, {capture:true});
 });
 
-/* ================= ATC SUBTABS (robust) ================= */
+/* ================= ATC SUBTABS (stable) ================= */
 (function(){
   function showATCSub(id){
     qa('#faa_atc > .subtabs .sub').forEach(x=>x.classList.remove('active'));
@@ -445,11 +446,8 @@ function initControllers(){
   const saved = localStorage.getItem('ATIS_LETTER')||'ALPHA';
   if(q('#aLetter')) q('#aLetter').value = saved;
 
-  // Reasons + toggle enable per airport
-  const REASON_FIELDS = ['LSIA','SDSH','GPSD','PBAY'].map(ap=>({
-    ok:q(`#ap${ap}_ok`), reason:q(`#ap${ap}_reason`), note:q(`#ap${ap}_note`)
-  }));
-  ['LSIA','SDSH','GPSD','PBAY'].forEach((ap,i)=>{
+  // Reasons + toggle per airport
+  ['LSIA','SDSH','GPSD','PBAY'].forEach(ap=>{
     const r=q(`#ap${ap}_reason`); if(r){
       r.innerHTML=''; const blank=document.createElement('option'); blank.value=''; blank.text='— Select reason —'; r.appendChild(blank);
       REASONS.forEach(rr=>{ const o=document.createElement('option'); o.value=rr.code; o.text=rr.ui; r.appendChild(o); });
@@ -490,7 +488,7 @@ function initControllers(){
 function setErrs(boxSel, msgs){
   const box=q(boxSel); if(!box) return;
   if(!msgs.length){ box.style.display='none'; box.innerHTML=''; return; }
-  box.style.display='block'; box.innerHTML="<b>Fix these:</b><ul class='compact'>"+msgs.map(m=>`<li>${m}</li>`).join('')+"</ul>";
+  box.style.display='block'; box.innerHTML="<b>Fix these:</b><ul style='margin:6px 0 0 18px'>"+msgs.map(m=>`<li>${m}</li>`).join('')+"</ul>";
 }
 
 function genATIS(){
@@ -563,6 +561,14 @@ function previewSquawk(dep){
   return String(cur).padStart(4,'0');
 }
 
+/* Uppercase callsigns automatically */
+['#clrCall'].forEach(sel=>{
+  const el = q(sel); if(!el) return;
+  const up = ()=>{ el.value = el.value.toUpperCase(); };
+  el.addEventListener('blur', up);
+  el.addEventListener('input', e=>{ /* keep cursor stable while typing; apply on blur */ });
+});
+
 function syncClrView(){
   const t=q('#clrType').value;
   q('#clrIFRRow').style.display = (t==='IFR')?'flex':'none';
@@ -583,29 +589,79 @@ q('#clrRoute').addEventListener('change', updateIFRAutos); updateIFRAutos();
 
 function updateVFRMin(){
   if(q('#clrType').value!=='VFR') return;
-  const dep=q('#vfrDep').value; q('#vfrMin').value = VFR_MIN[dep] ? `${VFR_MIN[dep]} AGL` : '';
+  const dep=q('#vfrDep').value; q('#vfrMin').value = `${VFR_MIN_DEFAULT} AGL`;
 }
 q('#vfrDep').addEventListener('change', updateVFRMin); updateVFRMin();
 
 function updateHeliAutos(){
   if(q('#clrType').value!=='Special Ops — Helicopter') return;
   const dep=q('#heliDep').value;
-  q('#heliMin').value = HELI_MIN[dep] ? `${HELI_MIN[dep]} AGL` : '';
-  q('#heliArea').value = HELI_AREAS[dep] || '';
+  q('#heliMin').value = `${HELI_MIN_DEFAULT} AGL`;
+  q('#heliArea').value = HELI_AREAS[dep] || 'assigned area';
 }
 q('#heliDep').addEventListener('change', updateHeliAutos); updateHeliAutos();
 
 function markError(el, on){ if(!el) return; if(on) el.classList.add('err'); else el.classList.remove('err'); }
 
+/* Recent flights store */
+function getRecent(){ try{ return JSON.parse(localStorage.getItem('RECENT_FLTS')||'[]'); }catch(e){ return []; } }
+function setRecent(arr){ localStorage.setItem('RECENT_FLTS', JSON.stringify(arr.slice(0,5))); renderBoard(); fillQuickDropdown(); }
+function addRecent(entry){
+  const cur=getRecent().filter(e=>e.call!==entry.call); // dedupe same call
+  cur.unshift(entry);
+  setRecent(cur);
+}
+function fillQuickDropdown(){
+  const sel=q('#quickCallsign'); if(!sel) return;
+  const rec=getRecent();
+  sel.innerHTML='<option value="">— Select recent —</option>' + rec.map(e=>`<option>${e.call}</option>`).join('');
+}
+function renderBoard(){
+  const mount=q('#board'); if(!mount) return;
+  const rec=getRecent();
+  mount.innerHTML='';
+  for(let i=0;i<5;i++){
+    const e = rec[i];
+    const col = document.createElement('div'); col.className='col';
+    if(e){
+      col.innerHTML = `<h4>${e.call}</h4>
+        <div class="mini">${e.type} • ${e.route||e.dep||''}${e.to?(' → '+e.to):''}${e.squawk?(' • SQ '+e.squawk):''}</div>
+        <div style="margin-top:8px">
+          <button class="btn" data-btype="g" data-call="${e.call}" data-msg="Pushback approved.">G: Pushback</button>
+          <button class="btn" data-btype="g" data-call="${e.call}" data-msg="Taxi to RWY 24R via A-B, contact Tower 122.4 when ready for departure.">G: Taxi</button>
+          <button class="btn" data-btype="t" data-call="${e.call}" data-msg="RWY 24R cleared for takeoff, contact Departure 122.5.">T: Takeoff</button>
+          <button class="btn" data-btype="t" data-call="${e.call}" data-msg="RWY 24R cleared to land, wind 220/06.">T: Land</button>
+          <button class="btn" data-btype="c" data-call="${e.call}" data-msg="Climb and maintain FL280.">C: Climb</button>
+          <button class="btn" data-btype="c" data-call="${e.call}" data-msg="Contact next sector on 122.7.">C: Handoff</button>
+        </div>`;
+    }else{
+      col.innerHTML = `<h4>(empty)</h4><div class="mini">Awaiting clearance…</div>`;
+    }
+    mount.appendChild(col);
+  }
+  // Wire the column buttons
+  mount.querySelectorAll('button[data-btype]').forEach(b=>{
+    b.addEventListener('click', ()=>{
+      if(!CURRENT_USER) return alert('Locked. Enter your code.');
+      const call=b.getAttribute('data-call'); const txt=b.getAttribute('data-msg');
+      q('#gndtowerOut').textContent = `/gme ${call} ${txt}`;
+      copy(`/gme ${call} ${txt}`);
+    });
+  });
+}
+renderBoard(); fillQuickDropdown();
+
+/* Clearance generate */
 q('#btnCLR').addEventListener('click', ()=>{
   if(!CURRENT_USER) return alert('Locked. Enter your code to unlock.');
 
   const errs=[];
   const pos=q('#clrPos').value;
   const type=q('#clrType').value;
-  const call=q('#clrCall').value.trim();
+  const call=(q('#clrCall').value.trim()||'').toUpperCase();
   const acft=q('#clrAcft').value.trim();
 
+  q('#clrCall').value = call; // normalize
   markError(q('#clrCall'), !call);
   markError(q('#clrAcft'), !acft);
   if(!call) errs.push('Callsign');
@@ -613,7 +669,7 @@ q('#btnCLR').addEventListener('click', ()=>{
 
   let out='';
   if(type==='IFR'){
-    const route=q('#clrRoute').value; const {from,to}=routePieces(route);
+    const route=q('#clrRoute').value; const [from,to]=route.split('→').map(s=>s.trim());
     if(!from||!to) errs.push('Route');
     markError(q('#clrRoute'), !from||!to);
     if(errs.length){ setErrs('#clrErr',errs); return; } setErrs('#clrErr',[]);
@@ -624,14 +680,17 @@ q('#btnCLR').addEventListener('click', ()=>{
     const depFreq=q('#clrDepFreq').value || '122.5';
     const squawk=nextSquawk(from);
 
-    out = `/gme ${pos} issues clearance to ${call}. Cleared to ${to} via ${sid}, then as filed; maintain ${init} (${spokenThousands(init)}), expect ${cruise} 10 minutes after departure; departure frequency ${depFreq}; squawk ${squawk}.`;
+    out = `/gme ${pos} clears ${call}. Cleared to ${to} via ${sid}, then as filed; maintain ${init} (${spokenThousands(init)}), expect ${cruise} 10 minutes after departure; departure frequency ${depFreq}; squawk ${squawk}.`;
+
+    // add to recent board
+    addRecent({call, type:'IFR', route, from, to, squawk});
   } else if(type==='VFR'){
     const dep=q('#vfrDep').value; const dir=q('#vfrDir').value;
     markError(q('#vfrDep'), !dep); markError(q('#vfrDir'), !dir);
     if(!dep) errs.push('Departure (VFR)'); if(!dir) errs.push('Direction (VFR)');
     if(errs.length){ setErrs('#clrErr',errs); return; } setErrs('#clrErr',[]);
 
-    const min = `${VFR_MIN[dep]} AGL`;
+    const min = `${VFR_MIN_DEFAULT} AGL`;
     const landmarks = {
       LSIA:{North:"Vespucci / Downtown",East:"La Mesa / Freeway",South:"Port / Coastline",West:"Del Perro / Coast"},
       SDSH:{North:"Alamo Sea / Grape Corridor",East:"Grand Senora / Power Station",South:"Harmony / Prison",West:"Zancudo River / Canyons"},
@@ -639,40 +698,50 @@ q('#btnCLR').addEventListener('click', ()=>{
       PBAY:{North:"Coast / County line",East:"Mount Chiliad ridge",South:"Zancudo area",West:"Open water"}
     };
     const ref=(landmarks[dep] && landmarks[dep][dir])?landmarks[dep][dir]:'assigned sector';
-    out = `/gme ${pos} issues clearance to ${call}. VFR ${dir.toLowerCase()}bound from ${dep}; remain clear of ${ref}; maintain ${min}; departure 122.5.`;
+    out = `/gme ${pos} clears ${call}. VFR ${dir.toLowerCase()}bound from ${dep}; remain clear of ${ref}; maintain ${min}; departure 122.5.`;
+
+    addRecent({call, type:'VFR', dep, dir});
   } else { // Heli
     const dept=q('#heliDept').value; const dep=q('#heliDep').value; const dir=q('#heliDir').value;
     markError(q('#heliDept'), !dept); markError(q('#heliDep'), !dep); markError(q('#heliDir'), !dir);
     if(!dept) errs.push('Department (Heli)'); if(!dep) errs.push('Departure (Heli)'); if(!dir) errs.push('Direction (Heli)');
     if(errs.length){ setErrs('#clrErr',errs); return; } setErrs('#clrErr',[]);
 
-    const min = `${HELI_MIN[dep]} AGL`;
+    const min = `${HELI_MIN_DEFAULT} AGL`;
     const area = HELI_AREAS[dep] || 'assigned area';
-    out = `/gme ${pos} issues clearance to ${call}. ${dept} helicopter, cleared ${dir.toLowerCase()} sector within ${area}; operate at or above ${min}; contact Departure 122.5.`;
+    out = `/gme ${pos} clears ${call}. ${dept} helicopter, cleared ${dir.toLowerCase()} sector within ${area}; operate at or above ${min}; contact Departure 122.5.`;
+
+    addRecent({call, type:'HELI', dep, dir});
   }
 
   q('#clrOut').textContent = out; copy(out);
 });
 
 /* ================= GROUND/TOWER/CENTER QUICK ================= */
-function quickMsg(txt){ q('#gndtowerOut').textContent = txt; copy(txt); }
-qa('#gndtower [data-g]').forEach(b=>b.addEventListener('click',()=>{ if(!CURRENT_USER) return alert('Locked. Enter your code.'); quickMsg(b.getAttribute('data-g')); }));
-qa('#gndtower [data-t]').forEach(b=>b.addEventListener('click',()=>{ if(!CURRENT_USER) return alert('Locked. Enter your code.'); quickMsg(b.getAttribute('data-t')); }));
-qa('#gndtower [data-c]').forEach(b=>b.addEventListener('click',()=>{ if(!CURRENT_USER) return alert('Locked. Enter your code.'); quickMsg(b.getAttribute('data-c')); }));
+function currentQuickCall(){
+  const sel=q('#quickCallsign'); const v=sel?.value?.trim(); if(v) return v;
+  const rec=getRecent(); return rec[0]?.call || 'AIRCRAFT';
+}
+qa('#gndtower [data-g]').forEach(b=>b.addEventListener('click',()=>{
+  if(!CURRENT_USER) return alert('Locked. Enter your code.');
+  const call=currentQuickCall();
+  const msg=`/gme ${call} ${b.getAttribute('data-g')}`;
+  q('#gndtowerOut').textContent=msg; copy(msg);
+}));
+qa('#gndtower [data-t]').forEach(b=>b.addEventListener('click',()=>{
+  if(!CURRENT_USER) return alert('Locked. Enter your code.');
+  const call=currentQuickCall();
+  const msg=`/gme ${call} ${b.getAttribute('data-t')}`;
+  q('#gndtowerOut').textContent=msg; copy(msg);
+}));
+qa('#gndtower [data-c]').forEach(b=>b.addEventListener('click',()=>{
+  if(!CURRENT_USER) return alert('Locked. Enter your code.');
+  const call=currentQuickCall();
+  const msg=`/gme ${call} ${b.getAttribute('data-c')}`;
+  q('#gndtowerOut').textContent=msg; copy(msg);
+}));
 
-/* ================= PILOT TOOLS ================= */
-q('#plCopy').addEventListener('click',()=>{
-  const c=q('#plCall').value.trim()||'CALLSIGN';
-  const t=q('#plType').value;
-  const msg=`/gme Click to copy — pilot use only if no controller available: Pilot of ${c} ${t} ready to copy.`;
-  q('#pilotOut').textContent=msg; copy(msg);
-});
-
-/* ================= ATIS DYNAMIC WIRING AFTER LOGIN ================= */
-(function wireATIS(){
-  // show/hide custom rows and auto fields already set in init
-})();
-
+/* ================= ATIS wiring already handled in init ================= */
 </script>
 </body>
 </html>
