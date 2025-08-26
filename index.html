@@ -7,30 +7,41 @@
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Condensed:wght@400;600&display=swap" rel="stylesheet">
 <style>
   :root{
-    --brand:#0b3a82; --brand2:#1d4ed8; --brand3:#2563eb;
-    --ink:#0f172a; --muted:#64748b; --bg:#f6f8fb;
+    --faa:#2563eb; --ntsb:#d32f2f; --transit:#2e7d32; --maritime:#006d77;
+    --bg:#f6f8fb; --panel:#ffffff; --grid:#e5e7eb; --ink:#0f172a; --muted:#64748b;
+    --codebg:#0b1020; --codefg:#e5e7eb; --ok:#2e7d32; --warn:#ef6c00; --alt:#455a64;
     --chip:#eef2ff; --chipInk:#1e3a8a;
-    --panel:#ffffff; --grid:#e5e7eb; --code:#111827;
-    --ok:#2e7d32; --warn:#ef6c00; --alt:#455a64;
   }
   html,body{height:100%}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:"IBM Plex Sans Condensed",system-ui,Arial,sans-serif}
-  .app{max-width:1200px;margin:0 auto}
-  .header{background:linear-gradient(90deg,var(--brand),var(--brand3));color:#fff;padding:10px 16px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+  .app{max-width:1600px;margin:0 auto}
+
+  /* Header / theme */
+  .header{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;color:#fff;padding:10px 16px}
+  .header.faa{background:linear-gradient(90deg,var(--faa),#3b82f6)}
+  .header.ntsb{background:linear-gradient(90deg,var(--ntsb),#ef5350)}
+  .header.transit{background:linear-gradient(90deg,var(--transit),#43a047)}
+  .header.maritime{background:linear-gradient(90deg,var(--maritime),#0891b2)}
   .title{display:flex;align-items:center;gap:10px;font-size:20px}
-  .rolebar{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
   .badge{background:var(--chip);color:var(--chipInk);border-radius:999px;padding:3px 10px;font-size:12px}
+  .topnav{display:flex;gap:8px;flex-wrap:wrap;padding:10px 16px}
+  .seg{background:#ffffff33;color:#fff;padding:6px 12px;border-radius:999px;cursor:pointer;border:1px solid #ffffff88}
+  .seg.active{background:#fff;color:#000}
+
   .btn{border:0;border-radius:10px;padding:8px 12px;background:#1976d2;color:#fff;font-weight:600;cursor:pointer}
-  .btn.alt{background:var(--alt)}.btn.ok{background:var(--ok)}.btn.off{background:#9e9e9e;cursor:not-allowed}.btn.warn{background:var(--warn)}
-  .topnav{display:flex;gap:8px;flex-wrap:wrap}
-  .topnav .seg{border:1px solid #93c5fd;background:#e0f2fe;color:#0c4a6e;border-radius:999px;padding:6px 10px;cursor:pointer}
-  .topnav .seg.active{background:#bae6fd;font-weight:700}
+  .btn.alt{background:var(--alt)} .btn.ok{background:var(--ok)} .btn.warn{background:var(--warn)}
+  .btn.off{background:#9e9e9e;cursor:not-allowed}
+
+  /* Tabs */
   .tabs{display:flex;background:#e2e8f0;border-bottom:1px solid var(--grid)}
   .tabs button{flex:1;border:0;background:#e2e8f0;color:#0f172a;padding:12px;cursor:pointer}
-  .tabs .active{background:#fff;font-weight:700;border-bottom:3px solid var(--brand3)}
+  .tabs .active{background:#fff;font-weight:700;border-bottom:3px solid currentColor}
   .panel{display:none;padding:16px}.panel.active{display:block}
-  .subtabs{margin:10px 0}.subtabs button{margin-right:6px;border:1px solid var(--brand2);background:#e8eaf6;padding:6px 10px;cursor:pointer}
-  .subtabs .active{background:#c5cae9}
+
+  /* Subtabs + layout */
+  .subtabs{margin:10px 0}
+  .subtabs button{margin-right:6px;border:1px solid #93c5fd;background:#e0f2fe;color:#0c4a6e;padding:6px 10px;border-radius:8px;cursor:pointer}
+  .subtabs .active{background:#bae6fd}
   .row{display:flex;gap:20px;flex-wrap:wrap;margin-bottom:10px}
   .row>div{flex:1 1 320px}
   label{display:block;margin:4px 0 4px;color:#344054;font-size:13px}
@@ -40,7 +51,7 @@
   .hint{color:var(--muted);font-size:12px}
   .card{background:var(--panel);border:1px solid var(--grid);border-radius:12px;padding:12px}
   .cardRow{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-  .code{background:#0b1020;color:#e5e7eb;border-radius:10px;padding:10px;white-space:pre-wrap;font-family:Consolas,Menlo,monospace}
+  .code{background:var(--codebg);color:var(--codefg);border-radius:10px;padding:10px;white-space:pre-wrap;font-family:Consolas,Menlo,monospace}
   .err{border-color:#e53935!important;box-shadow:0 0 0 3px rgba(229,57,53,.18)}
   .errbox{display:none;background:#fee2e2;border:1px solid #fecaca;color:#7f1d1d;border-radius:10px;padding:10px;margin:8px 0}
   .errbox ul{margin:6px 0 0 18px}
@@ -48,25 +59,43 @@
   .sectionTitle{display:flex;align-items:center;gap:10px}
   .pill{border:1px solid #cbd5e1;background:#f8fafc;border-radius:999px;padding:2px 8px;font-size:12px;color:#0f172a}
   .mutebar{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+
+  /* Gate overlay */
+  .gate{border:1px dashed #cbd5e1;background:#f8fafc;border-radius:12px;padding:16px;text-align:center}
+  .gate h4{margin:4px 0}
+  .gateRow{display:flex;gap:8px;justify-content:center;align-items:center;flex-wrap:wrap;margin-top:8px}
+  .tag{display:inline-block;border-radius:999px;background:#f1f5f9;border:1px solid #e2e8f0;color:#0f172a;padding:2px 8px;font-size:12px}
+
+  /* Login bar */
+  .loginbar{display:flex;align-items:center;gap:8px}
+  .loginbar input{max-width:160px}
+
+  /* Minimize/wide */
+  #wrap.hidden{display:none}
 </style>
 </head>
 <body>
 <div class="app">
-  <div class="header">
+  <div class="header faa" id="header">
     <div class="title">
       <button id="minBtn" class="btn alt" type="button">Minimize</button>
       <button id="wideBtn" class="btn" type="button">Wide</button>
       <div>Department Console — FAA • NTSB • Transit • Maritime</div>
+      <span id="agencyBadge" class="badge">Agency: FAA</span>
     </div>
-    <div class="rolebar">
-      <div class="topnav">
-        <div class="seg active" data-agency="faa">FAA</div>
-        <div class="seg" data-agency="ntsb">NTSB</div>
-        <div class="seg" data-agency="transit">Transit</div>
-        <div class="seg" data-agency="maritime">Maritime</div>
-      </div>
-      <span id="opsBadge" class="badge">Agency: FAA</span>
+    <div class="loginbar">
+      <span id="lockState" class="tag">Locked</span>
+      <input id="lockPass" type="password" placeholder="Password…" />
+      <button id="unlockBtn" class="btn ok">Unlock</button>
+      <button id="lockBtn" class="btn warn">Lock</button>
     </div>
+  </div>
+
+  <div class="topnav">
+    <div class="seg active" data-agency="faa">FAA</div>
+    <div class="seg" data-agency="ntsb">NTSB</div>
+    <div class="seg" data-agency="transit">Transit</div>
+    <div class="seg" data-agency="maritime">Maritime</div>
   </div>
 
   <div id="wrap">
@@ -78,8 +107,8 @@
         <button class="tab" data-tab="faa_refs">References</button>
       </div>
 
-      <!-- FAA → ATC (your existing console) -->
-      <div id="faa_atc" class="panel active">
+      <!-- FAA → ATC (PROTECTED) -->
+      <div id="faa_atc" class="panel active" data-protected="true">
         <div class="subtabs">
           <button class="sub active" data-sub="atis">ATIS</button>
           <button class="sub" data-sub="clearance">Clearance</button>
@@ -262,30 +291,30 @@
         <!-- GROUND -->
         <div id="ground" class="subpanel" style="display:none">
           <h3>Ground / Taxi</h3>
-          <button class="btn" onclick="quick('/gme Pushback and start approved, advise when ready to taxi.','#groundOut')">Push & Start</button>
-          <button class="btn" onclick="quick('/gme Taxi to RWY 24R via A-B, contact Tower 122.4 when ready for departure.','#groundOut')">Taxi to Runway</button>
-          <button class="btn" onclick="quick('/gme Taxi to parking via A, monitor Ground 122.3.','#groundOut')">Taxi to Parking</button>
+          <button class="btn" onclick="guard(()=>quick('/gme Pushback and start approved, advise when ready to taxi.','#groundOut'))">Push & Start</button>
+          <button class="btn" onclick="guard(()=>quick('/gme Taxi to RWY 24R via A-B, contact Tower 122.4 when ready for departure.','#groundOut'))">Taxi to Runway</button>
+          <button class="btn" onclick="guard(()=>quick('/gme Taxi to parking via A, monitor Ground 122.3.','#groundOut'))">Taxi to Parking</button>
           <div id="groundOut" class="code"></div>
         </div>
 
         <!-- TOWER -->
         <div id="tower" class="subpanel" style="display:none">
           <h3>Tower</h3>
-          <button class="btn" onclick="quick('/gme Line up and wait RWY 24R.','#towerOut')">Line Up & Wait</button>
-          <button class="btn" onclick="quick('/gme RWY 24R cleared for takeoff, contact Departure 122.5.','#towerOut')">Takeoff</button>
-          <button class="btn" onclick="quick('/gme RWY 24R cleared to land, wind 220/06.','#towerOut')">Landing</button>
-          <button class="btn" onclick="quick('/gme Go around, fly runway heading, climb to pattern altitude, right traffic.','#towerOut')">Go Around</button>
+          <button class="btn" onclick="guard(()=>quick('/gme Line up and wait RWY 24R.','#towerOut'))">Line Up & Wait</button>
+          <button class="btn" onclick="guard(()=>quick('/gme RWY 24R cleared for takeoff, contact Departure 122.5.','#towerOut'))">Takeoff</button>
+          <button class="btn" onclick="guard(()=>quick('/gme RWY 24R cleared to land, wind 220/06.','#towerOut'))">Landing</button>
+          <button class="btn" onclick="guard(()=>quick('/gme Go around, fly runway heading, climb to pattern altitude, right traffic.','#towerOut'))">Go Around</button>
           <div id="towerOut" class="code"></div>
         </div>
 
         <!-- CENTER -->
         <div id="center" class="subpanel" style="display:none">
           <h3>Center</h3>
-          <button class="btn" onclick="quick('/gme Climb and maintain FL280.','#centerOut')">Climb</button>
-          <button class="btn" onclick="quick('/gme Descend and maintain 1 2 thousand.','#centerOut')">Descend</button>
-          <button class="btn" onclick="quick('/gme Fly heading 2 7 0, vectors westbound.','#centerOut')">Heading</button>
-          <button class="btn" onclick="quick('/gme Proceed direct COAST.','#centerOut')">Direct</button>
-          <button class="btn" onclick="quick('/gme Contact next sector on 122.7.','#centerOut')">Handoff</button>
+          <button class="btn" onclick="guard(()=>quick('/gme Climb and maintain FL280.','#centerOut'))">Climb</button>
+          <button class="btn" onclick="guard(()=>quick('/gme Descend and maintain 1 2 thousand.','#centerOut'))">Descend</button>
+          <button class="btn" onclick="guard(()=>quick('/gme Fly heading 2 7 0, vectors westbound.','#centerOut'))">Heading</button>
+          <button class="btn" onclick="guard(()=>quick('/gme Proceed direct COAST.','#centerOut'))">Direct</button>
+          <button class="btn" onclick="guard(()=>quick('/gme Contact next sector on 122.7.','#centerOut'))">Handoff</button>
           <div id="centerOut" class="code"></div>
         </div>
 
@@ -302,8 +331,8 @@
         </div>
       </div>
 
-      <!-- FAA → Operations (placeholder) -->
-      <div id="faa_ops" class="panel">
+      <!-- FAA → Operations (PROTECTED placeholder) -->
+      <div id="faa_ops" class="panel" data-protected="true">
         <h3>FAA Operations (Coming Soon)</h3>
         <div class="grid2">
           <div class="card">
@@ -319,8 +348,8 @@
         </div>
       </div>
 
-      <!-- FAA → References -->
-      <div id="faa_refs" class="panel">
+      <!-- FAA → References (PUBLIC) -->
+      <div id="faa_refs" class="panel" data-public="true">
         <h3>References</h3>
         <div class="grid2">
           <div class="card">
@@ -353,6 +382,10 @@
               <li>“Cleared to land runway two four right”</li>
             </ul>
           </div>
+          <div class="card">
+            <b>Branding Placeholder</b>
+            <p class="hint">Drop in a small logo/banner later (static image).</p>
+          </div>
         </div>
       </div>
     </div><!-- /FAA -->
@@ -365,7 +398,8 @@
         <button class="tab" data-tab="ntsb_bulletin">Safety Bulletin</button>
       </div>
 
-      <div id="ntsb_intake" class="panel active">
+      <!-- PROTECTED -->
+      <div id="ntsb_intake" class="panel active" data-protected="true">
         <h3>NTSB Incident Intake</h3>
         <div class="row">
           <div><label class="req">Event Type</label>
@@ -389,11 +423,12 @@
         <div class="row">
           <div><label>Summary</label><textarea id="iSum" rows="3" placeholder="Brief factual summary…"></textarea></div>
         </div>
-        <button class="btn ok" onclick="genNTSBIntake()">Generate Intake — copy to clipboard</button>
+        <button class="btn ok" onclick="guard(genNTSBIntake)">Generate Intake — copy</button>
         <div id="ntsbIntakeOut" class="code"></div>
       </div>
 
-      <div id="ntsb_check" class="panel">
+      <!-- PROTECTED -->
+      <div id="ntsb_check" class="panel" data-protected="true">
         <h3>Investigation Checklist (Quick Start)</h3>
         <div class="grid2">
           <div class="card"><b>Secure Site</b><ul class="hint"><li>Preserve evidence</li><li>Coordinate with ATC/ARFF</li></ul></div>
@@ -403,7 +438,8 @@
         </div>
       </div>
 
-      <div id="ntsb_bulletin" class="panel">
+      <!-- PUBLIC -->
+      <div id="ntsb_bulletin" class="panel" data-public="true">
         <h3>Safety Bulletin Draft</h3>
         <div class="row">
           <div><label class="req">Subject</label><input id="bSubj" placeholder="Crosswind Landings — PBAY"></div>
@@ -417,8 +453,8 @@
       </div>
     </div><!-- /NTSB -->
 
-    <!-- ================= Transit ================= -->
-    <div id="transit" class="panel">
+    <!-- ================= Transit (PROTECTED) ================= -->
+    <div id="transit" class="panel" data-protected="true">
       <div class="tabs">
         <button class="tab active" data-tab="tr_bus">Bus Dispatch</button>
         <button class="tab" data-tab="tr_train">Train Service Notice</button>
@@ -434,10 +470,8 @@
             <select id="busAct"><option>Pull out on time</option><option>Cover trip</option><option>Short turn</option><option>Breakdown — swap bus</option></select>
           </div>
         </div>
-        <div class="row">
-          <div><label>Notes</label><input id="busNotes" placeholder="Relief at Vespucci Hub; fuel after PM"></div>
-        </div>
-        <button class="btn ok" onclick="genBus()">Generate — copy</button>
+        <div class="row"><div><label>Notes</label><input id="busNotes" placeholder="Relief at Vespucci Hub; fuel after PM"></div></div>
+        <button class="btn ok" onclick="guard(genBus)">Generate — copy</button>
         <div id="busOut" class="code"></div>
       </div>
 
@@ -452,7 +486,7 @@
           <div><label>Reason</label><select id="trainReason"><option>Signal problem</option><option>Disabled train</option><option>Police activity</option><option>Weather</option><option>Track work</option></select></div>
           <div><label>Alt Service</label><input id="trainAlt" placeholder="Bus bridge between Burton & Del Perro"></div>
         </div>
-        <button class="btn ok" onclick="genTrain()">Generate — copy</button>
+        <button class="btn ok" onclick="guard(genTrain)">Generate — copy</button>
         <div id="trainOut" class="code"></div>
       </div>
 
@@ -462,16 +496,14 @@
           <div><label class="req">Severity</label><select id="sysSev"><option>Info</option><option>Advisory</option><option>Major</option></select></div>
           <div><label class="req">Area</label><input id="sysArea" placeholder="Citywide / Downtown / Eastside"></div>
         </div>
-        <div class="row">
-          <div><label class="req">Message</label><textarea id="sysMsg" placeholder="Elevated delays during event at Maze Bank Arena…"></textarea></div>
-        </div>
-        <button class="btn warn" onclick="genSysAlert()">Generate — copy</button>
+        <div class="row"><div><label class="req">Message</label><textarea id="sysMsg" placeholder="Elevated delays during event at Maze Bank Arena…"></textarea></div></div>
+        <button class="btn warn" onclick="guard(genSysAlert)">Generate — copy</button>
         <div id="sysOut" class="code"></div>
       </div>
     </div><!-- /Transit -->
 
-    <!-- ================= Maritime ================= -->
-    <div id="maritime" class="panel">
+    <!-- ================= Maritime (PROTECTED) ================= -->
+    <div id="maritime" class="panel" data-protected="true">
       <div class="tabs">
         <button class="tab active" data-tab="m_ferry">Ferry Status</button>
         <button class="tab" data-tab="m_port">Harbor/Port Notice</button>
@@ -489,7 +521,7 @@
           <div><label>Reason</label><select id="ferReason"><option>Weather</option><option>Mechanical</option><option>Crew availability</option><option>Harbor traffic</option></select></div>
           <div><label>Notes</label><input id="ferNotes" placeholder="Next sailing at :30 past"></div>
         </div>
-        <button class="btn ok" onclick="genFerry()">Generate — copy</button>
+        <button class="btn ok" onclick="guard(genFerry)">Generate — copy</button>
         <div id="ferOut" class="code"></div>
       </div>
 
@@ -500,10 +532,8 @@
           <div><label class="req">Condition</label><select id="portCond"><option>Normal</option><option>Restricted</option><option>Closed</option></select></div>
           <div><label>Reason</label><select id="portReason"><option>Fog</option><option>High winds</option><option>Security</option><option>Salvage ops</option><option>Oil spill response</option></select></div>
         </div>
-        <div class="row">
-          <div><label>Advisory</label><input id="portAdv" placeholder="Use channel 12 VHF; tugs required for entry"></div>
-        </div>
-        <button class="btn warn" onclick="genPort()">Generate — copy</button>
+        <div class="row"><div><label>Advisory</label><input id="portAdv" placeholder="Use channel 12 VHF; tugs required for entry"></div></div>
+        <button class="btn warn" onclick="guard(genPort)">Generate — copy</button>
         <div id="portOut" class="code"></div>
       </div>
 
@@ -514,19 +544,41 @@
           <div><label class="req">Winds</label><input id="craftWind" placeholder="NW 25–30kt, gusts 35kt"></div>
           <div><label class="req">Seas</label><input id="craftSeas" placeholder="6–9 ft"></div>
         </div>
-        <div class="row">
-          <div><label>Notes</label><input id="craftNotes" placeholder="Small vessels should remain in port"></div>
-        </div>
-        <button class="btn warn" onclick="genCraft()">Generate — copy</button>
+        <div class="row"><div><label>Notes</label><input id="craftNotes" placeholder="Small vessels should remain in port"></div></div>
+        <button class="btn warn" onclick="guard(genCraft)">Generate — copy</button>
         <div id="craftOut" class="code"></div>
       </div>
     </div><!-- /Maritime -->
 
-  </div>
-</div>
+  </div><!-- /wrap -->
+</div><!-- /app -->
 
 <script>
-/* ===== Helpers ===== */
+/* ================= CONFIG ================= */
+const APP_PASS = "2468"; // <<< CHANGE YOUR PASSWORD HERE
+const CONTROLLERS = [
+  {name:'John', role:'Supervisor', enabled:true},
+  {name:'Ava', role:'Controller', enabled:true},
+  {name:'Maverick', role:'Trainee', enabled:true}
+];
+const LETTERS = ["ALPHA","BRAVO","CHARLIE","DELTA","ECHO","FOXTROT","GOLF","HOTEL","INDIA","JULIETT","KILO","LIMA","MIKE","NOVEMBER","OSCAR","PAPA","QUEBEC","ROMEO","SIERRA","TANGO","UNIFORM","VICTOR","WHISKEY","XRAY","YANKEE","ZULU"];
+const WX_PRESETS={ CLEAR:{vis:"10",clouds:"SKC"}, RAIN:{vis:"6",clouds:"BKN025"}, FOG:{vis:"2",clouds:"OVC008"}, WINDY:{vis:"8",clouds:"SCT030"}, OVERCAST:{vis:"8",clouds:"OVC015"}, STORM:{vis:"3",clouds:"BKN015"} };
+const WIND_PROFILES={ CALM:"000/00", LIGHT:"220/06", BREEZY:"230/12", WINDY:"250/22G30", CROSS:"090/18" };
+const REASONS=[
+  {code:"STAFF",ui:"Staffing",gme:"airport closed due to staffing unavailability"},
+  {code:"POWER",ui:"Power outage",gme:"airport closed due to power outage"},
+  {code:"EMERG",ui:"Emergency response",gme:"airport closed for emergency operations"},
+  {code:"SEC",ui:"Security",gme:"airport closed due to a security incident"},
+  {code:"EQUIP",ui:"Mechanical/Equipment",gme:"airport closed due to essential equipment outage"},
+  {code:"INC",ui:"Incursion",gme:"airport closed due to a runway incursion investigation"},
+  {code:"EXC",ui:"Aircraft overrun",gme:"airport closed due to a runway excursion"},
+  {code:"WXMIN",ui:"Weather below minima",gme:"airport closed due to weather below landing minima"},
+  {code:"NOTAM",ui:"NOTAM closure",gme:"airport closed per NOTAM"},
+  {code:"OTHER",ui:"Other…",gme:"{OTHER}"}
+];
+const AIRPORTS=["LSIA","SSIA","GPSD","PBAY"];
+
+/* ================= Helpers ================= */
 const q = sel => document.querySelector(sel);
 const qa = sel => [...document.querySelectorAll(sel)];
 const copy = txt => {
@@ -537,27 +589,27 @@ const copy = txt => {
 const zZulu = () => { const d=new Date(); return String(d.getUTCHours()).padStart(2,'0')+String(d.getUTCMinutes()).padStart(2,'0')+'z'; };
 function quick(text, targetSel){ const t=q(targetSel); t.textContent=text; copy(text); }
 
-/* ===== Layout controls ===== */
+/* ================= Layout controls ================= */
 let minimized=false;
-q('#minBtn').onclick=()=>{ minimized=!minimized; q('#wrap').style.display=minimized?'none':'block'; q('#minBtn').textContent=minimized?'Restore':'Minimize'; };
-q('#wideBtn').onclick=()=>{ document.querySelector('.app').style.maxWidth =
-  (document.querySelector('.app').style.maxWidth==='1400px') ? '1200px' : '1400px'; };
+q('#minBtn').onclick=()=>{ minimized=!minimized; q('#wrap').classList.toggle('hidden', minimized); q('#minBtn').textContent=minimized?'Restore':'Minimize'; };
+q('#wideBtn').onclick=()=>{ const app=q('.app'); app.style.maxWidth = (app.style.maxWidth==='1600px') ? '1800px' : '1600px'; };
 
-/* ===== Agency switching ===== */
-qa('.topnav .seg').forEach(s=>{
-  s.addEventListener('click', ()=>{
+/* ================= Agency switching + theme ================= */
+qa('.topnav .seg').forEach(seg=>{
+  seg.addEventListener('click', ()=>{
     qa('.topnav .seg').forEach(x=>x.classList.remove('active'));
-    s.classList.add('active');
-    const agency=s.dataset.agency;
+    seg.classList.add('active');
+    const agency=seg.dataset.agency;
     qa('#wrap > .panel').forEach(p=>p.classList.remove('active'));
     q('#'+agency).classList.add('active');
-    q('#opsBadge').textContent='Agency: '+agency.toUpperCase();
+    q('#agencyBadge').textContent='Agency: '+agency.toUpperCase();
+    q('#header').className='header '+agency;
     localStorage.setItem('AGENCY',agency);
   });
 });
 (function(){ const ag=localStorage.getItem('AGENCY')||'faa'; const seg=q('.topnav .seg[data-agency="'+ag+'"]'); if(seg) seg.click(); })();
 
-/* ===== Generic tab switchers (for each agency) ===== */
+/* ================= Generic tab switchers (per agency) ================= */
 function wireTabs(scopeSel){
   qa(scopeSel+' .tabs .tab').forEach(btn=>{
     btn.addEventListener('click',()=>{
@@ -565,124 +617,195 @@ function wireTabs(scopeSel){
       qa(scopeSel+' .tabs .tab').forEach(b=>b.classList.remove('active'));
       qa(scopeSel+' > .panel').forEach(p=>p.classList.remove('active'));
       btn.classList.add('active');
-      q('#'+id).classList.add('active');
+      const panel=q('#'+id);
+      panel.classList.add('active');
+      applyGate(panel);
     });
   });
 }
-wireTabs('#faa');
-wireTabs('#ntsb');
-wireTabs('#transit');
-wireTabs('#maritime');
+['#faa','#ntsb','#transit','#maritime'].forEach(wireTabs);
 
-/* ===== FAA → ATC subtabs ===== */
+/* ================= ATC Subtabs ================= */
 function setATCSub(id){
   qa('#faa_atc .subtabs .sub').forEach(b=>b.classList.remove('active'));
   qa('#faa_atc .subpanel').forEach(p=>p.style.display='none');
   q('#faa_atc .subtabs .sub[data-sub="'+id+'"]').classList.add('active');
-  q('#'+id).style.display='block';
+  const el=q('#'+id);
+  el.style.display='block';
+  applyGate(q('#faa_atc'));
 }
 qa('#faa_atc .subtabs .sub').forEach(b=>b.addEventListener('click',()=>setATCSub(b.dataset.sub)));
 setATCSub('atis');
 
-/* Clearance second-level subtabs */
+/* Clearance inner subtabs */
 function setClrSub(id){
   qa('#clearance .subtabs .sub').forEach(b=>b.classList.remove('active'));
   qa('#clearance .subpanel2').forEach(p=>p.style.display='none');
   q('#clearance .subtabs .sub[data-sub2="'+id+'"]').classList.add('active');
   q('#'+id).style.display='block';
+  applyGate(q('#faa_atc'));
 }
 qa('#clearance .subtabs .sub').forEach(b=>b.addEventListener('click',()=>setClrSub(b.dataset.sub2)));
 setClrSub('ifr');
 
-/* ===== FAA ATC data & ATIS ===== */
-const CONTROLLERS = [
-  {name:'John', role:'Supervisor', enabled:true},
-  {name:'Ava', role:'Controller', enabled:true},
-  {name:'Maverick', role:'Trainee', enabled:true}
-];
-const LETTERS = ["ALPHA","BRAVO","CHARLIE","DELTA","ECHO","FOXTROT","GOLF","HOTEL","INDIA","JULIETT","KILO","LIMA","MIKE","NOVEMBER","OSCAR","PAPA","QUEBEC","ROMEO","SIERRA","TANGO","UNIFORM","VICTOR","WHISKEY","XRAY","YANKEE","ZULU"];
-const WX_PRESETS={ CLEAR:{vis:"10",clouds:"SKC"}, RAIN:{vis:"6",clouds:"BKN025"}, FOG:{vis:"2",clouds:"OVC008"}, WINDY:{vis:"8",clouds:"SCT030"}, OVERCAST:{vis:"8",clouds:"OVC015"}, STORM:{vis:"3",clouds:"BKN015"} };
-const WIND_PROFILES={ CALM:"000/00", LIGHT:"220/06", BREEZY:"230/12", WINDY:"250/22G30", CROSS:"090/18" };
-const REASONS=[{code:"STAFF",ui:"Staffing",gme:"airport closed due to staffing unavailability"},{code:"POWER",ui:"Power outage",gme:"airport closed due to power outage"},{code:"EMERG",ui:"Emergency response",gme:"airport closed for emergency operations"},{code:"SEC",ui:"Security",gme:"airport closed due to a security incident"},{code:"EQUIP",ui:"Mechanical/Equipment",gme:"airport closed due to essential equipment outage"},{code:"INC",ui:"Incursion",gme:"airport closed due to a runway incursion investigation"},{code:"EXC",ui:"Aircraft overrun",gme:"airport closed due to a runway excursion"},{code:"WXMIN",ui:"Weather below minima",gme:"airport closed due to weather below landing minima"},{code:"NOTAM",ui:"NOTAM closure",gme:"airport closed per NOTAM"},{code:"OTHER",ui:"Other…",gme:"{OTHER}"}];
-const AIRPORTS=["LSIA","SSIA","GPSD","PBAY"];
+/* ================= Login / Gate ================= */
+let UNLOCKED = (localStorage.getItem('APP_UNLOCKED')==='1');
+const lockState = ()=>{ q('#lockState').textContent = UNLOCKED?'Unlocked':'Locked'; };
+lockState();
 
-/* init ATIS */
+q('#unlockBtn').onclick=()=>{
+  const pass=q('#lockPass').value;
+  if(pass===APP_PASS){
+    UNLOCKED=true; localStorage.setItem('APP_UNLOCKED','1'); lockState(); refreshGates();
+  }else{
+    alert('Incorrect password.');
+  }
+};
+q('#lockBtn').onclick=()=>{
+  UNLOCKED=false; localStorage.removeItem('APP_UNLOCKED'); lockState(); refreshGates();
+};
+function guard(fn){ if(!UNLOCKED){ alert('Locked. Enter password to use this tool.'); return; } fn(); }
+
+/* Gate overlay per panel that has data-protected="true" (unless data-public explicitly allows) */
+function applyGate(panel){
+  const isProtected = panel?.dataset?.protected==='true';
+  const existing = panel.querySelector(':scope > .gate');
+  if(isProtected && !UNLOCKED){
+    if(!existing){
+      const g=document.createElement('div');
+      g.className='gate';
+      g.innerHTML='<h4>Restricted Area</h4><div class="hint">Enter password in the top bar to unlock tools.</div><div class="gateRow"><input id="inlinePass" type="password" placeholder="Password…"><button class="btn ok" id="inlineUnlock">Unlock</button></div>';
+      panel.appendChild(g);
+      g.querySelector('#inlineUnlock').addEventListener('click',()=>{
+        const p=g.querySelector('#inlinePass').value;
+        if(p===APP_PASS){ UNLOCKED=true; localStorage.setItem('APP_UNLOCKED','1'); lockState(); refreshGates(); }
+        else alert('Incorrect password.');
+      });
+    }
+  }else{
+    if(existing) existing.remove();
+  }
+}
+function refreshGates(){ qa('#wrap > .panel, #wrap > .panel .panel, #wrap > .panel #faa_atc').forEach(applyGate); }
+refreshGates();
+
+/* ================= ATIS init & generation ================= */
 (function initATIS(){
-  const sel = q('#aName'); sel.innerHTML='';
-  CONTROLLERS.filter(u=>u.enabled).forEach(u=>{
+  // Controllers
+  const sel = q('#aName'); if(sel){ sel.innerHTML=''; CONTROLLERS.filter(u=>u.enabled).forEach(u=>{
     const o=document.createElement('option'); o.value=u.name; o.textContent=`${u.name} — ${u.role}`; sel.appendChild(o);
-  });
+  });}
+  // Letter
   const saved = localStorage.getItem('ATIS_LETTER')||'ALPHA';
-  q('#aLetter').value = saved;
+  if(q('#aLetter')) q('#aLetter').value = saved;
 
+  // Reasons & enable/disable per-airport fields
   AIRPORTS.forEach(ap=>{
-    const r=q('#ap'+ap+'_reason'); r.innerHTML='';
-    const optBlank=document.createElement('option'); optBlank.value=''; optBlank.text='— Select reason —'; r.appendChild(optBlank);
+    const r=q('#ap'+ap+'_reason'); if(!r) return;
+    r.innerHTML=''; const optBlank=document.createElement('option'); optBlank.value=''; optBlank.text='— Select reason —'; r.appendChild(optBlank);
     REASONS.forEach(rr=>{ const o=document.createElement('option'); o.value=rr.code; o.text=rr.ui; r.appendChild(o); });
-    const ok=q('#ap'+ap+'_ok'); const note=q('#ap'+ap+'_note');
-    const flip=()=>{ const disabled = ok.checked; r.disabled=disabled; note.disabled=disabled; if(disabled){ r.classList.remove('err'); note.classList.remove('err'); } };
+    const ok=q('#ap'+ap+'_ok'); const note=q('#ap'+ap+'_note'); const flip=()=>{
+      const disabled = ok.checked; r.disabled=disabled; note.disabled=disabled;
+      if(disabled){ r.classList.remove('err'); note.classList.remove('err'); }
+    };
     ok.addEventListener('change',flip); flip();
   });
 
+  // Auto/custom wind/vis/clouds
   const syncAuto=()=>{
-    const wx=q('#aWx').value; const prof=q('#aWindProfile').value; const custom=(prof==='CUSTOM');
+    const wx=q('#aWx')?.value; const prof=q('#aWindProfile')?.value; const custom=(prof==='CUSTOM');
+    if(!q('#aCustomRow')) return;
     q('#aCustomRow').style.display=custom?'flex':'none';
     q('#aAutoRow_w').style.display=custom?'none':'block';
     q('#aAutoRow_v').style.display=custom?'none':'block';
     q('#aAutoRow_c').style.display=custom?'none':'block';
     if(!custom){
-      q('#aWindAuto').value=WIND_PROFILES[prof]||'';
-      const p=WX_PRESETS[wx]||{}; q('#aVisAuto').value=p.vis||''; q('#aCloudsAuto').value=p.clouds||'';
+      if(q('#aWindAuto')) q('#aWindAuto').value=WIND_PROFILES[prof]||'';
+      const p=WX_PRESETS[wx]||{};
+      if(q('#aVisAuto')) q('#aVisAuto').value=p.vis||'';
+      if(q('#aCloudsAuto')) q('#aCloudsAuto').value=p.clouds||'';
     }
   };
-  ['#aWx','#aWindProfile'].forEach(s=>q(s).addEventListener('change',syncAuto)); syncAuto();
+  ['#aWx','#aWindProfile'].forEach(s=>{ if(q(s)) q(s).addEventListener('change',syncAuto); }); syncAuto();
 
-  q('#nextLetterBtn').onclick=()=>{
+  if(q('#nextLetterBtn')) q('#nextLetterBtn').onclick=()=>{
     const cur=(q('#aLetter').value||'ALPHA').toUpperCase();
     const i=(LETTERS.indexOf(cur)+1+LETTERS.length)%LETTERS.length;
     const nxt=LETTERS[i]; q('#aLetter').value=nxt; localStorage.setItem('ATIS_LETTER',nxt);
   };
-  q('#aAllOk').addEventListener('change',e=>{
-    const all=e.target.checked; AIRPORTS.forEach(ap=>{ q('#ap'+ap+'_ok').checked=all; q('#ap'+ap+'_ok').dispatchEvent(new Event('change')); });
+  if(q('#aAllOk')) q('#aAllOk').addEventListener('change',e=>{
+    const all=e.target.checked; AIRPORTS.forEach(ap=>{ const box=q('#ap'+ap+'_ok'); if(box){ box.checked=all; box.dispatchEvent(new Event('change')); } });
   });
 
-  q('#btnATIS').onclick=genATIS;
+  if(q('#btnATIS')) q('#btnATIS').onclick=()=>guard(genATIS);
 })();
 
-function setErrs(msgs){ const box=q('#aErr'); if(!msgs.length){ box.style.display='none'; box.innerHTML=''; return; } box.style.display='block'; box.innerHTML="<b>Fix these:</b><ul>"+msgs.map(m=>`<li>${m}</li>`).join('')+"</ul>"; }
+function setErrs(msgs){ const box=q('#aErr'); if(!box) return; if(!msgs.length){ box.style.display='none'; box.innerHTML=''; return; } box.style.display='block'; box.innerHTML="<b>Fix these:</b><ul>"+msgs.map(m=>`<li>${m}</li>`).join('')+"</ul>"; }
 function validateATIS(){
-  const msgs=[]; ['#aName','#aPos','#aTod','#aWx','#aWindProfile'].forEach(s=>q(s).classList.remove('err'));
-  [['#aName','Controller Name'],['#aPos','Position'],['#aTod','Time of Day'],['#aWx','Weather Preset'],['#aWindProfile','Wind Profile']].forEach(([sel,label])=>{
-    if(!q(sel).value){ msgs.push(`${label} is required.`); q(sel).classList.add('err'); }
+  const msgs=[];
+  ['#aName','#aPos','#aTod','#aWx','#aWindProfile'].forEach(sel=>{
+    const el=q(sel); if(el) el.classList.remove('err');
   });
-  if(q('#aWindProfile').value==='CUSTOM'){
+  const reqs=[['#aName','Controller Name'],['#aPos','Position'],['#aTod','Time of Day'],['#aWx','Weather Preset'],['#aWindProfile','Wind Profile']];
+  reqs.forEach(([sel,label])=>{
+    const el=q(sel); if(el && !el.value){ msgs.push(`${label} is required.`); el.classList.add('err'); }
+  });
+  if(q('#aWindProfile') && q('#aWindProfile').value==='CUSTOM'){
     const w=q('#aWind').value.trim(), v=q('#aVis').value.trim(), c=q('#aClouds').value.trim();
     if(!/^\d{3}\/\d{2}(G\d{2})?$/.test(w)){ msgs.push('Wind must look like 220/06 or 250/22G30.'); q('#aWind').classList.add('err'); }
     if(!v || isNaN(Number(v))){ msgs.push('Visibility (SM) must be a number.'); q('#aVis').classList.add('err'); }
     if(!c){ msgs.push('Clouds required (e.g., SKC, SCT030, BKN025).'); q('#aClouds').classList.add('err'); }
   }
-  AIRPORTS.forEach(ap=>{ const ok=q('#ap'+ap+'_ok').checked; const rs=q('#ap'+ap+'_reason').value;
-    if(!ok && !rs){ msgs.push(`${ap}: reason required when not operational.`); q('#ap'+ap+'_reason').classList.add('err'); } });
-  setErrs(msgs); return msgs.length===0;
+  AIRPORTS.forEach(ap=>{
+    const ok=q('#ap'+ap+'_ok'); const rs=q('#ap'+ap+'_reason');
+    if(ok && rs && !ok.checked && !rs.value){ msgs.push(`${ap}: reason required when not operational.`); rs.classList.add('err'); }
+  });
+  setErrs(msgs);
+  return msgs.length===0;
 }
-function apOps(ap){ const o=q('#ap'+ap+'_ops').value; return o || q('#aOps').value; }
-function reasonText(code,note){ const R={STAFF:'airport closed due to staffing unavailability',POWER:'airport closed due to power outage',EMERG:'airport closed for emergency operations',SEC:'airport closed due to a security incident',EQUIP:'airport closed due to essential equipment outage',INC:'airport closed due to a runway incursion investigation',EXC:'airport closed due to a runway excursion',WXMIN:'airport closed due to weather below landing minima',NOTAM:'airport closed per NOTAM',OTHER:(note&&note.trim())?note.trim():'airport closed'}; return R[code]||'airport closed'; }
+function apOps(ap){ const o=q('#ap'+ap+'_ops'); return (o && o.value) ? o.value : (q('#aOps')?.value||'Normal'); }
+function reasonText(code,note){
+  const R={
+    STAFF:'airport closed due to staffing unavailability',
+    POWER:'airport closed due to power outage',
+    EMERG:'airport closed for emergency operations',
+    SEC:'airport closed due to a security incident',
+    EQUIP:'airport closed due to essential equipment outage',
+    INC:'airport closed due to a runway incursion investigation',
+    EXC:'airport closed due to a runway excursion',
+    WXMIN:'airport closed due to weather below landing minima',
+    NOTAM:'airport closed per NOTAM',
+    OTHER:(note&&note.trim())?note.trim():'airport closed'
+  };
+  return R[code]||'airport closed';
+}
 function genATIS(){
   if(!validateATIS()) return;
+
   const name=q('#aName').value.split(' — ')[0] || q('#aName').value;
   const pos=q('#aPos').value;
-  const custom=(q('#aWindProfile').value==='CUSTOM');
+  const prof=q('#aWindProfile').value;
+  const custom=(prof==='CUSTOM');
   const wind=custom?q('#aWind').value.trim():(q('#aWindAuto').value||'').trim();
   const vis=custom?q('#aVis').value.trim():(q('#aVisAuto').value||'').trim();
   const cld=custom?q('#aClouds').value.trim():(q('#aCloudsAuto').value||'').trim();
-  const ops=q('#aOps').value, inclClr=q('#aInclClr').checked, noise=q('#aNoise').checked;
-  const letter=(q('#aLetter').value||'ALPHA').toUpperCase(), time=zZulu();
+  const ops=q('#aOps').value;
+  const inclClr=q('#aInclClr').checked;
+  const noise=q('#aNoise').checked;
+  const letter=(q('#aLetter').value||'ALPHA').toUpperCase();
+  const time=zZulu();
 
   const groupsActiveByOps={}, closedReasons={}; let anyClosed=false;
   AIRPORTS.forEach(ap=>{
-    const ok=q('#ap'+ap+'_ok').checked, rs=q('#ap'+ap+'_reason').value, nt=q('#ap'+ap+'_note').value||"", aops=apOps(ap);
-    if(ok){ const key=aops||ops; (groupsActiveByOps[key]??=[]).push(ap); }
-    else { anyClosed=true; const reason=reasonText(rs,nt); (closedReasons[reason]??=[]).push(ap); }
+    const ok=q('#ap'+ap+'_ok').checked;
+    const rs=q('#ap'+ap+'_reason').value;
+    const nt=q('#ap'+ap+'_note').value||"";
+    const aops=apOps(ap);
+    if(ok){
+      const key=aops||ops; (groupsActiveByOps[key]??=[]).push(ap);
+    }else{
+      anyClosed=true; const reason=reasonText(rs,nt); (closedReasons[reason]??=[]).push(ap);
+    }
   });
 
   const parts=[];
@@ -690,33 +813,35 @@ function genATIS(){
   parts.push(`~b~Wind ${wind}, vis ${vis}SM, ${cld}.`);
   parts.push(`~g~Ops ${ops}.`);
 
-  const activeChunks=[]; Object.keys(groupsActiveByOps).forEach(k=>{
+  const activeChunks=[];
+  Object.keys(groupsActiveByOps).forEach(k=>{
     const list=groupsActiveByOps[k].join('/'); const tag=(k!==ops||Object.keys(groupsActiveByOps).length>1)?` (${k})`:"";
-    activeChunks.push(`${list}${tag}`); });
+    activeChunks.push(`${list}${tag}`);
+  });
   if(activeChunks.length) parts.push(`~g~Active: ${activeChunks.join('; ')}.`);
-  if(anyClosed){ const cc=[]; Object.keys(closedReasons).forEach(reason=>cc.push(`${reason}: ${closedReasons[reason].join('/')}`)); parts.push(`~r~Closed: ${cc.join('; ')}.`); }
+  if(anyClosed){
+    const cc=[]; Object.keys(closedReasons).forEach(reason=>cc.push(`${reason}: ${closedReasons[reason].join('/')}`));
+    parts.push(`~r~Closed: ${cc.join('; ')}.`);
+  }
   if(noise) parts.push(`~y~Noise abatement in effect; comply with published procedures.`);
   if(inclClr) parts.push(`~y~Contact Clearance 122.2.`);
   parts.push(`~y~Advise you have ${letter}.`);
 
   const line='/gme '+parts.join(' ');
   q('#atisOut').textContent=line;
+  // advance letter
   const cur=(q('#aLetter').value||'ALPHA').toUpperCase();
   const i=(LETTERS.indexOf(cur)+1+LETTERS.length)%LETTERS.length;
   const nxt=LETTERS[i]; q('#aLetter').value=nxt; localStorage.setItem('ATIS_LETTER',nxt);
   copy(line);
 }
 
-/* ===== Clearances ===== */
-q('#btnIFR').onclick=()=>genClear('ifr');
-q('#btnVFR').onclick=()=>genClear('vfr');
-q('#btnHELI').onclick=()=>genClear('heli');
-
+/* ================= Clearance generators ================= */
 function genClear(type){
   let out='';
   if(type==='ifr'){
     const c=q('#ifrCall').value||'CALLSIGN';
-    const r=q('#ifrRoute').value;
+    const r=q('#ifrRoute').value||'LSIA → SSIA';
     const dest=r.split('→')[1].trim();
     const sid=(q('#ifrSid').value||'SID');
     out=`/gme ^*^9ATC reads clearance to ${c}.^* ~b~Cleared to ${dest} via ${sid}. ~g~Climb and maintain 5,000, expect FL240 10 minutes after departure. ~y~Departure 122.5. ~r~Squawk 1234.`;
@@ -736,16 +861,19 @@ function genClear(type){
   }
   copy(out);
 }
+if(q('#btnIFR')) q('#btnIFR').onclick=()=>guard(()=>genClear('ifr'));
+if(q('#btnVFR')) q('#btnVFR').onclick=()=>guard(()=>genClear('vfr'));
+if(q('#btnHELI')) q('#btnHELI').onclick=()=>guard(()=>genClear('heli'));
 
-/* ===== Pilot helper ===== */
-q('#plCopy').onclick=()=>{
+/* ================= Pilot helper ================= */
+if(q('#plCopy')) q('#plCopy').onclick=()=>{
   const cs=(q('#plCall').value||'CALLSIGN').trim();
-  const tp=q('#plType').value;
+  const tp=q('#plType').value||'VFR';
   const line=`/gme ^*^9Pilot of ${cs} requesting ${tp}.^*`;
   q('#pilotOut').textContent=line; copy(line);
 };
 
-/* ===== NTSB generators ===== */
+/* ================= NTSB generators ================= */
 function genNTSBIntake(){
   const t=q('#iType').value, loc=q('#iLoc').value||'—', time=q('#iTime').value||zZulu();
   const ac=q('#iAC').value||'n/a', inj=q('#iInj').value, wx=q('#iWx').value;
@@ -760,7 +888,7 @@ function genBulletin(){
   q('#bOut').textContent=line; copy(line);
 }
 
-/* ===== Transit generators ===== */
+/* ================= Transit generators ================= */
 function genBus(){
   const r=q('#busRoute').value||'Route', v=q('#busVeh').value||'Vehicle', a=q('#busAct').value, n=q('#busNotes').value||'';
   const line=`/gme ~g~Transit Bus: ${r}, ${v}. ~b~Action: ${a}. ${n?('Notes: '+n):''}`.trim();
@@ -780,7 +908,7 @@ function genSysAlert(){
   q('#sysOut').textContent=line; copy(line);
 }
 
-/* ===== Maritime generators ===== */
+/* ================= Maritime generators ================= */
 function genFerry(){
   const r=q('#ferRoute').value||'Ferry Route', s=q('#ferStatus').value, d=q('#ferDelay').value||'0';
   const why=q('#ferReason').value, notes=q('#ferNotes').value||'';
@@ -791,14 +919,18 @@ function genFerry(){
 function genPort(){
   const a=q('#portArea').value||'Harbor', c=q('#portCond').value, r=q('#portReason').value, adv=q('#portAdv').value||'';
   const tag = (c==='Closed')?'~r~':'~y~';
-  const line=`/gme ${tag}Port Notice — ${a}: ${c}. Reason: ${r}. ${adv?('Advisory: '+adv):''}`.trim();
+  const line=`/gme ${tag}Port Notice — ${a}: ${c}. Reason: ${r}. ${v(adv)}`.trim();
   q('#portOut').textContent=line; copy(line);
+  function v(x){return x?('Advisory: '+x):''}
 }
 function genCraft(){
   const z=q('#craftZone').value||'Coastal Waters', w=q('#craftWind').value||'—', s=q('#craftSeas').value||'—', n=q('#craftNotes').value||'';
   const line=`/gme ~y~Small Craft Advisory — ${z}: Winds ${w}, seas ${s}. ${n}`.trim();
   q('#craftOut').textContent=line; copy(line);
 }
+
+/* ================= Initial gate pass ================= */
+refreshGates();
 </script>
 </body>
 </html>
