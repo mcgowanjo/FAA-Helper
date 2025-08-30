@@ -3,1361 +3,824 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Department Console — FAA • NTSB • SATA • Maritime</title>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Condensed:wght@400;600&display=swap" rel="stylesheet">
+<title>EOTS — Unified Ops Console (FAA • NTSB • SATA • Maritime)</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
 <style>
+  /* ===== DARK CAD-STYLE PALETTE ===== */
   :root{
-    --ink:#0f172a; --muted:#64748b; --bg:#f6f8fb; --panel:#ffffff; --grid:#e5e7eb;
-    --faa:#2563eb; --ntsb:#d32f2f; --sata:#2e7d32; --mar:#006d77;
-    --codebg:#0b1020; --codefg:#e5e7eb; --ok:#2e7d32; --warn:#ef6c00; --alt:#455a64;
-    --chip:#eef2ff; --chipInk:#1e3a8a;
-    --Police:#1e3a8a; --Fire:#b91c1c; --civ:#15803d; --comm:#6d28d9;
+    --bg:#0b0f14;        /* page */
+    --ink:#e7edf6;       /* primary text */
+    --muted:#8ea2b4;     /* secondary text */
+    --panel:#141a22;     /* cards */
+    --grid:#243041;      /* borders */
+    --panel2:#0f1621;    /* headers / bars */
+
+    --blue:#3b82f6; --cyan:#06b6d4; --red:#ef4444; --amber:#f59e0b; --green:#22c55e; --teal:#0ea5a5; --purple:#7c3aed;
+
+    --chip-ink:#c9d7e6; --chip-bg:#1b2430; --chip-brd:#2a3646;
+
+    --shadow:0 1px 0 rgba(255,255,255,.02) inset, 0 8px 24px rgba(0,0,0,.25);
   }
+
   html,body{height:100%}
-  body{margin:0;background:var(--bg);color:var(--ink);font-family:"IBM Plex Sans Condensed",system-ui,Arial,sans-serif}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,Arial,sans-serif}
 
-  /* Header */
-  .header{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;padding:12px 16px;color:#fff}
-  .header.faa{background:linear-gradient(90deg,var(--faa),#3b82f6)}
-  .header.ntsb{background:linear-gradient(90deg,var(--ntsb),#ef5350)}
-  .header.sata{background:linear-gradient(90deg,var(--sata),#43a047)}
-  .header.mar{background:linear-gradient(90deg,var(--mar),#0891b2)}
-  .title{display:flex;align-items:center;gap:10px;font-size:18px}
-  .badge{background:var(--chip);color:var(--chipInk);border-radius:999px;padding:3px 10px;font-size:12px}
+  /* ===== Header ===== */
+  .header{
+    display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;
+    padding:14px 18px;color:#eaf2ff;
+    background:linear-gradient(90deg,#0e1621,#1b293b);
+    border-bottom:1px solid var(--grid)
+  }
+  .brand{display:flex;align-items:center;gap:12px}
+  .logoDot{width:10px;height:10px;border-radius:50%;background:#60a5fa;box-shadow:0 0 0 4px rgba(96,165,250,.18)}
+  .brand .title{font-size:18px;font-weight:700;letter-spacing:.3px}
+  .brand .subtitle{font-size:12px;opacity:.85}
+  .badge{background:#0f1926;border:1px solid #233041;color:#cfe1ff;border-radius:999px;padding:6px 10px;font-size:12px}
+  .login{font-size:12px;color:#fff;opacity:.95;display:flex;gap:8px;align-items:center}
+  .login input{width:160px;border-radius:10px;padding:6px 10px;border:1px solid #2a3646;background:#101720;color:#dbe7f6}
 
-  /* Agency nav */
-  .topnav{display:flex;gap:10px;flex-wrap:wrap;padding:12px 16px}
-  .seg{background:#fff;color:#111827;border:1px solid #cbd5e1;border-radius:12px;padding:8px 14px;cursor:pointer;transition:transform .12s ease, box-shadow .12s ease}
-  .seg:hover{transform:translateY(-1px);box-shadow:0 4px 10px rgba(0,0,0,.06)}
-  .seg.active{border-color:#111827;box-shadow:0 6px 16px rgba(0,0,0,.12);animation:jump .6s ease}
-  @keyframes jump{0%{transform:translateY(0)}40%{transform:translateY(-4px)}100%{transform:translateY(0)}}
+  /* ===== Watermark (small lion) ===== */
+  .wm{pointer-events:none;position:fixed;right:12px;bottom:10px;z-index:0;opacity:.06}
+  .wm img{max-width:120px;max-height:120px;filter:grayscale(1)}
 
-  /* Layout */
-  .wrap{max-width:1600px;margin:0 auto;padding:0 16px 24px}
-  .grid3{display:grid;grid-template-columns:1.1fr 0.9fr 1.1fr;gap:16px;align-items:stretch}
-  @media(max-width:1200px){.grid3{grid-template-columns:1fr}}
-  .card{background:var(--panel);border:1px solid var(--grid);border-radius:12px;padding:14px;display:flex;flex-direction:column}
+  /* ===== Nav ===== */
+  .topnav,.subnav{padding:12px 16px}
+  .seg,.subtab{
+    background:var(--panel); color:var(--ink); border:1px solid var(--grid); border-radius:10px; padding:8px 12px; cursor:pointer
+  }
+  .seg.active,.subtab.active{border-color:#4a6aa3; box-shadow:0 0 0 1px #3a5c8c inset, 0 4px 12px rgba(0,0,0,.25)}
+
+  /* ===== Layout ===== */
+  .wrap{max-width:1620px;margin:0 auto;padding:0 16px 28px;position:relative;z-index:1}
+  .grid{display:grid;grid-template-columns:1fr;gap:16px}
+  .card{background:var(--panel);border:1px solid var(--grid);border-radius:12px;padding:14px;display:flex;flex-direction:column;box-shadow:var(--shadow)}
   .sectionTitle{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
+  .sectionTitle h3{margin:0;font-size:16px;font-weight:700}
+
   .tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
-  .tab{border:1px solid #cbd5e1;background:#e0f2fe;color:#0c4a6e;padding:6px 10px;border-radius:8px;cursor:pointer}
-  .tab.active{background:#bae6fd}
+  .tab{border:1px solid var(--grid);background:#0f1620;color:#cfe1ff;padding:8px 12px;border-radius:8px;cursor:pointer}
+  .tab:hover{border-color:#4a6aa3}
+  .tab.active{background:#122136;border-color:#4a6aa3;box-shadow:0 0 0 1px #3a5c8c inset}
   .panel{display:none}.panel.active{display:block}
 
-  /* Controls */
-  label{display:block;margin:6px 0 4px;font-size:13px}
-  .req::after{content:" *";color:#c62828;font-weight:700}
-  input,select,textarea{width:100%;padding:9px;border:1px solid #cbd5e1;border-radius:10px;background:#fff;font-family:inherit}
-  textarea{min-height:96px}
-  .row{display:flex;gap:12px;flex-wrap:wrap}
-  .row>div{flex:1 1 260px}
-  .btn{border:0;border-radius:10px;padding:9px 12px;background:#1976d2;color:#fff;font-weight:600;cursor:pointer}
-  .btn.ok{background:var(--ok)} .btn.warn{background:var(--warn)} .btn.alt{background:var(--alt)}
-  .code{background:var(--codebg);color:var(--codefg);border-radius:10px;padding:10px;white-space:pre-wrap;font-family:Consolas,Menlo,monospace}
-  .hint{color:var(--muted);font-size:12px}
-  .err{border-color:#e53935!important;box-shadow:0 0 0 3px rgba(229,57,53,.18)}
-  .errbox{display:none;background:#fee2e2;border:1px solid #fecaca;color:#7f1d1d;border-radius:10px;padding:10px;margin:8px 0}
-  .errbox ul{margin:6px 0 0 18px}
+  /* Forms */
+  label{display:block;margin:6px 0 4px;font-size:12px;color:#cfe1ff}
+  .req::after{content:" *";color:#f97316;font-weight:700}
+  input,select,textarea{
+    width:100%;padding:10px 12px;border:1px solid var(--grid);border-radius:10px;background:#0e151e;color:#e7edf6;font-family:inherit
+  }
+  select:focus,input:focus,textarea:focus{outline:none;box-shadow:0 0 0 2px #375e97 inset;border-color:#4a6aa3}
+  .row{display:flex;gap:18px;flex-wrap:wrap;margin-bottom:10px}
+  .row>div{flex:1 1 300px;min-width:260px}
+  .btn{border:1px solid #2a3646;border-radius:10px;padding:10px 14px;background:#152030;color:#d7e7ff;font-weight:600;cursor:pointer}
+  .btn:hover{border-color:#4a6aa3;background:#19263a}
+  .btn.ok{background:#153224;border-color:#204d34}
+  .btn.warn{background:#3a240e;border-color:#5a3b12}
+  .btn.alt{background:#1b2633;border-color:#2d3e55}
+  .muted{color:var(--muted);font-size:12px}
 
-  /* Chips */
-  .chips{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0}
-  .chip{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;background:#f1f5f9;border:1px solid #e2e8f0;font-size:12px;cursor:pointer}
-  .chip .dot{width:8px;height:8px;border-radius:50%}
-  .chip.Police{border-color:#c7d2fe}.chip.Police .dot{background:var(--Police)}
-  .chip.Fire{border-color:#fecaca}.chip.Fire .dot{background:var(--Fire)}
-  .chip.civ{border-color:#bbf7d0}.chip.civ .dot{background:var(--civ)}
-  .chip.comm{border-color:#e9d5ff}.chip.comm .dot{background:var(--comm)}
+  /* Outputs — one per tab, scrollable */
+  .outwrap{display:grid;grid-template-columns:1fr;gap:8px;margin-top:6px;max-height:230px;overflow:auto}
+  .gme{background:#0b1220;color:#d7e7ff;border:1px solid #233041;border-radius:10px;padding:10px;white-space:pre-wrap;font-family:Consolas,Menlo,monospace}
+  .plain{background:#0b0f1a;color:#cfe1ff;border:1px solid #233041;border-radius:10px;padding:10px;white-space:pre-wrap;font-family:Consolas,Menlo,monospace}
 
-  /* Agency pages container */
+  /* Callsign chips under input */
+  .chipsbar{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 0}
+  .chip{border:1px solid var(--chip-brd);background:var(--chip-bg);color:var(--chip-ink);border-radius:999px;padding:6px 10px;font-size:12px;cursor:pointer}
+  .chip:hover{border-color:#4a6aa3}
+
+  /* ===== Hazard Map ===== */
+  .hazLayout{display:grid;grid-template-columns:minmax(760px,1fr) 380px;gap:16px;align-items:start}
+  .mapWrap{position:relative;border:1px solid var(--grid);border-radius:12px;overflow:hidden;background:#0f1722}
+  #baseImg{display:block;width:100%;height:1450px;object-fit:cover;filter:contrast(1.05) brightness(.85)}
+  #hazSVG{position:absolute;inset:0;width:100%;height:1450px}
+  .legend,.catPanel{
+    position:absolute;background:rgba(15,23,34,.92);border:1px solid #223044;color:#cfe1ff;border-radius:10px;padding:8px 10px;font-size:12px;line-height:1.3
+  }
+  .legend{top:10px;right:10px}
+  .legend h4{margin:2px 0 6px 0;font-size:12px}
+  .legend .item{display:flex;align-items:center;gap:8px;margin:4px 0}
+  .legend .sw{width:12px;height:12px;border-radius:50%}
+  .catPanel{left:10px;top:10px;max-width:260px}
+  .catPanel label{display:flex;align-items:center;gap:8px;margin:4px 0}
+  .catSw{width:12px;height:12px;border-radius:50%}
+  .hazList{background:var(--panel);border:1px solid var(--grid);border-radius:12px;padding:12px;max-height:1450px;overflow:auto}
+  .hazList.compact .hazItem{padding:4px 6px;font-size:12px}
+  .hazTools{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+  .hazItem{padding:8px;border-radius:8px;cursor:pointer}
+  .hazItem:hover{background:#111a26}
+  .dimmed{opacity:.25}
+  .highlight{filter:drop-shadow(0 0 10px rgba(96,165,250,.6))}
+  .pulse{animation:pulse 1.2s ease 1}
+  @keyframes pulse{0%{filter:drop-shadow(0 0 0 rgba(96,165,250,0))}30%{filter:drop-shadow(0 0 14px rgba(96,165,250,.75))}100%{filter:drop-shadow(0 0 0 rgba(96,165,250,0))}}
+
+  /* Agency pages */
   .agencyPage{display:none}.agencyPage.active{display:block}
-
-  /* ATIS checkbox grid */
-  .optionsGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
-  @media(max-width:900px){.optionsGrid{grid-template-columns:1fr}}
-  .checkset{border:1px solid #e2e8f0;border-radius:10px;padding:8px}
-  .checkset .choices{display:flex;flex-wrap:wrap;gap:8px}
-  .check-pill{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border:1px solid #cbd5e1;border-radius:999px;background:#fff;cursor:pointer}
-  .check-pill input{width:auto}
-
-  /* Keep the references card balanced */
-  .ref-footer{margin-top:auto}
 </style>
 </head>
 <body>
-  <!-- Header -->
-  <div class="header faa" id="header">
-    <div class="title">
-      <div>Department Console — FAA • NTSB • SATA • Maritime</div>
-      <span class="badge" id="agencyBadge">Agency: FAA</span>
+
+<!-- ===== Header ===== -->
+<div class="header" id="header">
+  <div class="brand">
+    <div class="logoDot"></div>
+    <div>
+      <div class="title">Enemy of the State Roleplay</div>
+      <div class="subtitle">Unified Ops Console — FAA • NTSB • SATA • Maritime</div>
     </div>
-    <div class="badge">IBM Plex Sans Condensed</div>
   </div>
-
-  <!-- Agency selector -->
-  <div class="topnav">
-    <div class="seg active" data-agency="faa">FAA</div>
-    <div class="seg" data-agency="ntsb">NTSB</div>
-    <div class="seg" data-agency="sata">SATA</div>
-    <div class="seg" data-agency="mar">Maritime</div>
+  <div class="login">
+    <span>Logged in:</span>
+    <input id="loginName" value="McGowan" />
+    <input id="loginCode" value="00004" />
+    <span class="badge" id="loginBadge">McGowan — Controller</span>
   </div>
+</div>
 
-  <div class="wrap">
-    <!-- ===================== FAA PAGE ===================== -->
-    <div id="page_faa" class="agencyPage active">
-      <div class="grid3">
-        <!-- ===== Left: ATC Console ===== -->
-        <div class="card">
-          <div class="sectionTitle"><h3>ATC Console</h3><button class="btn alt" id="clearATC">Clear All Outputs</button></div>
-          <div class="tabs" id="atcTabs">
-            <button class="tab active" data-tab="atis">ATIS</button>
-            <button class="tab" data-tab="clr">Clearance</button>
-            <button class="tab" data-tab="gnd">Ground & Taxi</button>
-            <button class="tab" data-tab="twr">Tower</button>
-            <button class="tab" data-tab="dap">Departure / Approach</button>
-            <button class="tab" data-tab="ctr">Center</button>
-            <button class="tab" data-tab="emg">Emergencies</button>
-            <button class="tab" data-tab="ads">Ads Builder</button>
-            <button class="tab" data-tab="train_atc">Training</button>
-          </div>
+<!-- Watermark (small lion) -->
+<div class="wm"><img src="eots_log_sticker_transparent_working_copy_512.png" alt="EOTS watermark"></div>
 
-          <!-- ATC: ATIS -->
-          <div id="panel_atis" class="panel active">
-            <div class="row" style="gap:8px">
-              <!-- DROPDOWNS (Single-row compact) -->
-              <div style="flex:1 1 220px">
-                <label class="req">Time of Day</label>
-                <select id="aTod">
-                  <option value="">— select —</option>
-                  <option>Morning</option><option>Midday</option>
-                  <option>Evening</option><option>Night</option>
-                </select>
-              </div>
-              <div style="flex:1 1 220px">
-                <label class="req">Weather</label>
-                <select id="aWx">
-                  <option value="">— select —</option>
-                  <option value="CLEAR">Clear</option>
-                  <option value="OVERCAST">Overcast</option>
-                  <option value="RAIN">Rain</option>
-                  <option value="STORM">Thunderstorm</option>
-                  <option value="SNOW">Snow</option>
-                  <option value="FOG">Fog</option>
-                  <option value="WINDY">Windy</option>
-                </select>
-              </div>
-              <div style="flex:1 1 220px">
-                <label class="req">Wind</label>
-                <select id="aWind">
-                  <option value="">— select —</option>
-                  <option value="CALM">Calm</option>
-                  <option value="LIGHT">Light</option>
-                  <option value="BREEZY">Breezy</option>
-                  <option value="WINDY">Windy</option>
-                  <option value="CROSS">Crosswind</option>
-                </select>
-              </div>
-            </div>
+<!-- ===== Agency selector ===== -->
+<div class="topnav">
+  <div class="seg active" data-agency="faa">FAA</div>
+  <div class="seg" data-agency="ntsb">NTSB</div>
+  <div class="seg" data-agency="sata">SATA</div>
+  <div class="seg" data-agency="mar">Maritime</div>
+</div>
 
-            <div class="row" style="margin-top:6px">
-              <div style="flex:1 1 280px">
-                <label class="req">ATIS Letter</label>
-                <div class="row">
-                  <div style="flex:0 0 160px"><input id="aLetter" disabled></div>
-                  <div style="flex:0 0 auto">
-                    <button class="btn alt" id="nextLetter" title="Reset & advance letter">Reset / Next Letter</button>
-                  </div>
-                </div>
-                <div class="hint">Only generated when you press “Generate ATIS”. Changing options will NOT auto-generate.</div>
-              </div>
+<!-- ===== Sub-tabs ===== -->
+<div class="subnav">
+  <div class="subtab active" data-sub="console">ATC Console</div>
+  <div class="subtab" data-sub="refs">References</div>
+  <div class="subtab" data-sub="pilot">Pilot Tools</div>
+</div>
 
-              <!-- Operational block (condensed) -->
-              <div class="card" style="flex:2 1 520px">
-                <label>Operational Status (Condensed)</label>
-                <div class="row" style="align-items:flex-end">
-                  <div style="flex:1 1 220px">
-                    <label><input type="checkbox" id="apAll" checked> All Airports Operational</label>
-                    <div class="hint">If checked, individual airport rows stay hidden.</div>
-                  </div>
-                  <div style="flex:1 1 220px">
-                    <label><input type="checkbox" id="aNoise"> Noise Abatement in Effect</label>
-                  </div>
-                  <div style="flex:1 1 220px">
-                    <label><input type="checkbox" id="aInclClr" checked> Include “Contact Clearance 122.2”</label>
-                  </div>
-                </div>
-
-                <!-- Condensed per-airport matrix -->
-                <div id="opsMatrix" style="margin-top:8px;display:none">
-                  <div class="row" style="gap:8px">
-                    <!-- HINT: Toggle airport ops/fuel quickly here -->
-                    <div class="card" style="flex:1 1 220px">
-                      <b>LSIA</b>
-                      <label>Ops</label>
-                      <select id="ops_LSIA"><option>(Global)</option><option>Normal</option><option>Reverse</option></select>
-                      <label>Status</label>
-                      <select id="st_LSIA"><option>Active</option><option>Closed</option></select>
-                      <label>Fuel</label>
-                      <select id="fuel_LSIA"><option>Available</option><option>Limited</option><option>Unavailable</option></select>
-                    </div>
-                    <div class="card" style="flex:1 1 220px">
-                      <b>SNDY</b>
-                      <label>Ops</label>
-                      <select id="ops_SNDY"><option>(Global)</option><option>Normal</option><option>Reverse</option></select>
-                      <label>Status</label>
-                      <select id="st_SNDY"><option>Active</option><option>Closed</option></select>
-                      <label>Fuel</label>
-                      <select id="fuel_SNDY"><option>Available</option><option>Limited</option><option>Unavailable</option></select>
-                    </div>
-                    <div class="card" style="flex:1 1 220px">
-                      <b>GPSD</b>
-                      <label>Ops</label>
-                      <select id="ops_GPSD"><option>(Global)</option><option>Normal</option><option>Reverse</option></select>
-                      <label>Status</label>
-                      <select id="st_GPSD"><option>Active</option><option>Closed</option></select>
-                      <label>Fuel</label>
-                      <select id="fuel_GPSD"><option>Available</option><option>Limited</option><option>Unavailable</option></select>
-                    </div>
-                    <div class="card" style="flex:1 1 220px">
-                      <b>PBAY</b>
-                      <label>Ops</label>
-                      <select id="ops_PBAY"><option>(Global)</option><option>Normal</option><option>Reverse</option></select>
-                      <label>Status</label>
-                      <select id="st_PBAY"><option>Active</option><option>Closed</option></select>
-                      <label>Fuel</label>
-                      <select id="fuel_PBAY"><option>Available</option><option>Limited</option><option>Unavailable</option></select>
-                    </div>
-                    <div class="card" style="flex:1 1 220px">
-                      <b>RXWD</b>
-                      <label>Ops</label>
-                      <select id="ops_RXWD"><option>(Global)</option><option>Normal</option><option>Reverse</option></select>
-                      <label>Status</label>
-                      <select id="st_RXWD"><option>Active</option><option>Closed</option></select>
-                      <label>Fuel</label>
-                      <select id="fuel_RXWD"><option>Available</option><option>Limited</option><option>Unavailable</option></select>
-                    </div>
-                  </div>
-                </div>
-                <div class="hint">Uncheck “All Airports Operational” to show the per-airport matrix.</div>
-              </div>
-            </div>
-
-            <div id="aErr" class="errbox"></div>
-            <button class="btn ok" id="genATIS" title="Ctrl+Enter">Generate ATIS — click to copy</button>
-            <div id="atisOut" class="code" style="margin-top:6px"></div>
-            <div id="atisPlain" class="code" style="margin-top:6px"></div>
-          </div>
-
-          <!-- ATC: Clearance -->
-          <div id="panel_clr" class="panel">
-            <div class="row">
-              <div><label class="req">Callsign</label><input id="clrCall" placeholder="N123AB / AIR-1 / MED-2"></div>
-              <div>
-                <label class="req">Type</label>
-                <select id="clrType">
-                  <option>IFR</option><option>VFR</option><option>Special Ops</option>
-                </select>
-              </div>
-              <div id="specDeptsWrap" style="display:none">
-                <label class="req">Departments (multi)</label>
-                <select id="specDepts" multiple size="8">
-                  <!-- HINT: Edit/add: keep ALL CAPS for acronyms -->
-                  <option>LSPD</option><option>BCSO</option><option>SASP</option><option>SAFR</option>
-                  <option>USCG</option><option>SABP</option><option>FIB</option><option>DHS</option>
-                  <option>LSSD</option><option>LA</option>
-                </select>
-              </div>
-            </div>
-
-            <div id="IFRRow" class="row">
-              <div>
-                <label class="req">Route (from → to)</label>
-                <select id="clrRoute">
-                  <!-- HINT: Add routes here. Keep “AAA → BBB” format -->
-                  <option>LSIA → SNDY</option><option>LSIA → PBAY</option><option>LSIA → GPSD</option><option>LSIA → RXWD</option>
-                  <option>SNDY → LSIA</option><option>SNDY → PBAY</option><option>SNDY → GPSD</option><option>SNDY → RXWD</option>
-                  <option>GPSD → LSIA</option><option>GPSD → PBAY</option><option>GPSD → RXWD</option>
-                  <option>PBAY → LSIA</option><option>PBAY → GPSD</option><option>PBAY → RXWD</option>
-                  <option>RXWD → LSIA</option><option>RXWD → GPSD</option><option>RXWD → PBAY</option><option>RXWD → SNDY</option>
-                </select>
-              </div>
-              <div><label>Auto SID</label><input id="clrSid" placeholder="Auto" disabled></div>
-            </div>
-
-            <div id="VFRRow" class="row" style="display:none">
-              <div>
-                <label class="req">Direction</label>
-                <select id="VFRDir"><option>north</option><option>east</option><option>south</option><option>west</option></select>
-              </div>
-              <div>
-                <label class="req">Nearest Postal</label>
-                <input id="VFRPostal" placeholder="e.g., 2053">
-                <div class="hint">HINT: nearest mapping is in JS → function <b>nearestAirportByPostal</b></div>
-              </div>
-            </div>
-
-            <div id="specRow" class="row" style="display:none">
-              <div>
-                <label class="req">Authorized Areas (multi)</label>
-                <select id="specAreas" multiple size="10">
-                  <!-- HINT: This set is editable. Add/remove at will. -->
-                  <option>Los Santos (city)</option><option>Sandy Shores</option><option>Grapeseed</option><option>Paleto Bay</option>
-                  <option>Harmony / Route 68</option><option>Senora Freeway</option><option>Palomino Freeway</option><option>Zancudo Area</option>
-                  <option>LS Port / Docks</option><option>City Center (Maze Bank)</option>
-                </select>
-                <div class="hint">HINT: For helipad clearances, put 4-digit postal(s) in Notes (below).</div>
-              </div>
-              <div>
-                <label class="req">Ops Direction</label>
-                <select id="specOps"><option>Normal</option><option>north</option><option>east</option><option>south</option><option>west</option></select>
-                <div class="hint">HINT: Direction → hazards mapping is in JS → <b>DIRECTION_HAZARDS</b>.</div>
-              </div>
-            </div>
-
-            <div class="row">
-              <div><label>Notes (optional)</label>
-                <input id="clrNotes" placeholder="HINT: Put helipad postal or text (e.g., 'from 2053 MRPD helipad')">
-              </div>
-            </div>
-
-            <div id="clrErr" class="errbox"></div>
-            <div class="chips" id="chipsATC"></div>
-            <button class="btn" id="genCLR">Generate Clearance — click to copy</button>
-            <div id="clrOut" class="code" style="margin-top:6px"></div>
-            <div id="clrPlain" class="code" style="margin-top:6px"></div>
-          </div>
-
-          <!-- ATC: Ground & Taxi -->
-          <div id="panel_gnd" class="panel">
-            <div class="row">
-              <div><label class="req">Callsign</label><input id="gndCall" placeholder="N123AB / AIR-1"></div>
-              <div><label class="req">Airport</label>
-                <select id="gndAp"><option>LSIA</option><option>SNDY</option><option>GPSD</option><option>PBAY</option><option>RXWD</option></select>
-              </div>
-              <div><label class="req">Ops Direction</label>
-                <select id="gndOps"><option>Normal</option><option>north</option><option>east</option><option>south</option><option>west</option></select>
-              </div>
-            </div>
-            <div class="row">
-              <div><button class="btn" id="btnPushOnly">Pushback (clears)</button></div>
-              <div><button class="btn" id="btnPushStart">Push & Start (clears)</button></div>
-              <div><button class="btn" id="btnTaxiRwy">Progressive Taxi to Runway</button></div>
-              <div><button class="btn" id="btnTaxiPark">Progressive Taxi to Parking</button></div>
-            </div>
-            <div class="chips" id="chipsGND"></div>
-            <div id="gndOut" class="code"></div>
-            <div id="gndPlain" class="code" style="margin-top:6px"></div>
-          </div>
-
-          <!-- ATC: Tower -->
-          <div id="panel_twr" class="panel">
-            <div class="row">
-              <div><label class="req">Callsign</label><input id="twrCall" placeholder="N123AB / AIR-1"></div>
-              <div><label class="req">Airport</label>
-                <select id="twrAp"><option>LSIA</option><option>SNDY</option><option>GPSD</option><option>PBAY</option><option>RXWD</option></select>
-              </div>
-              <div><label class="req">Ops Direction</label>
-                <select id="twrOps"><option>Normal</option><option>north</option><option>east</option><option>south</option><option>west</option></select>
-              </div>
-            </div>
-            <div class="row">
-              <div><button class="btn" id="btnLineUp">Line Up & Wait</button></div>
-              <div><button class="btn" id="btnTakeoff">Takeoff (w/ optional Noise Abatement)</button></div>
-              <div><button class="btn" id="btnLanding">Landing</button></div>
-              <div><button class="btn" id="btnGoAround">Go Around</button></div>
-            </div>
-            <div class="row">
-              <div style="flex:1 1 260px">
-                <label>Noise Abatement</label>
-                <select id="twrNoise">
-                  <option>None</option>
-                  <option>Left turn after clean up</option>
-                  <option>Right turn after clean up</option>
-                  <option>Runway heading, reduce throttle after clean up</option>
-                </select>
-              </div>
-              <div style="flex:1 1 260px">
-                <label>Advisories</label>
-                <div class="row">
-                  <label style="flex:1 1 160px"><input type="checkbox" id="advWake"> Wake Turbulence (≤10 min)</label>
-                  <label style="flex:1 1 160px"><input type="checkbox" id="advRotor"> Rotor Wash (helo ≤5 min)</label>
-                  <label style="flex:1 1 160px"><input type="checkbox" id="advShear"> Windshear</label>
-                  <label style="flex:1 1 160px"><input type="checkbox" id="advLLT"> Low-level Turbulence</label>
-                </div>
-                <div class="hint">HINT: Crosswind auto-suggests Low-level Turbulence (see JS).</div>
-              </div>
-            </div>
-            <div class="chips" id="chipsTWR"></div>
-            <div id="twrOut" class="code"></div>
-            <div id="twrPlain" class="code" style="margin-top:6px"></div>
-          </div>
-
-          <!-- ATC: Departure / Approach -->
-          <div id="panel_dap" class="panel">
-            <div class="row">
-              <div><label class="req">Callsign</label><input id="dapCall" placeholder="N123AB"></div>
-              <div><label class="req">Phase</label>
-                <select id="dapPhase"><option>Departure</option><option>Approach</option></select>
-              </div>
-              <div><label class="req">Airport</label>
-                <select id="dapAp"><option>LSIA</option><option>SNDY</option><option>GPSD</option><option>PBAY</option><option>RXWD</option></select>
-              </div>
-              <div><label class="req">Direction</label>
-                <select id="dapDir"><option>North</option><option>East</option><option>South</option><option>West</option></select>
-              </div>
-            </div>
-            <div class="row">
-              <div style="flex:1 1 260px">
-                <label>Altitude / FL</label>
-                <input id="dapAlt" placeholder="3000 or FL240">
-              </div>
-              <div style="flex:1 1 260px">
-                <label>Heading (optional)</label>
-                <input id="dapHdg" placeholder="HINT: leave blank to auto from direction">
-              </div>
-              <div style="flex:1 1 260px">
-                <label>STAR / SID (optional)</label>
-                <input id="dapProc" placeholder="HINT: put SID for departure / STAR for approach">
-              </div>
-            </div>
-            <div class="row">
-              <div><button class="btn" id="btnDAPGen">Generate — click to copy</button></div>
-            </div>
-            <div class="chips" id="chipsDAP"></div>
-            <div id="dapOut" class="code"></div>
-            <div id="dapPlain" class="code" style="margin-top:6px"></div>
-          </div>
-
-          <!-- ATC: Center -->
-          <div id="panel_ctr" class="panel">
-            <div class="row">
-              <div><label class="req">Callsign</label><input id="ctrCall" placeholder="N123AB"></div>
-              <div><label class="req">Mode</label>
-                <select id="ctrMode"><option>Enroute</option><option>Departure</option><option>Arrival</option></select>
-              </div>
-              <div><label class="req">Airport</label>
-                <select id="ctrAp"><option>LSIA</option><option>SNDY</option><option>GPSD</option><option>PBAY</option><option>RXWD</option></select>
-              </div>
-              <div><label class="req">Direction</label>
-                <select id="ctrDir"><option>North</option><option>East</option><option>South</option><option>West</option></select>
-              </div>
-            </div>
-            <div class="row" id="ctrInputsExtra">
-              <div style="flex:1 1 260px">
-                <label>Altitude / FL</label>
-                <input id="ctrAlt" placeholder="e.g., 12000 or FL240">
-              </div>
-              <div style="flex:1 1 260px">
-                <label>Heading (optional)</label>
-                <input id="ctrHdg" placeholder="HINT: auto from direction if blank">
-              </div>
-              <div style="flex:1 1 260px">
-                <label>Next Frequency</label>
-                <input id="ctrNext" placeholder="122.7">
-              </div>
-            </div>
-            <div class="row"><div><button class="btn" id="btnCTRGen">Generate — click to copy</button></div></div>
-            <div class="chips" id="chipsCTR"></div>
-            <div id="ctrOut" class="code"></div>
-            <div id="ctrPlain" class="code" style="margin-top:6px"></div>
-          </div>
-
-          <!-- ATC: Emergencies -->
-          <div id="panel_emg" class="panel">
-            <div class="row">
-              <div><label class="req">Callsign</label><input id="emgCall" placeholder="N123AB / A320"></div>
-              <div><label class="req">Airport</label><select id="emgAp"><option>LSIA</option><option>SNDY</option><option>GPSD</option><option>PBAY</option><option>RXWD</option></select></div>
-              <div><label class="req">Ops Direction</label><select id="emgOps"><option>Normal</option><option>north</option><option>east</option><option>south</option><option>west</option></select></div>
-            </div>
-            <div class="row">
-              <div><label class="req">Event</label>
-                <select id="emgType">
-                  <option>Runway Incursion</option><option>Runway Excursion</option>
-                  <option>Rejected Takeoff</option><option>Pilot Deviation</option>
-                </select>
-              </div>
-              <div><label>Dispatch SAFR</label><select id="emgSAFR"><option>Dispatch</option><option>Do Not Dispatch</option></select></div>
-              <div><label>Controller Callback</label><select id="emgCB"></select></div>
-            </div>
-
-            <div class="row">
-              <div><button class="btn warn" id="btnEMGGen">Generate GME</button></div>
-              <div><button class="btn" id="btn911Short">/911 (Short)</button></div>
-              <div><button class="btn" id="btn911Long">/911 (Long)</button></div>
-            </div>
-            <div class="chips" id="chipsEMG"></div>
-            <div id="emgOut" class="code"></div>
-            <!-- no plain text for EMG per your spec -->
-          </div>
-
-          <!-- ATC: Ads Builder -->
-          <div id="panel_ads" class="panel">
-            <div class="row">
-              <div><label class="req">SAFR Status</label><select id="adSAFR"><option>Online</option><option>Offline</option></select></div>
-              <div><label class="req">Training</label><select id="adTrain"><option>Not Active</option><option>Active</option></select></div>
-              <div><label>Fuel Services</label><select id="adFuel"><option>Available</option><option>Limited</option><option>Unavailable</option></select></div>
-            </div>
-            <div class="row">
-              <div style="flex:1 1 100%">
-                <label>Airports Operational</label>
-                <div class="row">
-                  <div style="flex:0 0 220px"><label><input type="checkbox" id="adAll" checked> All Airports Operational</label></div>
-                  <div style="flex:1 1 420px;display:flex;gap:8px;flex-wrap:wrap">
-                    <label><input type="checkbox" class="adAp" value="LSIA" checked> LSIA</label>
-                    <label><input type="checkbox" class="adAp" value="SNDY" checked> SNDY</label>
-                    <label><input type="checkbox" class="adAp" value="GPSD" checked> GPSD</label>
-                    <label><input type="checkbox" class="adAp" value="PBAY" checked> PBAY</label>
-                    <label><input type="checkbox" class="adAp" value="RXWD" checked> RXWD</label>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Preset groups -->
-            <div class="row">
-              <div class="card" style="flex:1 1 300px">
-                <b>Presets — Airports Open</b>
-                <ul class="hint" id="adPresetOpen"><!-- filled by JS --></ul>
-              </div>
-              <div class="card" style="flex:1 1 300px">
-                <b>Presets — Airports Closed/Partial</b>
-                <ul class="hint" id="adPresetClosed"><!-- filled by JS --></ul>
-              </div>
-              <div class="card" style="flex:1 1 300px">
-                <b>Presets — Staffing / Status</b>
-                <ul class="hint" id="adPresetStaff"><!-- filled by JS --></ul>
-              </div>
-            </div>
-
-            <div class="row">
-              <div><button class="btn" id="btnAdShort">Generate /ad (Short)</button></div>
-              <div><button class="btn" id="btnAdMedium">Generate /ad (Medium)</button></div>
-            </div>
-            <div id="adOut" class="code"></div>
-          </div>
-
-          <!-- ATC: Training -->
-          <div id="panel_train_atc" class="panel">
-            <b>ATC Training Notes</b>
-            <ul class="hint" id="atcTrainList">
-              <!-- Injected via JS + comes with many editable placeholders -->
-            </ul>
-          </div>
-        </div>
-
-        <!-- ===== Middle: References ===== -->
-        <div class="card">
-          <div class="sectionTitle"><h3>References</h3></div>
-          <div class="tabs" id="refTabs">
-            <button class="tab active" data-tab="ref_phrase">Phraseology</button>
-            <button class="tab" data-tab="ref_haz">Local Hazards</button>
-            <button class="tab" data-tab="ref_freqs">Airports & Frequencies</button>
-            <button class="tab" data-tab="ref_nearest">Nearest Airport By Postal</button>
-          </div>
-
-          <!-- Phraseology -->
-          <div id="panel_ref_phrase" class="panel active">
-            <div class="row">
-              <div>
-                <b>Numbers & Flight Levels</b>
-                <ul class="hint" id="numFlList"><!-- JS injects defaults + placeholders --></ul>
-              </div>
-              <div>
-                <b>NATO Alphabet + Numbers</b>
-                <div class="hint" id="natoBlock"><!-- JS injects NATO + digits --></div>
-                <ul class="hint" id="natoExamples"><!-- JS injects examples --></ul>
-              </div>
-            </div>
-
-            <div class="row">
-              <div>
-                <b>Custom Blocks (placeholders)</b>
-                <ul class="hint" id="customBlocks"><!-- JS injects placeholders --></ul>
-              </div>
-            </div>
-          </div>
-
-          <!-- Local Hazards -->
-          <div id="panel_ref_haz" class="panel">
-            <ul class="hint" id="hazardsList"><!-- JS injects hazards + placeholders --></ul>
-            <!-- HINT: To add an image map later, place an <img> here and set src -->
-          </div>
-
-          <!-- Airports & Frequencies -->
-          <div id="panel_ref_freqs" class="panel">
-            <b>Airports</b>
-            <ul class="hint" id="airportsList"><!-- JS injects airports --></ul>
-            <b>Frequencies</b>
-            <ul class="hint" id="freqList"><!-- JS injects frequencies --></ul>
-          </div>
-
-          <!-- Nearest By Postal -->
-          <div id="panel_ref_nearest" class="panel">
-            <div class="row">
-              <div><label class="req">Postal</label><input id="nearPostal" placeholder="e.g., 2053"></div>
-              <div style="flex:0 0 auto;display:flex;align-items:flex-end"><button class="btn" id="btnNearest">Find Nearest</button></div>
-            </div>
-            <div id="nearOut" class="code"></div>
-          </div>
-
-          <!-- Plain-English Copy (moved to per-panel below) -->
-          <div class="ref-footer">
-            <div class="sectionTitle" style="margin-top:12px"><h3>“Read This Word-for-Word”</h3></div>
-            <div class="hint">The most recent plain-English from whichever panel you used appears here, too.</div>
-            <div id="plainOut" class="code" style="margin-top:6px"></div>
-          </div>
-        </div>
-
-        <!-- ===== Right: Pilot Tools ===== -->
-        <div class="card">
-          <div class="sectionTitle"><h3>Pilot Tools</h3><button class="btn alt" id="clearPILOT">Clear All Outputs</button></div>
-          <div class="tabs" id="pilotTabs">
-            <button class="tab active" data-tab="p_atis">ATIS (Self)</button>
-            <button class="tab" data-tab="p_clr">Clearance</button>
-            <button class="tab" data-tab="p_gnd">Ground & Taxi</button>
-            <button class="tab" data-tab="p_twr">Tower</button>
-            <button class="tab" data-tab="p_dap">Departure/Approach</button>
-            <button class="tab" data-tab="p_ctr">Center</button>
-            <button class="tab" data-tab="p_train">Training</button>
-          </div>
-
-          <!-- Pilot: ATIS -->
-          <div id="panel_p_atis" class="panel active">
-            <div class="row">
-              <div><label class="req">Airport</label>
-                <select id="pAtisAp"><option>LSIA</option><option>SNDY</option><option>GPSD</option><option>PBAY</option><option>RXWD</option></select>
-              </div>
-            </div>
-            <button class="btn" id="btnPATIS">Copy — request ATIS</button>
-            <div id="pAtisOut" class="code"></div>
-          </div>
-
-          <!-- Pilot: Clearance -->
-          <div id="panel_p_clr" class="panel">
-            <div class="row">
-              <div><label class="req">Callsign</label><input id="pCall" placeholder="AIR-1 / N123AB"></div>
-              <div><label class="req">Type</label><select id="pType"><option>IFR</option><option>VFR</option><option>Helicopter</option></select></div>
-              <div><label>Route (IFR only)</label>
-                <select id="pRoute">
-                  <option>LSIA → SNDY</option><option>LSIA → PBAY</option><option>LSIA → GPSD</option><option>LSIA → RXWD</option>
-                  <option>SNDY → LSIA</option><option>PBAY → LSIA</option><option>GPSD → LSIA</option><option>RXWD → LSIA</option>
-                </select>
-              </div>
-            </div>
-            <button class="btn" id="btnPCLR">Copy — no controller available</button>
-            <div id="pClrOut" class="code"></div>
-          </div>
-
-          <!-- Pilot: Ground & Taxi -->
-          <div id="panel_p_gnd" class="panel">
-            <div class="row">
-              <div><label class="req">Callsign</label><input id="pgCall" placeholder="AIR-1 / N123AB"></div>
-              <div><label class="req">Airport</label><select id="pgAp"><option>LSIA</option><option>SNDY</option><option>GPSD</option><option>PBAY</option><option>RXWD</option></select></div>
-            </div>
-            <button class="btn" id="btnPGTaxi">Copy — “request permission to taxi to parking via …”</button>
-            <div id="pgOut" class="code"></div>
-          </div>
-
-          <!-- Pilot: Tower -->
-          <div id="panel_p_twr" class="panel">
-            <div class="row">
-              <div><label class="req">Callsign</label><input id="ptCall" placeholder="AIR-1 / N123AB"></div>
-              <div><label class="req">Airport</label><select id="ptAp"><option>LSIA</option><option>SNDY</option><option>GPSD</option><option>PBAY</option><option>RXWD</option></select></div>
-            </div>
-            <button class="btn" id="btnPTLand">Copy — “request landing …”</button>
-            <div id="ptOut" class="code"></div>
-          </div>
-
-          <!-- Pilot: D/A/P -->
-          <div id="panel_p_dap" class="panel">
-            <div class="row">
-              <div><label class="req">Callsign</label><input id="pDapCall" placeholder="N123AB"></div>
-              <div><label class="req">Phase</label><select id="pDapPhase"><option>Departure</option><option>Approach</option></select></div>
-              <div><label class="req">Airport</label>
-                <select id="pDapAp"><option>LSIA</option><option>SNDY</option><option>GPSD</option><option>PBAY</option><option>RXWD</option></select>
-              </div>
-              <div><label class="req">Direction</label>
-                <select id="pDapDir"><option>North</option><option>East</option><option>South</option><option>West</option></select>
-              </div>
-            </div>
-            <button class="btn" id="btnPDAP">Copy — request</button>
-            <div id="pDapOut" class="code"></div>
-          </div>
-
-          <!-- Pilot: Center -->
-          <div id="panel_p_ctr" class="panel">
-            <div class="row">
-              <div><label class="req">Callsign</label><input id="pCtrCall" placeholder="N123AB"></div>
-              <div><label class="req">Mode</label><select id="pCtrMode"><option>Enroute</option><option>Departure</option><option>Arrival</option></select></div>
-              <div><label class="req">Airport</label><select id="pCtrAp"><option>LSIA</option><option>SNDY</option><option>GPSD</option><option>PBAY</option><option>RXWD</option></select></div>
-              <div><label class="req">Direction</label><select id="pCtrDir"><option>North</option><option>East</option><option>South</option><option>West</option></select></div>
-            </div>
-            <button class="btn" id="btnPCTR">Copy — request</button>
-            <div id="pCtrOut" class="code"></div>
-          </div>
-
-          <!-- Pilot: Training -->
-          <div id="panel_p_train" class="panel">
-            <b>Pilot Training Notes</b>
-            <ul class="hint" id="pilotTrainList"><!-- JS injects placeholders --></ul>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ===================== NTSB PAGE ===================== -->
-    <div id="page_ntsb" class="agencyPage">
+<div class="wrap">
+  <!-- ===================== FAA PAGE ===================== -->
+  <div id="page_faa" class="agencyPage active">
+    <div id="sub_console" class="grid">
       <div class="card">
-        <div class="sectionTitle"><h3>NTSB — Incident Tools</h3></div>
-        <div class="tabs" id="ntsbTabs">
-          <button class="tab active" data-tab="i_intake">Incident Intake</button>
-          <button class="tab" data-tab="i_check">Investigation Checklist</button>
-          <button class="tab" data-tab="i_bull">Safety Bulletin</button>
-          <button class="tab" data-tab="i_train">Training</button>
+        <div class="sectionTitle">
+          <h3>ATC Console</h3>
+          <div class="row" style="gap:10px;align-items:center;margin:0">
+            <label style="display:flex;align-items:center;gap:6px;margin:0">
+              <input type="checkbox" id="civilCS"> Treat callsign as civilian (don’t spell NATO)
+            </label>
+            <button class="btn alt" id="clearATC">Clear Tab Outputs</button>
+          </div>
         </div>
 
-        <div id="panel_i_intake" class="panel active">
-          <div class="row">
-            <div><label class="req">Event</label><select id="iType"><option>runway excursion</option><option>runway incursion</option><option>loss of separation</option><option>engine failure</option></select></div>
-            <div><label class="req">Location</label><input id="iLoc" placeholder="LSIA rwy 24R"></div>
-            <div><label class="req">Time (z)</label><input id="iTime" placeholder="2320z"></div>
-          </div>
-          <div class="row">
-            <div><label>aircraft</label><input id="iAC" placeholder="N123AB (A320), AIR-1 (helo)"></div>
-            <div><label>injuries</label><select id="iInj"><option>none</option><option>minor</option><option>serious</option><option>fatal</option></select></div>
-          </div>
-          <button class="btn" id="btnIntake">Generate — copy</button>
-          <div id="iOut" class="code"></div>
+        <!-- Inner tabs -->
+        <div class="tabs" id="atcTabs">
+          <button class="tab active" data-tab="atis">ATIS</button>
+          <button class="tab" data-tab="clr">Clearance</button>
+          <button class="tab" data-tab="gnd">Ground & Taxi</button>
+          <button class="tab" data-tab="twr">Tower</button>
+          <button class="tab" data-tab="dap">Departure / Approach</button>
+          <button class="tab" data-tab="ctr">Center</button>
+          <button class="tab" data-tab="emg">Emergencies</button>
+          <button class="tab" data-tab="ads">Ads Builder</button>
+          <button class="tab" data-tab="haz">Hazard Map</button>
         </div>
 
-        <div id="panel_i_check" class="panel">
-          <ul class="hint" id="ntsbChecklist"><!-- JS injects placeholders --></ul>
+        <!-- ================= ATIS ================= -->
+        <div id="panel_atis" class="panel active">
+          <div class="row">
+            <div>
+              <label class="req">Time of Day</label>
+              <select id="aTod">
+                <option value="">(select)</option>
+                <option>Morning</option><option>Midday</option><option>Evening</option><option>Night</option>
+              </select>
+            </div>
+            <div>
+              <label class="req">Weather</label>
+              <select id="aWx">
+                <option value="">(select)</option>
+                <option value="CLEAR">Clear</option><option value="OVERCAST">Overcast</option>
+                <option value="RAIN">Rain</option><option value="STORM">Thunderstorm</option>
+                <option value="SNOW">Snow</option><option value="FOG">Fog</option>
+                <option value="WINDY">Windy</option>
+              </select>
+            </div>
+            <div>
+              <label class="req">Wind</label>
+              <select id="aWind">
+                <option value="">(select)</option>
+                <option value="CALM">Calm</option><option value="LIGHT">Light</option>
+                <option value="BREEZY">Breezy</option><option value="WINDY">Windy</option>
+                <option value="CROSS">Crosswind</option>
+              </select>
+            </div>
+            <div>
+              <label>Temperature (feel)</label>
+              <select id="aTempFeel">
+                <option>Cool</option><option>Mild</option><option>Warm</option><option>Hot</option><option>Cold</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="row">
+            <div style="flex:0 0 210px">
+              <label class="req">ATIS Letter</label>
+              <input id="aLetter" value="alpha" disabled>
+            </div>
+            <div style="flex:0 0 220px;align-self:flex-end">
+              <button class="btn alt" id="resetATIS">Reset ATIS Letter</button>
+            </div>
+            <div style="flex:1 1 420px" class="card">
+              <label>Ops Summary</label>
+              <div class="row" style="align-items:flex-end">
+                <div style="flex:1 1 220px"><label><input type="checkbox" id="apAll" checked> All Airports Operational</label></div>
+                <div style="flex:1 1 220px"><label><input type="checkbox" id="aNoise"> Noise Abatement in Effect</label></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div><label>Ops Mode (Global)</label>
+              <select id="aOpsMode"><option>Normal</option><option>Reverse</option></select>
+            </div>
+          </div>
+
+          <div class="row">
+            <button class="btn ok" id="genATIS">Generate ATIS — copy</button>
+          </div>
+
+          <div class="outwrap">
+            <div class="gme" id="atisOut"></div>
+            <div class="plain" id="atisPlain"></div>
+          </div>
         </div>
 
-        <div id="panel_i_bull" class="panel">
+        <!-- ================= CLEARANCE ================= -->
+        <div id="panel_clr" class="panel">
           <div class="row">
-            <div><label class="req">Subject</label><input id="bSubj" placeholder="Crosswind landings — PBAY"></div>
-            <div><label class="req">Audience</label><select id="bAud"><option>all pilots</option><option>controllers</option><option>helicopter units</option></select></div>
+            <div>
+              <label class="req">Callsign</label>
+              <input id="clrCall" placeholder="N123AB / AIR-1">
+              <div class="chipsbar" id="chipsCLR"></div>
+            </div>
+            <div>
+              <label class="req">Type</label>
+              <select id="clrType"><option>IFR</option><option>VFR</option><option>Special Ops</option></select>
+            </div>
+            <div id="specDeptsWrap" style="display:none">
+              <label class="req">Departments (multi)</label>
+              <select id="specDepts" multiple size="6">
+                <option>LSPD</option><option>BCSO</option><option>SASP</option><option>SAFR</option>
+                <option>USCG</option><option>SABP</option><option>FIB</option><option>DHS</option><option>LSSD</option><option>LA</option>
+              </select>
+            </div>
           </div>
-          <div class="row"><div><label>Key Points</label><textarea id="bPoints" placeholder="- stabilized approach&#10;- adhere to noise abatement"></textarea></div></div>
-          <button class="btn" id="btnBulletin">Generate — copy</button>
-          <div id="bOut" class="code"></div>
+
+          <div id="IFRRow" class="row">
+            <div><label class="req">Route (from → to)</label>
+              <select id="clrRoute">
+                <option>LSIA → SNDY</option><option>LSIA → PBAY</option><option>LSIA → GPSD</option><option>LSIA → RXWD</option>
+                <option>SNDY → LSIA</option><option>SNDY → PBAY</option><option>SNDY → GPSD</option><option>SNDY → RXWD</option>
+                <option>GPSD → LSIA</option><option>GPSD → PBAY</option><option>GPSD → RXWD</option>
+                <option>PBAY → LSIA</option><option>PBAY → GPSD</option><option>PBAY → RXWD</option>
+                <option>RXWD → LSIA</option><option>RXWD → GPSD</option><option>RXWD → SNDY</option><option>RXWD → PBAY</option>
+              </select>
+            </div>
+            <div><label>Auto SID</label><input id="clrSid" placeholder="auto" disabled></div>
+          </div>
+
+          <div id="VFRRow" class="row" style="display:none">
+            <div><label class="req">Departure Airport</label><select id="VFRDep"><option>LSIA</option><option>SNDY</option><option>GPSD</option><option>PBAY</option><option>RXWD</option></select></div>
+            <div><label class="req">Direction</label><select id="VFRDir"><option>north</option><option>east</option><option>south</option><option>west</option></select></div>
+            <div><label>Nearest Postal (optional)</label><input id="VFRPostal" placeholder="e.g., 3037"></div>
+          </div>
+
+          <div id="specRow" class="row" style="display:none">
+            <div><label class="req">Departure Airport</label><select id="specDep"><option>LSIA</option><option>SNDY</option><option>GPSD</option><option>PBAY</option><option>RXWD</option></select></div>
+            <div>
+              <label class="req">Authorized Areas (multi)</label>
+              <select id="specAreas" multiple size="8">
+                <option>Los Santos (city)</option><option>Sandy Shores</option><option>Grapeseed</option><option>Paleto Bay</option>
+                <option>Harmony / Route 68</option><option>Senora Freeway</option><option>Palomino Freeway</option><option>Zancudo Area</option>
+              </select>
+              <div class="muted">Area-specific hazards will be composed automatically.</div>
+            </div>
+            <div><label class="req">Ops Direction</label><select id="specOps"><option>Normal</option><option>north</option><option>east</option><option>south</option><option>west</option></select></div>
+          </div>
+
+          <div class="row"><div><label>Extra Notes (optional)</label><input id="clrNotes" placeholder="e.g., depart from 2053 MRPD helipad"></div></div>
+          <div class="row"><button class="btn" id="genCLR">Generate Clearance — copy</button></div>
+
+          <div class="outwrap"><div class="gme" id="clrOut"></div><div class="plain" id="clrPlain"></div></div>
         </div>
 
-        <div id="panel_i_train" class="panel">
-          <ul class="hint" id="ntsbTraining"><!-- JS injects placeholders --></ul>
-        </div>
-      </div>
-    </div>
-
-    <!-- ===================== SATA PAGE ===================== -->
-    <div id="page_sata" class="agencyPage">
-      <div class="card">
-        <div class="sectionTitle"><h3>SATA — Transit Ops</h3></div>
-        <div class="tabs" id="sataTabs">
-          <button class="tab active" data-tab="s_bus">Bus Dispatch</button>
-          <button class="tab" data-tab="s_train">Train Service Notice</button>
-          <button class="tab" data-tab="s_alert">System Alert</button>
-        </div>
-
-        <div id="panel_s_bus" class="panel active">
+        <!-- ================= GROUND ================= -->
+        <div id="panel_gnd" class="panel">
           <div class="row">
-            <div><label class="req">Route</label><input id="busRoute" placeholder="route 12 — del perro"></div>
-            <div><label class="req">Block/Vehicle</label><input id="busVeh" placeholder="block 12B / bus 1432"></div>
-            <div><label class="req">Action</label><select id="busAct"><option>pull out on time</option><option>cover trip</option><option>short turn</option><option>breakdown — swap bus</option></select></div>
+            <div><label class="req">Callsign</label><input id="gndCall" placeholder="N123AB / AIR-1"><div class="chipsbar" id="chipsGND"></div></div>
+            <div><label class="req">Airport</label><select id="gndAp"><option>LSIA</option><option>SNDY</option><option>GPSD</option><option>PBAY</option><option>RXWD</option></select></div>
+            <div><label class="req">Ops Direction</label><select id="gndOps"><option>Normal</option><option>north</option><option>east</option><option>south</option><option>west</option></select></div>
           </div>
-          <button class="btn" id="btnBus">Generate — copy</button>
-          <div id="busOut" class="code"></div>
+          <div class="row">
+            <div><button class="btn" id="btnPushOnly">Pushback</button></div>
+            <div><button class="btn" id="btnPushStart">Push & Start</button></div>
+            <div><button class="btn" id="btnTaxiRwy">Progressive Taxi → Runway</button></div>
+            <div><button class="btn" id="btnTaxiPark">Progressive Taxi → Parking</button></div>
+          </div>
+          <div class="outwrap"><div class="gme" id="gndOut"></div><div class="plain" id="gndPlain"></div></div>
         </div>
 
-        <div id="panel_s_train" class="panel">
+        <!-- ================= TOWER ================= -->
+        <div id="panel_twr" class="panel">
           <div class="row">
-            <div><label class="req">Line</label><input id="trainLine" placeholder="blue line"></div>
-            <div><label class="req">Status</label><select id="trainStatus"><option>Normal service</option><option>delay</option><option>single tracking</option><option>suspended</option></select></div>
-            <div><label>Delay (mins)</label><input id="trainDelay" type="number" placeholder="10"></div>
+            <div><label class="req">Callsign</label><input id="twrCall" placeholder="N123AB / AIR-1"><div class="chipsbar" id="chipsTWR"></div></div>
+            <div><label class="req">Airport</label><select id="twrAp"><option>LSIA</option><option>SNDY</option><option>GPSD</option><option>PBAY</option><option>RXWD</option></select></div>
+            <div><label class="req">Ops Direction</label><select id="twrOps"><option>Normal</option><option>north</option><option>east</option><option>south</option><option>west</option></select></div>
           </div>
-          <button class="btn" id="btnTrain">Generate — copy</button>
-          <div id="trainOut" class="code"></div>
+          <div class="row">
+            <div><button class="btn" id="btnLineUp">Line Up & Wait</button></div>
+            <div><button class="btn" id="btnTakeoff">Takeoff</button></div>
+            <div><button class="btn" id="btnLanding">Landing</button></div>
+            <div><button class="btn" id="btnGoAround">Go Around</button></div>
+          </div>
+          <div class="row">
+            <div><label>Noise Abatement</label><select id="twrNoise"><option>none</option><option>Left turn after clean up</option><option>Right turn after clean up</option><option>Runway heading, reduce throttle after clean up</option></select></div>
+            <div><label>Action</label><select id="twrAction"><option value="hold_short">Hold short</option><option value="stop">Stop immediately</option><option value="hold_pos">Hold position</option><option value="cross">Cross runway</option><option value="luaw">Line up and wait</option></select></div>
+            <div><label>Runway</label><select id="twrRunway"><option>24L</option><option>24R</option><option>06L</option><option>06R</option><option>30L</option><option>30R</option><option>12L</option><option>12R</option></select></div>
+            <div style="flex:0 0 auto;align-self:flex-end"><button class="btn" id="btnTwrAction">Send Action</button></div>
+          </div>
+          <div class="outwrap"><div class="gme" id="twrOut"></div><div class="plain" id="twrPlain"></div></div>
         </div>
 
-        <div id="panel_s_alert" class="panel">
+        <!-- ================= DEPARTURE / APPROACH ================= -->
+        <div id="panel_dap" class="panel">
           <div class="row">
-            <div><label class="req">Severity</label><select id="sysSev"><option>info</option><option>advisory</option><option>major</option></select></div>
-            <div><label class="req">Area</label><input id="sysArea" placeholder="citywide / downtown / eastside"></div>
+            <div><label class="req">Callsign</label><input id="dapCall" placeholder="N123AB"><div class="chipsbar" id="chipsDAP"></div></div>
+            <div><label class="req">Phase</label><select id="dapPhase"><option>Departure</option><option>Approach</option></select></div>
+            <div><label class="req">Airport</label><select id="dapAp"><option>LSIA</option><option>SNDY</option><option>GPSD</option><option>PBAY</option><option>RXWD</option></select></div>
           </div>
-          <div class="row"><div><label class="req">Message</label><textarea id="sysMsg" placeholder="elevated delays during event at maze bank arena…"></textarea></div></div>
-          <button class="btn warn" id="btnSys">Generate — copy</button>
-          <div id="sysOut" class="code"></div>
+          <div class="row">
+            <div><label class="req">Direction</label><select id="dapDir"><option>north</option><option>east</option><option>south</option><option>west</option></select></div>
+            <div><label class="req">Altitude</label><select id="dapAlt"><option>3000</option><option>5000</option><option>7000</option><option>FL180</option><option>FL240</option></select></div>
+            <div><label class="req">Heading</label><select id="dapHdg"><option>360</option><option>090</option><option>180</option><option>270</option><option>330</option><option>210</option><option>150</option><option>030</option></select></div>
+          </div>
+          <div class="row"><button class="btn" id="btnDAPGen">Generate — copy</button></div>
+          <div class="outwrap"><div class="gme" id="dapOut"></div><div class="plain" id="dapPlain"></div></div>
         </div>
-      </div>
-    </div>
 
-    <!-- ===================== Maritime PAGE ===================== -->
-    <div id="page_mar" class="agencyPage">
-      <div class="card">
-        <div class="sectionTitle"><h3>Maritime — Harbor Tools</h3></div>
-        <div class="tabs" id="marTabs">
-          <button class="tab active" data-tab="m_ferry">Ferry Status</button>
-          <button class="tab" data-tab="m_port">Harbor Notice</button>
-          <button class="tab" data-tab="m_craft">Small Craft Advisory</button>
-        </div>
-        <div id="panel_m_ferry" class="panel active">
+        <!-- ================= CENTER ================= -->
+        <div id="panel_ctr" class="panel">
           <div class="row">
-            <div><label class="req">Route</label><input id="ferRoute" placeholder="LS pier ⇄ Cayo Perico"></div>
-            <div><label class="req">Status</label><select id="ferStatus"><option>on time</option><option>delayed</option><option>cancelled</option></select></div>
-            <div><label>Delay (mins)</label><input id="ferDelay" type="number" placeholder="15"></div>
+            <div><label class="req">Callsign</label><input id="ctrCall" placeholder="N123AB"><div class="chipsbar" id="chipsCTR"></div></div>
+            <div><label class="req">Departure Airport</label><select id="ctrDep"><option>LSIA</option><option>SNDY</option><option>GPSD</option><option>PBAY</option><option>RXWD</option></select></div>
+            <div><label class="req">Instruction</label><select id="ctrInst"><option>Climb</option><option>Descend</option><option>Heading</option><option>Direct to Fix</option><option>Handoff</option></select></div>
           </div>
-          <button class="btn" id="btnFerry">Generate — copy</button>
-          <div id="ferOut" class="code"></div>
-        </div>
-        <div id="panel_m_port" class="panel">
           <div class="row">
-            <div><label class="req">Area</label><input id="portArea" placeholder="port of LS / Alamo Sea marina"></div>
-            <div><label class="req">Condition</label><select id="portCond"><option>Normal</option><option>restricted</option><option>closed</option></select></div>
-            <div><label class="req">Reason</label><select id="portReason"><option>fog</option><option>high winds</option><option>security</option><option>salvage ops</option><option>oil spill response</option></select></div>
+            <div><label>Altitude</label><select id="ctrAlt"><option>3000</option><option>5000</option><option>7000</option><option>FL180</option><option>FL240</option></select></div>
+            <div><label>Heading</label><select id="ctrHdg"><option>360</option><option>090</option><option>180</option><option>270</option><option>330</option><option>210</option><option>150</option><option>030</option></select></div>
+            <div><label>Fix</label><input id="ctrFix" placeholder="coast / vine / zancudo"></div>
           </div>
-          <button class="btn warn" id="btnPort">Generate — copy</button>
-          <div id="portOut" class="code"></div>
+          <div class="row"><button class="btn" id="btnCTRGen">Generate — copy</button></div>
+          <div class="outwrap"><div class="gme" id="ctrOut"></div><div class="plain" id="ctrPlain"></div></div>
         </div>
-        <div id="panel_m_craft" class="panel">
+
+        <!-- ================= EMERGENCIES ================= -->
+        <div id="panel_emg" class="panel">
           <div class="row">
-            <div><label class="req">Zone</label><input id="craftZone" placeholder="coastline / alamo sea"></div>
-            <div><label class="req">Winds</label><input id="craftWind" placeholder="nw 25–30kt, gusts 35kt"></div>
-            <div><label class="req">Seas</label><input id="craftSeas" placeholder="6–9 ft"></div>
+            <div><label class="req">Callsign</label><input id="emgCall" placeholder="N123AB / A320"><div class="chipsbar" id="chipsEMG"></div></div>
+            <div><label class="req">Airport</label><select id="emgAp"><option>LSIA</option><option>SNDY</option><option>GPSD</option><option>PBAY</option><option>RXWD</option></select></div>
+            <div><label class="req">Ops Direction</label><select id="emgOps"><option>Normal</option><option>north</option><option>east</option><option>south</option><option>west</option></select></div>
           </div>
-          <button class="btn warn" id="btnCraft">Generate — copy</button>
-          <div id="craftOut" class="code"></div>
+          <div class="row">
+            <div><label class="req">Event</label><select id="emgType"><option>Runway Incursion</option><option>Runway Excursion</option><option>Rejected Takeoff</option><option>Pilot Deviation</option></select></div>
+            <div><label>Dispatch SAFR</label><select id="emgSAFR"><option>Dispatch</option><option>Do Not Dispatch</option></select></div>
+            <div><label>Controller Callback</label><input id="emgCB" placeholder="auto from login" disabled></div>
+          </div>
+          <div class="row"><button class="btn warn" id="btnEMGGen">Generate GME</button><button class="btn" id="btn911Short">/911 (Short)</button><button class="btn" id="btn911Long">/911 (Long)</button></div>
+          <div class="outwrap"><div class="gme" id="emgOut"></div></div>
         </div>
+
+        <!-- ================= ADS BUILDER ================= -->
+        <div id="panel_ads" class="panel">
+          <div class="row">
+            <div><label class="req">SAFR Status</label><select id="adSAFR"><option>Online</option><option>Offline</option></select></div>
+            <div><label class="req">Training</label><select id="adTrain"><option>Not Active</option><option>Active</option></select></div>
+            <div><label>Fuel Services</label><select id="adFuel"><option>Available</option><option>Limited</option><option>Unavailable</option></select></div>
+          </div>
+          <div class="row">
+            <div style="flex:0 0 260px"><label><input type="checkbox" id="adAll" checked> All Airports Operational</label></div>
+            <div style="flex:1 1 400px;display:flex;gap:10px;flex-wrap:wrap">
+              <label><input type="checkbox" class="adAp" value="LSIA" checked> LSIA</label>
+              <label><input type="checkbox" class="adAp" value="SNDY" checked> SNDY</label>
+              <label><input type="checkbox" class="adAp" value="GPSD" checked> GPSD</label>
+              <label><input type="checkbox" class="adAp" value="PBAY" checked> PBAY</label>
+              <label><input type="checkbox" class="adAp" value="RXWD" checked> RXWD</label>
+            </div>
+          </div>
+          <div class="row"><button class="btn" id="btnAdShort">Generate /ad (Short)</button><button class="btn" id="btnAdMedium">Generate /ad (Medium)</button></div>
+          <div class="outwrap"><div class="gme" id="adOut"></div></div>
+        </div>
+
+        <!-- ================= HAZARD MAP (code-driven) ================= -->
+        <div id="panel_haz" class="panel">
+          <div class="hazLayout">
+            <div class="mapWrap">
+              <div class="hazTools">
+                <button class="btn alt" id="btnClearHaz">Clear Hazards (view)</button>
+              </div>
+
+              <!-- Base map -->
+              <img id="baseImg" src="https://www.giantbomb.com/a/uploads/scale_medium/9/93538/2570055-gta-v-map-satellite-small.jpg" alt="Map">
+              <!-- SVG overlay (points & lines from code only) -->
+              <svg id="hazSVG" viewBox="0 0 1200 1450" preserveAspectRatio="none"></svg>
+
+              <!-- Category highlight panel -->
+              <div class="catPanel" id="catPanel"></div>
+
+              <!-- Legend -->
+              <div class="legend" id="legend"></div>
+            </div>
+
+            <div class="hazList" id="hazList">
+              <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px">
+                <input id="hazSearch" placeholder="Search hazards..." />
+                <label style="display:flex;align-items:center;gap:6px"><input type="checkbox" id="condenseList"> Condense</label>
+              </div>
+              <b>Hazard Notes</b> <div class="muted">Click to highlight on map.</div>
+              <div id="hazItems"></div>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
   </div>
+</div>
 
 <script>
-/* ===================== CONFIG / DATA ===================== */
-const WX_PRESETS={ CLEAR:{vis:"10",clouds:"SKC"}, RAIN:{vis:"6",clouds:"BKN025"}, FOG:{vis:"2",clouds:"OVC008"}, WINDY:{vis:"8",clouds:"SCT030"}, OVERCAST:{vis:"8",clouds:"OVC015"}, STORM:{vis:"3",clouds:"BKN015"}, SNOW:{vis:"2",clouds:"OVC010"} };
-const WIND_PROFILES={ CALM:"000/00", LIGHT:"220/06", BREEZY:"230/12", WINDY:"250/22G30", CROSS:"090/18" };
-const LETTERS=["alpha","bravo","charlie","delta","echo","foxtrot","golf","hotel","india","juliett","kilo","lima","mike","november","oscar","papa","quebec","romeo","sierra","tango","uniform","victor","whiskey","xray","yankee","zulu"];
-const AIRPORTS=["LSIA","SNDY","GPSD","PBAY","RXWD"];
-
-/* controller directory (edit here) */
-const CONTROLLERS=[
-  {name:"McGowan", role:"supervisor", phone:"420-0420"},
-  {name:"Supervisor 02", role:"supervisor", phone:"555-0102"},
-  {name:"Controller 01", role:"controller", phone:"555-0201"},
-  {name:"Controller 02", role:"controller", phone:"555-0202"},
-  {name:"McGowan", role:"supervisor", phone:"420-0420"},
-  {name:"Supervisor 02", role:"supervisor", phone:"555-0102"},
-  {name:"Controller 01", role:"controller", phone:"555-0201"},
-  {name:"Controller 02", role:"controller", phone:"555-0202"},
-  {name:"McGowan", role:"supervisor", phone:"420-0420"},
-  {name:"Supervisor 02", role:"supervisor", phone:"555-0102"},
-  {name:"Controller 01", role:"controller", phone:"555-0201"},
-  {name:"Controller 02", role:"controller", phone:"555-0202"},
-  // HINT: add more…
-];
-
-/* Runways per ops-direction (edit as needed) */
-const RUNWAYS={
-  LSIA:{ normal:"24R/24L", east:"12R/12L", west:"30R/30L", north:"24", south:"06", reverse:"06" },
-  SNDY:{ normal:"30", east:"12", west:"30", north:"30", south:"12", reverse:"12" },
-  GPSD:{ normal:"11/29", east:"11", west:"29", north:"29", south:"11", reverse:"29" },
-  PBAY:{ normal:"01/19", east:"01", west:"19", north:"01", south:"19", reverse:"01" },
-  RXWD:{ normal:"16/34", east:"16", west:"34", north:"34", south:"16", reverse:"34" },
-};
-
-/* Direction → default heading (edit if you want exacts) */
-const DIR_TO_HEADING={ North:360, East:090, South:180, West:270 };
-
-/* Direction → hazard placeholder text (edit per-airport) */
-const DIRECTION_HAZARDS={
-  LSIA:{ North:"City obstacles; towers near Vinewood.", South:"Harbor cranes.", East:"Oil field derricks.", West:"Coastal cranes and shipping.", },
-  SNDY:{ North:"Alamo Sea hazard; tall masts.", South:"Prison complex — do not overfly.", East:"Windmill farm ridges.", West:"Cement factory & low ridgelines.", },
-  GPSD:{ North:"Windmills west; ridge lines.", South:"Power lines along freeway.", East:"Low foothills and farms.", West:"Windmill array; hilltops.", },
-  PBAY:{ North:"Coastal pines & ridge; mount chiliad.", South:"Lower terrain; town obstacles.", East:"Hills east of strip.", West:"Coastline masts.", },
-  RXWD:{ North:"Municipal buildings; antenna masts.", South:"River spans & power lines.", East:"Industrial stacks.", West:"Rail yard cranes.", },
-  // HINT: adjust wording per your SOP
-};
-
-/* Airports full names */
-const AIRPORT_NAMES={LSIA:"los santos intl", SNDY:"sandy shores airfield", GPSD:"grapeseed airfield", PBAY:"paleto airpark", RXWD:"roxwood municipal"};
-
-/* Route → example SID (edit) */
-const SIDMAP={
-  "LSIA → SNDY":"port one","LSIA → PBAY":"coast two","LSIA → GPSD":"vinewood one","LSIA → RXWD":"city two",
-  "SNDY → LSIA":"desert one","SNDY → PBAY":"route sixty-eight","SNDY → GPSD":"alamo east","SNDY → RXWD":"sandy south",
-  "GPSD → LSIA":"farm one","GPSD → PBAY":"chiliad arrival","GPSD → RXWD":"grape west",
-  "PBAY → LSIA":"chiliad one","PBAY → GPSD":"coast farm","PBAY → RXWD":"paleto south",
-  "RXWD → LSIA":"river one","RXWD → GPSD":"river farm","RXWD → PBAY":"river coast","RXWD → SNDY":"river desert",
-};
-
-/* Squawk seeds per departure airport */
-const SQUAWK_SEED={ LSIA:9010, SNDY:3037, PBAY:1080, GPSD:2058, RXWD:4110 };
-
-/* ===================== PRESETS (ads, training, phraseology) ===================== */
-const AD_PRESETS_OPEN=[
-  "FAA all airports active; fuel available; emergencies permitted.",
-  "FAA LSIA/SNDY active; fuel available; controllers online.",
-  "FAA GPSD/PBAY active; fuel limited; training not active.",
-];
-const AD_PRESETS_CLOSED=[
-  "FAA LSIA closed for ops; expect delays.",
-  "FAA partial ops SNDY/GPSD only; fuel limited.",
-  "FAA PBAY only; others not operational.",
-];
-const AD_PRESETS_STAFF=[
-  "FAA online; ATC available; call for service.",
-  "FAA limited staffing; expect delays.",
-  "FAA logging off shortly — obtain ATIS & plan accordingly.",
-];
-
-const PHRASE_NUM_FL=[
-  "Altitudes: “one thousand five hundred”; “one five thousand”.",
-  "Flight levels: “flight level FL240”.",
-  "Winds: “two four zero at two zero gust three zero”.",
-  "Clouds: SKC=‘sky clear’ SCT=‘scattered’ BKN=‘broken’ OVC=‘overcast’.",
-  "Read decimals as “point”: 122.2 → “one two two point two”.",
-  "Runway readback: include runway (“cleared to land two four right”).",
-  "Low-level turbulence advisory example — placeholder.",
-  "Windshear advisory example — placeholder.",
-];
-
-const NATO_TEXT="Alpha, Bravo, Charlie, Delta, Echo, Foxtrot, Golf, Hotel, India, Juliett, Kilo, Lima, Mike, November, Oscar, Papa, Quebec, Romeo, Sierra, Tango, Uniform, Victor, Whiskey, Xray, Yankee, Zulu.";
-const NATO_EXAMPLES=[
-  "Digits: 0 zero, 1 one, 2 two, 3 tree, 4 fower, 5 fife, 6 six, 7 seven, 8 eight, 9 niner.",
-  "Example callsign: N123AB → “November one two tree alpha bravo”.",
-  "FL240 → “flight level two four zero”."
-];
-
-const CUSTOM_BLOCKS=[
-  "Standard handoff wording examples (122.5 / 122.7).",
-  "Readback correction patterns (“say again heading”, “verify altitude”).",
-  "Helipad departure phrase templates — placeholders.",
-  "SAR/LEO special ops examples — placeholders.",
-];
-
-const HAZARDS_BASE=[
-  "Cayo Perico Bridge — ~300 AGL (coastal span)",
-  "LS Port Cranes — up to ~250 AGL (coastline)",
-  "Maze Bank Tower — ~900 AGL (downtown LS)",
-  "Vinewood sign ridge — ~700 AGL (east hills)",
-  "Oil fields derricks — ~250–350 AGL (east LS)",
-  "Sonora freeway power lines — ~200–250 AGL (east corridor)",
-  "Grapeseed windmills — ~450 AGL (west of GPSD)",
-  "Alamo Sea masts — ~500 AGL (north of SNDY)",
-  "Mount Chiliad mast — ~500+ AGL (PBAY ridge)",
-  "Coastal pines — ~150–200 AGL (PBAY shoreline)",
-  "Placeholder hazard — (enter name) (~### AGL) (region)",
-  "Placeholder hazard — (enter name) (~### AGL) (region)"
-];
-
-const AIRPORTS_LIST=[
-  "LSIA — los santos intl",
-  "SNDY — sandy shores airfield",
-  "GPSD — grapeseed airfield",
-  "PBAY — paleto airpark",
-  "RXWD — roxwood municipal",
-];
-
-const FREQ_LIST=[
-  "atis 122.1 • clearance 122.2 • ground 122.3 • tower 122.4 • dep/approach 122.5 • center 122.7",
-  "Placeholder: SAR discrete — 123.45"
-];
-
-const ATC_TRAIN_NOTES=[
-  "ATIS: weather, ops mode, active/closed fields, info letter, next freq.",
-  "Clearance: callsign ALL CAPS; route/SID or areas; alt; squawk; expect FL in 10.",
-  "Ground & Taxi: progressive = “I’ll call your turns”; include airport + ops dir.",
-  "Tower: LUAW / TO / LDG / GA; noise abatement snippets.",
-  "Departure/Approach: climbs/descents/headings; contact next sector.",
-  "Center: enroute climbs, descents, headings, directs, handoffs.",
-  "Emergencies: incursion vs excursion; pilot deviation callback; SAFR; /911.",
-  "ADS: training active → no emergencies; online/offline logic.",
-  "Phraseology pacing ≤10s; pause for readback.",
-  "Progressive taxi scripts (LSIA/SNDY/GPSD/PBAY/RXWD) — placeholders.",
-  "Noise abatement per runway (L/R after clean-up, climb power) — placeholders.",
-  "Wake/rotor/windshear advisories — when to include — placeholders.",
-  "Special Ops helipad w/ postals — placeholders.",
-  "Lost comms quick ref (squawk, alt/route) — placeholders."
-];
-
-const PILOT_TRAIN_NOTES=[
-  "ATIS first; report “with information (letter)”.",
-  "Clearance: state callsign/type/destination; copy route, alt, squawk.",
-  "Ground: request taxi; progressive taxi = ground calls my turns.",
-  "Tower: request TO/LDG; read back runway + clearance.",
-  "D/A/P: comply headings, altitudes, speed; advise established.",
-  "Lost comms: 7600; last clearance route/altitude.",
-];
-
-/* ===================== UTIL + STATE ===================== */
-const q=s=>document.querySelector(s);
-const qa=s=>[...document.querySelectorAll(s)];
-function copy(txt){ try{ if(navigator.clipboard && isSecureContext) navigator.clipboard.writeText(txt); else { const ta=document.createElement('textarea'); ta.value=txt; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove(); } }catch(e){} }
-function zZulu(){ const d=new Date(); return String(d.getUTCHours()).padStart(2,'0')+String(d.getUTCMinutes()).padStart(2,'0')+'z'; }
+/* ================= Colors/format helpers ================= */
+const COLOR_CYCLE = ['~g~','~b~','~c~','~r~','~y~']; // allowed set; no ~n~
+const gmePrefix = '/gme ^* ^9 ';
+function gmeColorSegments(segments){
+  return gmePrefix + segments.map((s,i)=> COLOR_CYCLE[i % COLOR_CYCLE.length] + s).join(' ');
+}
+const q = s=>document.querySelector(s);
+const qa = s=>[...document.querySelectorAll(s)];
+const copy = t=>{ try{ navigator.clipboard?.writeText(t); }catch(e){} };
 function callsignUpper(v){ return (v||"").toUpperCase().trim(); }
-function flText(n){ const s=String(n||"").toUpperCase().replace(/[^0-9]/g,""); if(!s) return ""; return s.startsWith("FL")?"FL"+s.replace(/^FL/,""):("FL"+s); }
-function parseAltOrFL(val){ if(!val) return ""; const s=val.trim().toUpperCase(); if(s.startsWith("FL")) return "FL"+s.replace(/^FL/,"").replace(/\D/g,""); const n=s.replace(/\D/g,""); return n? n : ""; }
-function nextSquawk(dep){ const key="SQUAWK_"+dep.toUpperCase(); let cur=parseInt(localStorage.getItem(key)||SQUAWK_SEED[dep]||1000,10); cur=isNaN(cur)?1000:cur; cur+=1; if(cur>7777) cur=SQUAWK_SEED[dep]||1000; localStorage.setItem(key,String(cur)); return String(cur).padStart(4,"0"); }
-function pickRunway(ap,dir){ const m=RUNWAYS[ap]||{}; return (dir && m[dir.toLowerCase()])?m[dir.toLowerCase()]:m.normal||"runway"; }
-function airportName(code){ return AIRPORT_NAMES[code]||code; }
-function nearestAirportByPostal(p){ const n=parseInt(String(p||"").replace(/\D/g,""),10); if(isNaN(n)) return "invalid postal";
-  // HINT: Edit ranges as needed:
-  if(n>=6000) return "LSIA";
-  if(n>=5000) return "SNDY";
-  if(n>=3000) return "SNDY";
-  if(n>=2000) return "GPSD";
-  if(n>=1000) return "PBAY";
-  if(n>=0)    return "RXWD";
-  return "LSIA";
+function sayRunway(rw){ return rw.replace(/\//g," and ").replace(/\d+/g,m=>m.split('').map(d=>["zero","one","two","three","four","five","six","seven","eight","nine"][+d]).join(' ')); }
+function sayHeading(h){ return h.split('').map(d=>["zero","one","two","three","four","five","six","seven","eight","nine"][+d]).join(' '); }
+function sayAlt(a){ const A=a.toUpperCase(); if(A.startsWith("FL")) return `flight level ${A.replace("FL","").split('').join(' ')}`; if(/^\d+$/.test(A)){const n=+A;if(n%1000===0)return `${n/1000} thousand`; if(n===3000)return"three thousand"; if(n===5000)return"five thousand"; if(n===7000)return"seven thousand"; } return a; }
+function spellCS(cs){
+  const map={A:"alpha",B:"bravo",C:"charlie",D:"delta",E:"echo",F:"foxtrot",G:"golf",H:"hotel",I:"india",J:"juliett",K:"kilo",L:"lima",M:"mike",N:"november",O:"oscar",P:"papa",Q:"quebec",R:"romeo",S:"sierra",T:"tango",U:"uniform",V:"victor",W:"whiskey",X:"xray",Y:"yankee",Z:"zulu"};
+  const dig={0:"zero",1:"one",2:"two",3:"tree",4:"fower",5:"fife",6:"six",7:"seven",8:"eight",9:"niner"};
+  return cs.toUpperCase().split('').map(ch=> map[ch]||(/\d/.test(ch)?dig[ch]:(ch==='-'?'dash':ch)) ).join(' ');
 }
 
-/* recent callsigns */
-function getRecent(){ try{ return JSON.parse(localStorage.getItem('RECENT_CALLS')||"[]"); }catch(e){ return []; } }
-function pushRecent(cs,type){ const arr=getRecent().filter(x=>x.cs!==cs); arr.unshift({cs,type,ts:Date.now()}); while(arr.length>12) arr.pop(); localStorage.setItem('RECENT_CALLS',JSON.stringify(arr)); }
-function renderChips(sel){ const el=q(sel); if(!el) return; el.innerHTML=""; getRecent().forEach(r=>{ const chip=document.createElement('div'); chip.className='chip '+(r.type||'civ'); const dot=document.createElement('span'); dot.className='dot'; const txt=document.createElement('span'); txt.textContent=r.cs; chip.appendChild(dot); chip.appendChild(txt); chip.addEventListener('click',()=>{ ["clrCall","gndCall","twrCall","dapCall","ctrCall","emgCall","pCall","pgCall","ptCall","pDapCall","pCtrCall"].forEach(id=>{ const f=document.getElementById(id); if(f) f.value=r.cs; }); }); el.appendChild(chip); }); }
-
-/* NATO spelling for callsign → plain English */
-const NATO_MAP={A:"Alpha",B:"Bravo",C:"Charlie",D:"Delta",E:"Echo",F:"Foxtrot",G:"Golf",H:"Hotel",I:"India",J:"Juliett",K:"Kilo",L:"Lima",M:"Mike",N:"November",O:"Oscar",P:"Papa",Q:"Quebec",R:"Romeo",S:"Sierra",T:"Tango",U:"Uniform",V:"Victor",W:"Whiskey",X:"Xray",Y:"Yankee",Z:"Zulu"};
-const DIGIT_WORDS={"0":"zero","1":"one","2":"two","3":"tree","4":"fower","5":"fife","6":"six","7":"seven","8":"eight","9":"niner"};
-function spellCallsign(cs){
-  cs=String(cs||"").toUpperCase();
-  // HINT: Special Ops exceptions — do NOT expand (you can add more)
-  const preserve=["AIR-1","AIR1","MED-","SAR","USCG","BCSO","LSSD","LSPD","SASP","FIB","DHS","SABP","LA"];
-  if(preserve.some(p=>cs.includes(p))) return cs; // leave as typed
-  let out=[];
-  for(const ch of cs){
-    if(/[A-Z]/.test(ch)) out.push(NATO_MAP[ch]);
-    else if(/[0-9]/.test(ch)) out.push(DIGIT_WORDS[ch]);
-    else if(ch==='-') out.push("dash");
-    else if(ch==='/') out.push("slash");
-    else out.push(ch);
-  }
-  return out.join(" ").replace(/\s+/g," ").trim();
+/* ================= Recent callsigns (chips) ================= */
+function getRecent(){ try{return JSON.parse(localStorage.getItem('RECENT_CALLS')||"[]")}catch(e){return[]} }
+function pushRecent(call){ const cs=callsignUpper(call); if(!cs) return; const arr=getRecent().filter(x=>x.cs!==cs); arr.unshift({cs,ts:Date.now()}); while(arr.length>16) arr.pop(); localStorage.setItem('RECENT_CALLS',JSON.stringify(arr)); }
+function renderChipsFor(inputId, containerSel){
+  const el=q(containerSel); if(!el) return; el.innerHTML="";
+  getRecent().forEach(r=>{ const s=document.createElement('span'); s.className='chip'; s.textContent=r.cs; s.onclick=()=>{ q('#'+inputId).value=r.cs; }; el.appendChild(s); });
 }
 
-/* Plain-English translator for numbers */
-function wordsForNumber(numStr){ return String(numStr||"").split("").map(d=>DIGIT_WORDS[d]||d).join(" "); }
-
-/* ===================== NAV / TABS ===================== */
-qa('.topnav .seg').forEach(seg=>{
-  seg.addEventListener('click',()=>{
-    qa('.topnav .seg').forEach(x=>x.classList.remove('active'));
-    seg.classList.add('active');
-    const agency=seg.dataset.agency;
-    qa('.agencyPage').forEach(p=>p.classList.remove('active'));
-    q('#page_'+agency).classList.add('active');
-    q('#header').className='header '+agency;
-    q('#agencyBadge').textContent='Agency: '+agency.toUpperCase();
-  });
-});
-function wireTabs(containerSel){ const root=q(containerSel); if(!root) return;
-  const tabs=[...root.querySelectorAll('.tab')];
-  tabs.forEach(btn=>{
-    btn.addEventListener('click',()=>{
-      const id=btn.dataset.tab;
-      tabs.forEach(b=>b.classList.remove('active'));
-      [...root.parentElement.querySelectorAll('.panel')].forEach(p=>p.classList.remove('active'));
-      btn.classList.add('active'); q('#panel_'+id).classList.add('active');
-    });
-  });
+/* ================= Login badge + controller callback ================= */
+function currentController(){
+  const name=(q('#loginName')?.value||'Controller').trim();
+  const code=(q('#loginCode')?.value||'00000').trim();
+  return {name, code, phone:`555-${String(code).padStart(5,'0').slice(-4)}`};
 }
-wireTabs('#atcTabs'); wireTabs('#refTabs'); wireTabs('#pilotTabs'); wireTabs('#ntsbTabs'); wireTabs('#sataTabs'); wireTabs('#marTabs');
+function updateLoginUI(){
+  const c=currentController();
+  q('#loginBadge').textContent=`${c.name} — Controller`;
+  q('#emgCB').value=`${c.name} (${c.phone})`;
+}
+['#loginName','#loginCode'].forEach(sel=> q(sel).addEventListener('input',updateLoginUI));
+updateLoginUI();
 
-/* ===================== INIT REFERENCE LISTS ===================== */
-(function initRefs(){
-  q('#numFlList').innerHTML = PHRASE_NUM_FL.map(t=>`<li>${t}</li>`).join("");
-  q('#natoBlock').textContent = NATO_TEXT;
-  q('#natoExamples').innerHTML = NATO_EXAMPLES.map(t=>`<li>${t}</li>`).join("");
-  q('#customBlocks').innerHTML = CUSTOM_BLOCKS.map(t=>`<li>${t}</li>`).join("");
-  q('#hazardsList').innerHTML = HAZARDS_BASE.map(t=>`<li>${t}</li>`).join("");
-  q('#airportsList').innerHTML = AIRPORTS_LIST.map(t=>`<li>${t}</li>`).join("");
-  q('#freqList').innerHTML = FREQ_LIST.map(t=>`<li>${t}</li>`).join("");
+/* ================= Static data (EDITABLE) ================= */
+const LETTERS = ["alpha","bravo","charlie","delta","echo","foxtrot","golf","hotel","india","juliett","kilo","lima","mike","november","oscar","papa","quebec","romeo","sierra","tango","uniform","victor","whiskey","xray","yankee","zulu"];
+const AIRPORTS = ["LSIA","SNDY","GPSD","PBAY","RXWD"];
+const WX_PRESETS={ CLEAR:{vis:"10",clouds:["SKC"]}, RAIN:{vis:"6",clouds:["BKN025","OVC040"]}, FOG:{vis:"2",clouds:["OVC008"]}, WINDY:{vis:"8",clouds:["SCT030"]}, OVERCAST:{vis:"8",clouds:["OVC015","BKN035"]}, STORM:{vis:"3",clouds:["BKN015","OVC030"]}, SNOW:{vis:"2",clouds:["OVC010"]} };
+const WIND_PROFILES={ CALM:"000/00", LIGHT:"220/06", BREEZY:"230/12", WINDY:"250/22G30", CROSS:"090/18" };
 
-  q('#adPresetOpen').innerHTML   = AD_PRESETS_OPEN.map(s=>`<li class="hint"><button class="btn" data-ad="${s}">Use</button> ${s}</li>`).join("");
-  q('#adPresetClosed').innerHTML = AD_PRESETS_CLOSED.map(s=>`<li class="hint"><button class="btn" data-ad="${s}">Use</button> ${s}</li>`).join("");
-  q('#adPresetStaff').innerHTML  = AD_PRESETS_STAFF.map(s=>`<li class="hint"><button class="btn" data-ad="${s}">Use</button> ${s}</li>`).join("");
+/* Runway lookup by ops-direction */
+const RUNWAYS = {
+  LSIA: { normal:"24R/24L", reverse:"06" },
+  SNDY: { normal:"30", reverse:"12" },
+  GPSD: { normal:"11/29", reverse:"29" },
+  PBAY: { normal:"01/19", reverse:"01" },
+  RXWD: { normal:"08/26", reverse:"08" }
+};
+/* Area hazard hints (used in VFR & Special Ops) */
+const HAZ_HINTS = {
+  LSIA:{ north:"Caution high-rises; downtown cluster.", east:"Caution harbor cranes & oil fields.", south:"Caution coastal bridges & shipping.", west:"Caution hills & broadcast masts." },
+  SNDY:{ north:"Caution Alamo Sea masts; shoreline birds.", east:"Caution power lines along Senora Fwy.", south:"Caution prison complex—do not overfly.", west:"Caution oil derricks / cement plant." },
+  GPSD:{ north:"Caution foothill shear near ridges.", east:"Caution windmills west of field.", south:"Caution power lines & farms.", west:"Caution canyons and low masts." },
+  PBAY:{ north:"Caution Chiliad ridge masts.", east:"Caution coastal pines.", south:"Caution forest downdrafts.", west:"Caution shoreline turbulence." },
+  RXWD:{ north:"Caution valley ridgeline & towers.", east:"Caution industrial stacks.", south:"Caution city tower cluster.", west:"Caution railyard cranes." }
+};
+const AREA_LOCAL_HAZARDS={
+  "Los Santos (city)":"Dense high-rises; port cranes; shoreline heli traffic.",
+  "Sandy Shores":"Prison complex—do not overfly; Sonora power lines.",
+  "Grapeseed":"Windmills west of field; farms; low masts.",
+  "Paleto Bay":"Power lines near coast; Mt. Chiliad slopes; construction.",
+  "Harmony / Route 68":"Industrial stacks; low towers near highway.",
+  "Senora Freeway":"High-speed corridor; power spans; rotor traffic.",
+  "Palomino Freeway":"Bridges and overhead cranes.",
+  "Zancudo Area":"Restricted airspace; bridge masts; river spans."
+};
 
-  q('#atcTrainList').innerHTML   = ATC_TRAIN_NOTES.map(t=>`<li>${t}</li>`).join("");
-  q('#pilotTrainList').innerHTML = PILOT_TRAIN_NOTES.map(t=>`<li>${t}</li>`).join("");
+/* SID map & squawk seeds */
+const SIDMAP = {
+  "LSIA → SNDY":"port one", "LSIA → PBAY":"coast two", "LSIA → GPSD":"vinewood one", "LSIA → RXWD":"east river one",
+  "SNDY → LSIA":"desert one", "SNDY → PBAY":"chiliad one", "SNDY → GPSD":"senora one", "SNDY → RXWD":"route 68 one",
+  "GPSD → LSIA":"farm one", "GPSD → PBAY":"ridge one", "GPSD → RXWD":"grain one",
+  "PBAY → LSIA":"chiliad one", "PBAY → GPSD":"coastal ridge", "PBAY → RXWD":"forest one",
+  "RXWD → LSIA":"county one", "RXWD → GPSD":"municipal one", "RXWD → SNDY":"north desert", "RXWD → PBAY":"bayline"
+};
+const SQUAWK_SEED = { LSIA:9010, SNDY:3037, PBAY:1080, GPSD:2058, RXWD:4401 };
+function nextSquawk(dep){
+  const seed=SQUAWK_SEED[dep]||3300; const key='SQUAWK_'+dep;
+  let cur=parseInt(localStorage.getItem(key)||seed,10);
+  cur=(cur+1)%7777;
+  if(/[89]/.test(String(cur))) cur=seed;
+  localStorage.setItem(key,String(cur).padStart(4,'0'));
+  return String(cur).padStart(4,'0');
+}
+function pickRunway(airport, mode){
+  const m=RUNWAYS[airport]||{}; const key=(mode||'normal').toLowerCase()==='reverse'?'reverse':'normal';
+  return (m[key]||m.normal||"runway").toUpperCase();
+}
 
-  // preset “Use” buttons
-  qa('[data-ad]').forEach(btn=>{
-    btn.addEventListener('click',()=>{ const text=btn.getAttribute('data-ad'); q('#adOut').textContent='/ad '+text; copy('/ad '+text); });
-  });
-})();
-
-/* ===================== ATIS ===================== */
+/* ================= ATIS (automatic) ================= */
 (function initATIS(){
-  // letter
-  const saved=localStorage.getItem('ATIS_LETTER')||'alpha';
-  q('#aLetter').value=saved;
-  q('#nextLetter').onclick=()=>{ const i=(LETTERS.indexOf(q('#aLetter').value.toLowerCase())+1+LETTERS.length)%LETTERS.length; const nxt=LETTERS[i]; q('#aLetter').value=nxt; localStorage.setItem('ATIS_LETTER',nxt); };
-
-  // show matrix when not all operational
-  q('#apAll').addEventListener('change',e=>{ q('#opsMatrix').style.display = e.target.checked?'none':'block'; });
+  const stored = localStorage.getItem('ATIS_LETTER')||'alpha';
+  q('#aLetter').value = stored;
+  q('#resetATIS').onclick=()=>{ q('#aLetter').value='alpha'; localStorage.setItem('ATIS_LETTER','alpha'); };
 
   q('#genATIS').onclick=()=>{
-    const tod=q('#aTod').value, wx=q('#aWx').value, windKey=q('#aWind').value;
-    const errs=[]; if(!tod) errs.push('time of day'); if(!wx) errs.push('weather'); if(!windKey) errs.push('wind');
-    if(errs.length){ const box=q('#aErr'); box.style.display='block'; box.innerHTML="<b>fix:</b><ul>"+errs.map(m=>`<li>${m}</li>`).join('')+"</ul>"; return; }
-    q('#aErr').style.display='none';
+    const tod=q('#aTod').value; const wx=q('#aWx').value; const windKey=q('#aWind').value; const tempFeel=q('#aTempFeel').value;
+    if(!tod||!wx||!windKey){ q('#atisOut').textContent="fix: select time, weather, wind"; q('#atisPlain').textContent=""; return; }
 
-    const ltr=q('#aLetter').value||'alpha';
+    const letter=q('#aLetter').value||'alpha';
     const wind=WIND_PROFILES[windKey]||'000/00';
-    const preset=WX_PRESETS[wx]||{vis:'10',clouds:'SKC'};
-    const vis=preset.vis, cld=preset.clouds;
+    const preset=WX_PRESETS[wx]||{vis:"10",clouds:["SKC"]};
+    const zZulu = (()=>{ const d=new Date(); return String(d.getUTCHours()).padStart(2,'0')+String(d.getUTCMinutes()).padStart(2,'0')+' zulu'; })();
 
-    // active/fuel summary
-    let activeList=[], fuelNotes=[];
-    if(q('#apAll').checked){ activeList=AIRPORTS.slice(); }
-    else{
-      AIRPORTS.forEach(code=>{
-        const st=(q('#st_'+code)?.value||'Active'); if(st==='Active') activeList.push(code);
-        const f=(q('#fuel_'+code)?.value||'Available'); fuelNotes.push(`${code}:${f.toLowerCase()}`);
-      });
-    }
-    const allActive = activeList.length===AIRPORTS.length;
-    const activeStr = allActive ? "all airports active" : (activeList.join(", ")+" active");
-    const fuels = (fuelNotes.length? "; fuel "+fuelNotes.join(", ") : "");
+    const tempRanges={Cold:[-2,4],Cool:[5,9],Mild:[10,17],Warm:[18,25],Hot:[26,33]};
+    const tR=tempRanges[tempFeel]||[10,17]; const temp=Math.round(tR[0]+Math.random()*(tR[1]-tR[0]));
+    const dew=Math.max(-2, temp-3);
 
-    const msg = `/gme updates ATIS San Andreas, information ${ltr}. ${tod.toLowerCase()} conditions ${wx.toLowerCase()}, wind ${wind.toLowerCase()}, visibility ${vis}sm, clouds ${cld.toLowerCase()}, ops normal. ${activeStr}${fuels}.`
-      + (q('#aNoise').checked ? " noise abatement in effect." : "")
-      + (q('#aInclClr').checked ? " contact clearance 122.2." : "");
+    const layers = preset.clouds.length ? preset.clouds : ["SKC"];
+    const baseAlt = (2990 + Math.floor(Math.random()*30)); // 29.90–30.19
+    const altMap = {}; AIRPORTS.forEach((ap,i)=>{ altMap[ap]=(baseAlt + (i%3)-1); });
 
-    q('#atisOut').textContent=msg; copy(msg);
-    // Plain English (spelled out)
-    const plain = `San Andreas ATIS, information ${ltr}. ${tod.toLowerCase()} conditions ${wx.toLowerCase()}, wind ${wind.toLowerCase().replace('/',' at ')}. visibility ${wordsForNumber(vis)} statute miles, clouds ${cld.toLowerCase()}. ${activeStr}.`
-      + (q('#aNoise').checked ? " noise abatement in effect." : "")
-      + (q('#aInclClr').checked ? " contact clearance one two two point two." : "");
-    q('#atisPlain').textContent=plain;
-    q('#plainOut').textContent=plain; // mirror to bottom card
+    const opsMode=q('#aOpsMode').value||'Normal';
+    const rwStr = AIRPORTS.map(ap=> `${ap} ${pickRunway(ap, opsMode)}`).join(', ');
+
+    const noise = q('#aNoise').checked ? " Noise abatement in effect." : "";
+    const opsSummary = q('#apAll').checked ? "All airports operational." : "Check NOTAMs for field restrictions.";
+
+    const gmeSegments=[
+      `ATIS San Andreas, Information ${letter}.`,
+      `${tod.toLowerCase()} conditions ${wx.toLowerCase()}, wind ${wind.toLowerCase()}, visibility ${preset.vis}sm.`,
+      `clouds ${layers.join(' ')}, temp ${temp}, dew ${dew}.`,
+      `altimeter ${AIRPORTS.map(ap=>`${ap} ${String(altMap[ap]).slice(0,2)}.${String(altMap[ap]).slice(2)}`).join(', ')}.`,
+      `approaches ${opsMode.toLowerCase()} in use: ${rwStr}.`,
+      opsSummary + noise,
+      `advise on initial contact you have information ${letter}.`
+    ];
+    const gme = gmeColorSegments(gmeSegments);
+
+    const plain = [
+      `San Andreas ATIS, information ${letter}, ${zZulu}.`,
+      `Wind ${wind.replace('/',' at ')}.`,
+      `Visibility ${preset.vis}.`,
+      `Ceiling ${layers.join(', ')}.`,
+      `Temperature ${temp}, dew point ${dew}.`,
+      `Altimeter ${AIRPORTS.map(ap=>`${ap} ${String(altMap[ap]).slice(0,2)}.${String(altMap[ap]).slice(2)}`).join(', ')}.`,
+      `Approaches ${opsMode} operations. Runways: ${rwStr}.`,
+      opsSummary + noise,
+      `Advise on initial contact you have information ${letter}.`
+    ].join('\n');
+
+    q('#atisOut').textContent=gme; q('#atisPlain').textContent=plain; copy(gme);
+
+    const idx=(LETTERS.indexOf(letter)+1)%LETTERS.length;
+    const next=LETTERS[idx]; localStorage.setItem('ATIS_LETTER', next); q('#aLetter').value = next;
   };
 })();
 
-/* ===================== CLEARANCE ===================== */
-function showClrBlocks(){
-  const t=q('#clrType').value;
-  q('#IFRRow').style.display=(t==='IFR')?'flex':'none';
-  q('#VFRRow').style.display=(t==='VFR')?'flex':'none';
-  q('#specRow').style.display=(t==='Special Ops')?'flex':'none';
-  q('#specDeptsWrap').style.display=(t==='Special Ops')?'block':'none';
-}
-q('#clrType').addEventListener('change',showClrBlocks); showClrBlocks();
-
-q('#clrRoute').addEventListener('change',()=>{ const r=q('#clrRoute').value; q('#clrSid').value=(SIDMAP[r]||'auto'); });
-
-q('#genCLR').addEventListener('click',()=>{
-  const errs=[]; let cs=callsignUpper(q('#clrCall').value); if(!cs) errs.push('callsign');
-  const t=q('#clrType').value; let msg="", plain="";
-  if(t==='IFR'){
-    const route=q('#clrRoute').value; if(!route) errs.push('route');
-    if(!errs.length){
-      const to=route.split('→')[1].trim(), dep=route.split('→')[0].trim();
-      const sid=(SIDMAP[route]||'port one'); const squawk=nextSquawk(dep); const rwy=pickRunway(dep,'normal');
-      msg=`/gme ${dep} delivery clears ${cs} to ${to} via ${sid}, then as filed. climb and maintain 5,000. expect ${flText(240)} ten minutes after departure. SQUAWK ${squawk}. expect runway ${rwy} at ${dep}.`;
-      plain=`${airportName(dep)} delivery: ${spellCallsign(cs)}, cleared to ${airportName(to)} via ${sid}, then as filed. climb and maintain five thousand. expect flight level two four zero ten minutes after departure. squawk ${wordsForNumber(squawk)}. expect runway ${rwy} at ${airportName(dep)}.`;
-    }
-  }else if(t==='VFR'){
-    const dir=q('#VFRDir').value; if(!dir) errs.push('direction');
-    const postal=q('#VFRPostal').value; if(!postal) errs.push('nearest postal');
-    if(!errs.length){
-      const nearest=nearestAirportByPostal(postal); const squawk=nextSquawk(nearest);
-      msg=`/gme ${nearest} delivery clears ${cs} VFR to the ${dir} sector, maintain 1,500. remain clear of local hazards. SQUAWK ${squawk}. contact ground 122.3 when ready to taxi.`;
-      plain=`${airportName(nearest)} delivery: ${spellCallsign(cs)}, VFR to the ${dir.toLowerCase()} sector, maintain one thousand five hundred. remain clear of local hazards. squawk ${wordsForNumber(squawk)}. contact ground one two two point tree when ready to taxi.`;
-    }
-  }else{ // Special Ops
-    const depts=[...q('#specDepts').selectedOptions].map(o=>o.value); if(depts.length===0) errs.push('departments');
-    const areas=[...q('#specAreas').selectedOptions].map(o=>o.value); if(areas.length===0) errs.push('authorized areas');
-    const ops=q('#specOps').value||'Normal';
-    if(!errs.length){
-      const depAp='LSIA'; const squawk=nextSquawk(depAp); const tag=depts.join(", "); const areaText=areas.join(", ");
-      const rwy=pickRunway(depAp, ops.toLowerCase()!=='normal'?ops:'normal');
-      const notes=(q('#clrNotes').value||"").trim(); // HINT: put helipad postals here
-      msg=`/gme ${depAp} delivery clears ${tag} ${cs} to operate within ${areaText}. maintain 500 AGL within assigned areas. observe local obstacles and corridors. ${notes?("notes: "+notes+". "):""}SQUAWK ${squawk}. expect ${rwy} at ${depAp}.`;
-      plain=`${airportName(depAp)} delivery: ${tag} ${spellCallsign(cs)}, cleared to operate within ${areaText}. maintain five hundred A G L within assigned areas. observe local obstacles and corridors. ${notes?("notes: "+notes+". "):""}squawk ${wordsForNumber(squawk)}. expect ${rwy} at ${airportName(depAp)}.`;
-    }
+/* ================= Clearance ================= */
+(function initCLR(){
+  const t=q('#clrType'), deptsWrap=q('#specDeptsWrap'), vfrRow=q('#VFRRow'), ifrRow=q('#IFRRow'), specRow=q('#specRow');
+  function showRows(){
+    const v=t.value;
+    ifrRow.style.display = (v==='IFR')?'flex':'none';
+    vfrRow.style.display = (v==='VFR')?'flex':'none';
+    specRow.style.display = (v==='Special Ops')?'flex':'none';
+    deptsWrap.style.display = (v==='Special Ops')?'block':'none';
   }
-
-  if(errs.length){ const box=q('#clrErr'); box.style.display='block'; box.innerHTML="<b>fix:</b><ul>"+errs.map(m=>`<li>${m}</li>`).join('')+"</ul>"; return; }
-  q('#clrErr').style.display='none';
-  q('#clrOut').textContent=msg; q('#clrPlain').textContent=plain; q('#plainOut').textContent=plain; copy(msg);
-  pushRecent(cs,'comm'); ['#chipsATC','#chipsGND','#chipsTWR','#chipsDAP','#chipsCTR','#chipsEMG'].forEach(renderChips);
-});
-
-/* ===================== GROUND & TAXI ===================== */
-function gndMsg(kind){
-  const cs=callsignUpper(q('#gndCall').value), ap=q('#gndAp').value, ops=q('#gndOps').value;
-  if(!cs){ const box=document.createElement('div'); box.className='errbox'; box.innerHTML='<b>fix:</b><ul><li>callsign</li></ul>'; q('#gndOut').before(box); box.style.display='block'; return; }
-  const rwy=pickRunway(ap, ops!=='normal'?ops:'normal');
-  let msg="", plain="";
-  if(kind==='push'){ msg=`/gme ${ap} ground clears ${cs} for pushback. expect runway ${rwy}.`; plain=`${airportName(ap)} ground, ${spellCallsign(cs)}, cleared for pushback. expect runway ${rwy}.`; }
-  else if(kind==='pushstart'){ msg=`/gme ${ap} ground clears ${cs} for push and start. expect runway ${rwy}.`; plain=`${airportName(ap)} ground, ${spellCallsign(cs)}, cleared for push and start. expect runway ${rwy}.`; }
-  else if(kind==='taxirwy'){ msg=`/gme ${ap} ground clears ${cs} for progressive taxi to ${rwy}. ground will call your turns. contact tower 122.4 when ready.`; plain=`${airportName(ap)} ground, ${spellCallsign(cs)}, request permission to taxi to ${rwy}. progressive taxi, ground calls my turns. will contact tower one two two point fower when ready.`; }
-  else { msg=`/gme ${ap} ground clears ${cs} for progressive taxi to parking. ground will call your turns. monitor ground 122.3.`; plain=`${airportName(ap)} ground, ${spellCallsign(cs)}, request permission to taxi to parking. progressive taxi, ground calls my turns. will monitor ground one two two point tree.`; }
-  q('#gndOut').textContent=msg; q('#gndPlain').textContent=plain; q('#plainOut').textContent=plain; copy(msg); pushRecent(cs,'civ'); renderChips('#chipsGND');
-}
-q('#btnPushOnly').onclick=()=>gndMsg('push');
-q('#btnPushStart').onclick=()=>gndMsg('pushstart');
-q('#btnTaxiRwy').onclick=()=>gndMsg('taxirwy');
-q('#btnTaxiPark').onclick=()=>gndMsg('taxipark');
-
-/* ===================== TOWER ===================== */
-function addAdvisories(){
-  const adv=[];
-  if(q('#advWake').checked)  adv.push("caution wake turbulence");
-  if(q('#advRotor').checked) adv.push("caution rotor wash");
-  if(q('#advShear').checked) adv.push("windshear advisory in effect");
-  if(q('#advLLT').checked)   adv.push("low-level turbulence reported");
-  return adv.length? " "+adv.join("; ")+".":"";
-}
-// auto LLT if crosswind chosen on ATIS
-q('#aWind')?.addEventListener('change',()=>{ if(q('#aWind').value==='CROSS') q('#advLLT').checked=true; });
-
-q('#btnLineUp').onclick=()=>{
-  const cs=callsignUpper(q('#twrCall').value), ap=q('#twrAp').value, ops=q('#twrOps').value;
-  if(!cs){ const box=document.createElement('div'); box.className='errbox'; box.innerHTML='<b>fix:</b><ul><li>callsign</li></ul>'; q('#twrOut').before(box); box.style.display='block'; return; }
-  const rwy=pickRunway(ap, ops!=='normal'?ops:'normal');
-  const msg=`/gme ${ap} tower clears ${cs} line up and wait ${rwy}.`; const plain=`${airportName(ap)} tower: ${spellCallsign(cs)}, line up and wait ${rwy}.`;
-  q('#twrOut').textContent=msg; q('#twrPlain').textContent=plain; q('#plainOut').textContent=plain; copy(msg); pushRecent(cs,'civ'); renderChips('#chipsTWR');
-};
-q('#btnTakeoff').onclick=()=>{
-  const cs=callsignUpper(q('#twrCall').value), ap=q('#twrAp').value, ops=q('#twrOps').value;
-  if(!cs){ const box=document.createElement('div'); box.className='errbox'; box.innerHTML='<b>fix:</b><ul><li>callsign</li></ul>'; q('#twrOut').before(box); box.style.display='block'; return; }
-  const rwy=pickRunway(ap, ops!=='normal'?ops:'normal');
-  const abt=q('#twrNoise').value; const extra=(abt && abt!=='None')?` ${abt}.`:"";
-  const msg=`/gme ${ap} tower clears ${cs} for takeoff ${rwy}.${extra}${addAdvisories()} contact departure 122.5.`;
-  const plain=`${airportName(ap)} tower: ${spellCallsign(cs)}, cleared for takeoff ${rwy}.${extra?(" "+abt+"."):""}${addAdvisories()} contact departure one two two point five.`;
-  q('#twrOut').textContent=msg; q('#twrPlain').textContent=plain; q('#plainOut').textContent=plain; copy(msg); pushRecent(cs,'civ'); renderChips('#chipsTWR');
-};
-q('#btnLanding').onclick=()=>{
-  const cs=callsignUpper(q('#twrCall').value), ap=q('#twrAp').value, ops=q('#twrOps').value;
-  if(!cs){ const box=document.createElement('div'); box.className='errbox'; box.innerHTML='<b>fix:</b><ul><li>callsign</li></ul>'; q('#twrOut').before(box); box.style.display='block'; return; }
-  const rwy=pickRunway(ap, ops!=='normal'?ops:'normal');
-  const msg=`/gme ${ap} tower clears ${cs} to land ${rwy}.${addAdvisories()} exit runway when able; contact ground 122.3.`;
-  const plain=`${airportName(ap)} tower: ${spellCallsign(cs)}, cleared to land ${rwy}.${addAdvisories()} exit runway when able; contact ground one two two point tree.`;
-  q('#twrOut').textContent=msg; q('#twrPlain').textContent=plain; q('#plainOut').textContent=plain; copy(msg); pushRecent(cs,'civ'); renderChips('#chipsTWR');
-};
-q('#btnGoAround').onclick=()=>{
-  const cs=callsignUpper(q('#twrCall').value), ap=q('#twrAp').value;
-  if(!cs){ const box=document.createElement('div'); box.className='errbox'; box.innerHTML='<b>fix:</b><ul><li>callsign</li></ul>'; q('#twrOut').before(box); box.style.display='block'; return; }
-  const msg=`/gme ${ap} tower instructs ${cs} go around, runway heading, climb to pattern altitude.`;
-  const plain=`${airportName(ap)} tower: ${spellCallsign(cs)}, go around, runway heading, climb to pattern altitude.`;
-  q('#twrOut').textContent=msg; q('#twrPlain').textContent=plain; q('#plainOut').textContent=plain; copy(msg); pushRecent(cs,'civ'); renderChips('#chipsTWR');
-};
-
-/* ===================== D/A/P ===================== */
-q('#btnDAPGen').onclick=()=>{
-  const cs=callsignUpper(q('#dapCall').value), phase=q('#dapPhase').value, ap=q('#dapAp').value, dir=q('#dapDir').value;
-  if(!cs){ const box=document.createElement('div'); box.className='errbox'; box.innerHTML='<b>fix:</b><ul><li>callsign</li></ul>'; q('#dapOut').before(box); box.style.display='block'; return; }
-  const autoHdg = q('#dapHdg').value || String(DIR_TO_HEADING[dir]||"");
-  const altIn=q('#dapAlt').value; const altn=altIn?parseAltOrFL(altIn):"3000";
-  const proc=(q('#dapProc').value||"").trim();
-  let msg="", plain="";
-  if(phase==='Departure'){
-    msg=`/gme ${ap} departure ${cs}, climb and maintain ${altn.toString().toUpperCase().startsWith('FL')?altn.toUpperCase():altn}, fly heading ${autoHdg} for ${dir.toLowerCase()} sector${proc?(" via "+proc):""}. contact center 122.7.`;
-    plain=`${airportName(ap)} departure: ${spellCallsign(cs)}, climb and maintain ${altn.toString().toUpperCase().startsWith('FL')?("flight level "+altn.replace('FL','').split('').map(d=>DIGIT_WORDS[d]).join(' ')): (altn.split('').map(d=>DIGIT_WORDS[d]).join(' ')+" feet")}, fly heading ${wordsForNumber(String(autoHdg))} for ${dir.toLowerCase()} sector${proc?(" via "+proc):""}. contact center one two two point seven.`;
-  }else{
-    msg=`/gme ${ap} approach ${cs}, descend and maintain 3,000, proceed inbound from the ${dir.toLowerCase()} sector${proc?(" via "+proc):""}. contact tower 122.4 when established.`;
-    plain=`${airportName(ap)} approach: ${spellCallsign(cs)}, descend and maintain three thousand, proceed inbound from the ${dir.toLowerCase()} sector${proc?(" via "+proc):""}. contact tower one two two point fower when established.`;
-  }
-  q('#dapOut').textContent=msg; q('#dapPlain').textContent=plain; q('#plainOut').textContent=plain; copy(msg); pushRecent(cs,'civ'); renderChips('#chipsDAP');
-};
-
-/* ===================== CENTER ===================== */
-q('#btnCTRGen').onclick=()=>{
-  const cs=callsignUpper(q('#ctrCall').value), mode=q('#ctrMode').value, ap=q('#ctrAp').value, dir=q('#ctrDir').value;
-  if(!cs){ const box=document.createElement('div'); box.className='errbox'; box.innerHTML='<b>fix:</b><ul><li>callsign</li></ul>'; q('#ctrOut').before(box); box.style.display='block'; return; }
-  const hdg=q('#ctrHdg').value || String(DIR_TO_HEADING[dir]||""); const alt=q('#ctrAlt').value||"12000"; const next=q('#ctrNext').value||"122.7";
-  let msg="", plain="";
-  if(mode==='Departure'){
-    msg=`/gme ${ap} center ${cs}, climb and maintain ${alt.toUpperCase().startsWith('FL')?alt.toUpperCase():alt}, fly heading ${hdg} for ${dir.toLowerCase()} sector. contact next ${next}.`;
-    plain=`${airportName(ap)} center: ${spellCallsign(cs)}, climb and maintain ${alt.toUpperCase().startsWith('FL')?("flight level "+alt.replace('FL','').split('').map(d=>DIGIT_WORDS[d]).join(' ')): alt.split('').map(d=>DIGIT_WORDS[d]).join(' ')+" feet"}, fly heading ${wordsForNumber(String(hdg))} for ${dir.toLowerCase()} sector. contact next ${next.replace('.', ' point ')}.`;
-  }else if(mode==='Arrival'){
-    msg=`/gme ${ap} center ${cs}, descend and maintain ${alt.toUpperCase().startsWith('FL')?alt.toUpperCase():alt}, vectors ${dir.toLowerCase()} sector, fly heading ${hdg}. contact next ${next}.`;
-    plain=`${airportName(ap)} center: ${spellCallsign(cs)}, descend and maintain ${alt.toUpperCase().startsWith('FL')?("flight level "+alt.replace('FL','').split('').map(d=>DIGIT_WORDS[d]).join(' ')): alt.split('').map(d=>DIGIT_WORDS[d]).join(' ')+" feet"}, vectors ${dir.toLowerCase()} sector, fly heading ${wordsForNumber(String(hdg))}. contact next ${next.replace('.', ' point ')}.`;
-  }else{ // Enroute
-    msg=`/gme center ${cs}, fly heading ${hdg}, vectors ${dir.toLowerCase()} bound. maintain ${alt.toUpperCase().startsWith('FL')?alt.toUpperCase():alt}. contact next ${next}.`;
-    plain=`Center: ${spellCallsign(cs)}, fly heading ${wordsForNumber(String(hdg))}, vectors ${dir.toLowerCase()} bound. maintain ${alt.toUpperCase().startsWith('FL')?("flight level "+alt.replace('FL','').split('').map(d=>DIGIT_WORDS[d]).join(' ')): alt.split('').map(d=>DIGIT_WORDS[d]).join(' ')+" feet"}. contact next ${next.replace('.', ' point ')}.`;
-  }
-  q('#ctrOut').textContent=msg; q('#ctrPlain').textContent=plain; q('#plainOut').textContent=plain; copy(msg); pushRecent(cs,'civ'); renderChips('#chipsCTR');
-};
-
-/* ===================== EMERGENCIES ===================== */
-(function initEMG(){
-  const sel=q('#emgCB'); CONTROLLERS.forEach(c=>{ const o=document.createElement('option'); o.value=c.phone; o.textContent=`${c.name} — ${c.phone}`; sel.appendChild(o); });
+  t.addEventListener('change', showRows); showRows();
+  q('#clrRoute').addEventListener('change',()=>{ q('#clrSid').value = (SIDMAP[q('#clrRoute').value]||'auto'); });
+  q('#genCLR').onclick=genCLR;
 })();
-q('#btnEMGGen').onclick=()=>{
-  const cs=callsignUpper(q('#emgCall').value), ap=q('#emgAp').value, ops=q('#emgOps').value, type=q('#emgType').value, cb=q('#emgCB').value;
-  if(!cs){ const box=document.createElement('div'); box.className='errbox'; box.innerHTML='<b>fix:</b><ul><li>callsign</li></ul>'; q('#emgOut').before(box); box.style.display='block'; return; }
-  const rwy=pickRunway(ap, ops!=='normal'?ops:'normal');
-  let msg="";
-  if(type==='Runway Incursion'){
-    msg=`/gme ${ap} tower facepalms, witnesses runway incursion. prepares to bank callback to ${cs}: ${cb}.`;
-  }else if(type==='Runway Excursion'){
-    msg=`/gme ${ap} ${rwy} runway excursion observed; SAFR notified; NTSB paged; team on standby for ${cs}.`;
-  }else if(type==='Rejected Takeoff'){
-    msg=`/gme ${cs} rejected takeoff, hold position, advise souls on board and intentions. SAFR standing by.`;
-  }else{
-    msg=`/gme contacts ${cs} regarding possible pilot deviation. controller callback ${cb}.`;
+function genCLR(){
+  const civil = q('#civilCS').checked;
+  const call=callsignUpper(q('#clrCall').value); if(!call){ q('#clrOut').textContent="fix: callsign"; q('#clrPlain').textContent=""; return; }
+  const type=q('#clrType').value;
+  let out="", plain="";
+  if(type==="IFR"){
+    const r=q('#clrRoute').value; const sid=(SIDMAP[r]||'sid'); const [dep,to]=r.split('→').map(s=>s.trim());
+    const squawk = nextSquawk(dep); const rw = pickRunway(dep,'normal');
+    out = gmeColorSegments([`${dep} delivery clears ${call} to ${to} via ${sid}, then as filed.`,`maintain 5,000. expect FL240 ten minutes after departure.`,`squawk ${squawk}.`,`expect ${rw}.`]);
+    plain = `${dep} Delivery, ${civil?call:spellCS(call)}, cleared to ${to} via ${sid}, then as filed. Maintain five thousand. Expect flight level two four zero in ten minutes. Squawk ${squawk.split('').join(' ')}. Expect runway ${sayRunway(rw)}.`;
+  } else if(type==="VFR"){
+    const ap=q('#VFRDep').value, dir=q('#VFRDir').value;
+    const haz=(HAZ_HINTS[ap]||{})[dir]||"Caution local obstacles.";
+    const squawk=nextSquawk(ap);
+    out = gmeColorSegments([`${ap} delivery clears ${call} VFR for the ${dir} departure, maintain 1,500.`,`${haz}`,`squawk ${squawk}.`,`contact ground 122.3 when ready to taxi.`]);
+    plain = `${ap} Delivery, ${civil?call:spellCS(call)}, cleared VFR for the ${dir} departure, maintain one thousand five hundred. ${haz} Squawk ${squawk.split('').join(' ')}. Contact ground on one two two point three when ready to taxi.`;
+  } else {
+    const depts=[...q('#specDepts').selectedOptions].map(o=>o.value).join(", ");
+    const areas=[...q('#specAreas').selectedOptions].map(o=>o.value);
+    const ops=q('#specOps').value;
+    const ap=q('#specDep').value;
+    const rw = pickRunway(ap, ops!=='Normal'?ops:'normal');
+    const squawk = nextSquawk(ap);
+    const notes=q('#clrNotes').value.trim();
+    const areaHaz = areas.map(a=>AREA_LOCAL_HAZARDS[a]).filter(Boolean).join(' ');
+    out = gmeColorSegments([`${ap} delivery clears ${call} (${depts||'agency'}) to operate within ${areas.join(', ')||'assigned areas'}.`,`maintain 500 agl. ${areaHaz||'Use published corridors; watch local obstacles.'}`,`squawk ${squawk}.`,`expect ${rw}.`, notes?notes:""]);
+    plain = `${ap} Delivery, ${civil?call:spellCS(call)} (${depts||'agency'}), cleared to operate within ${areas.join(', ')||'assigned areas'}. Maintain five hundred AGL. ${(areaHaz||'Use published corridors; watch local obstacles.')} Squawk ${squawk.split('').join(' ')}. Expect runway ${sayRunway(rw)}. ${notes?notes:""}`;
   }
-  q('#emgOut').textContent=msg; copy(msg); pushRecent(cs,'civ'); renderChips('#chipsEMG');
-};
-function call911(short){
-  const cs=callsignUpper(q('#emgCall').value), ap=q('#emgAp').value, ops=q('#emgOps').value;
-  const rwy=pickRunway(ap, ops!=='normal'?ops:'normal');
-  const gate=(ops==='north')?'north gate':(ops==='south')?'south gate':'nearest gate';
-  let msg="";
-  if(short){ msg=`/911 Fire/Rescue to ${ap}, runway ${rwy}. respond via ${gate}. controller callback included.`; }
-  else { msg=`/911 aircraft incident at ${ap}, runway ${rwy}. Fire/EMS immediate response via ${gate}. controller callback in message.`; }
-  q('#emgOut').textContent=msg; copy(msg);
+  q('#clrOut').textContent=out; q('#clrPlain').textContent=plain; copy(out); pushRecent(call); renderChipsFor('clrCall','#chipsCLR');
 }
-q('#btn911Short').onclick=()=>call911(true);
-q('#btn911Long').onclick=()=>call911(false);
 
-/* ===================== ADS BUILDER ===================== */
-function listOperational(){
-  if(q('#adAll').checked) return "all airports active";
-  const picks=[...document.querySelectorAll('.adAp:checked')].map(x=>x.value.toUpperCase());
-  return picks.length? picks.join(", ")+" active" : "no airports active";
-}
-function adLine(len){
-  const SAFR=q('#adSAFR').value, train=q('#adTrain').value, fuel=q('#adFuel').value;
-  const ops=listOperational();
-  const emergencyOK=(SAFR==='Online' && train==='Not Active');
-  let core = emergencyOK ? "emergencies permitted" : (train==='Active'?"no emergencies during training":"emergencies not available (SAFR offline)");
-  if(len==='short') return `/ads FAA ${ops}; fuel ${fuel.toLowerCase()}; ${core}.`;
-  return `/ads FAA ${ops}; fuel ${fuel.toLowerCase()}; SAFR ${SAFR.toLowerCase()}; training ${train.toLowerCase()}; ${core}.`;
-}
-q('#adAll').addEventListener('change',(e)=>{ const on=e.target.checked; document.querySelectorAll('.adAp').forEach(cb=>cb.disabled=on); });
-q('#btnAdShort').onclick=()=>{ const m=adLine('short'); q('#adOut').textContent=m; copy(m); };
-q('#btnAdMedium').onclick=()=>{ const m=adLine('medium'); q('#adOut').textContent=m; copy(m); };
+/* ================= Ground / Tower / DAP / CTR / EMG ================= */
+function basicOut(selOut, selPlain, segments, plain, cs){ const out=gmeColorSegments(segments); q(selOut).textContent=out; q(selPlain).textContent=plain; copy(out); if(cs){pushRecent(cs);} }
 
-/* ===================== REFERENCES: NEAREST BY POSTAL ===================== */
-q('#btnNearest').onclick=()=>{ const p=q('#nearPostal').value; const ap=nearestAirportByPostal(p); q('#nearOut').textContent=`nearest airport to postal ${p}: ${ap}`; };
+q('#btnPushOnly').onclick=()=>{ const civ=q('#civilCS').checked, cs=callsignUpper(q('#gndCall').value), ap=q('#gndAp').value; if(!cs){q('#gndOut').textContent="fix: callsign";q('#gndPlain').textContent="";return;} basicOut('#gndOut','#gndPlain',[`${ap} ground clears ${cs} for pushback.`],`${ap} Ground, ${civ?cs:spellCS(cs)}, pushback approved.`,cs); renderChipsFor('gndCall','#chipsGND'); };
+q('#btnPushStart').onclick=()=>{ const civ=q('#civilCS').checked, cs=callsignUpper(q('#gndCall').value), ap=q('#gndAp').value; if(!cs){q('#gndOut').textContent="fix: callsign";q('#gndPlain').textContent="";return;} basicOut('#gndOut','#gndPlain',[`${ap} ground clears ${cs} for push and start.`],`${ap} Ground, ${civ?cs:spellCS(cs)}, push and start approved.`,cs); renderChipsFor('gndCall','#chipsGND'); };
+q('#btnTaxiRwy').onclick=()=>{ const civ=q('#civilCS').checked, cs=callsignUpper(q('#gndCall').value), ap=q('#gndAp').value, rw=pickRunway(ap,q('#gndOps').value); if(!cs){q('#gndOut').textContent="fix: callsign";q('#gndPlain').textContent="";return;} basicOut('#gndOut','#gndPlain',[`${ap} ground clears ${cs} for progressive taxi`,`to ${rw}.`,`ground will call your turns.`],`${ap} Ground, ${civ?cs:spellCS(cs)}, taxi to ${sayRunway(rw)}. Ground will call your turns.`,cs); renderChipsFor('gndCall','#chipsGND'); };
+q('#btnTaxiPark').onclick=()=>{ const civ=q('#civilCS').checked, cs=callsignUpper(q('#gndCall').value), ap=q('#gndAp').value; if(!cs){q('#gndOut').textContent="fix: callsign";q('#gndPlain').textContent="";return;} basicOut('#gndOut','#gndPlain',[`${ap} ground clears ${cs} for progressive taxi`,`to parking.`,`ground will call your turns.`],`${ap} Ground, ${civ?cs:spellCS(cs)}, taxi to parking. Ground will call your turns.`,cs); renderChipsFor('gndCall','#chipsGND'); };
 
-/* ===================== PILOT TOOLS ===================== */
-q('#btnPATIS').onclick=()=>{ const ap=q('#pAtisAp').value; const m=`/gme ${ap} — request ATIS information.`; q('#pAtisOut').textContent=m; copy(m); };
-q('#btnPCLR').onclick=()=>{ const cs=callsignUpper(q('#pCall').value), t=q('#pType').value, route=q('#pRoute').value; if(!cs){ const box=document.createElement('div'); box.className='errbox'; box.innerHTML='<b>fix:</b><ul><li>callsign</li></ul>'; q('#pClrOut').before(box); box.style.display='block'; return; }
-  let msg=""; if(t==='IFR'){ msg=`/gme ${cs} requests clearance; ready to copy for ${route}.`; }
-  else if(t==='VFR'){ msg=`/gme ${cs} requests VFR departure; ready to copy.`; }
-  else { msg=`/gme ${cs} requests helicopter ops clearance within assigned area; ready to copy.`; }
-  q('#pClrOut').textContent=msg; copy(msg); pushRecent(cs,'civ'); renderChips('#chipsATC');
-};
-q('#btnPGTaxi').onclick=()=>{ const cs=callsignUpper(q('#pgCall').value), ap=q('#pgAp').value; if(!cs){ const box=document.createElement('div'); box.className='errbox'; box.innerHTML='<b>fix:</b><ul><li>callsign</li></ul>'; q('#pgOut').before(box); box.style.display='block'; return; }
-  const msg=`/gme ${cs} — request permission to taxi to parking via assigned taxiways; progressive taxi ok; ground calls my turns at ${ap}.`; q('#pgOut').textContent=msg; copy(msg);
-};
-q('#btnPTLand').onclick=()=>{ const cs=callsignUpper(q('#ptCall').value), ap=q('#ptAp').value; if(!cs){ const box=document.createElement('div'); box.className='errbox'; box.innerHTML='<b>fix:</b><ul><li>callsign</li></ul>'; q('#ptOut').before(box); box.style.display='block'; return; }
-  const msg=`/gme ${cs} — request landing at ${ap}; on final; ready to copy.`; q('#ptOut').textContent=msg; copy(msg);
-};
-q('#btnPDAP').onclick=()=>{ const cs=callsignUpper(q('#pDapCall').value), ph=q('#pDapPhase').value, ap=q('#pDapAp').value, dir=q('#pDapDir').value; if(!cs){ const box=document.createElement('div'); box.className='errbox'; box.innerHTML='<b>fix:</b><ul><li>callsign</li></ul>'; q('#pDapOut').before(box); box.style.display='block'; return; }
-  const msg=(ph==='Departure')? `/gme ${cs} — request departure from ${ap} to ${dir.toLowerCase()} sector; ready to copy.` : `/gme ${cs} — request approach to ${ap} from ${dir.toLowerCase()} sector; ready to copy.`; q('#pDapOut').textContent=msg; copy(msg);
-};
-q('#btnPCTR').onclick=()=>{ const cs=callsignUpper(q('#pCtrCall').value), m=q('#pCtrMode').value, ap=q('#pCtrAp').value, dir=q('#pCtrDir').value; if(!cs){ const box=document.createElement('div'); box.className='errbox'; box.innerHTML='<b>fix:</b><ul><li>callsign</li></ul>'; q('#pCtrOut').before(box); box.style.display='block'; return; }
-  const msg=`/gme ${cs} — request ${m.toLowerCase()} instructions near ${ap}, ${dir.toLowerCase()} sector; ready to copy.`; q('#pCtrOut').textContent=msg; copy(msg);
-};
+q('#btnLineUp').onclick=()=>{ const civ=q('#civilCS').checked, cs=callsignUpper(q('#twrCall').value); if(!cs){q('#twrOut').textContent="fix: callsign";q('#twrPlain').textContent="";return;} const ap=q('#twrAp').value, rw=pickRunway(ap,q('#twrOps').value); basicOut('#twrOut','#twrPlain',[`${ap} tower clears ${cs}`,`line up and wait ${rw}.`],`${ap} Tower, ${civ?cs:spellCS(cs)}, line up and wait ${sayRunway(rw)}.`,cs); renderChipsFor('twrCall','#chipsTWR'); };
+q('#btnTakeoff').onclick=()=>{ const civ=q('#civilCS').checked, cs=callsignUpper(q('#twrCall').value); if(!cs){q('#twrOut').textContent="fix: callsign";q('#twrPlain').textContent="";return;} const ap=q('#twrAp').value, rw=pickRunway(ap,q('#twrOps').value), abt=q('#twrNoise').value; const seg=[`${ap} tower clears ${cs} for takeoff ${rw}.`]; if(abt!=='none') seg.push(`${abt}.`); seg.push(`contact departure 122.5.`); basicOut('#twrOut','#twrPlain',seg,`${ap} Tower, ${civ?cs:spellCS(cs)}, cleared for takeoff ${sayRunway(rw)}.${abt==='none'?'':(' '+abt+'.')} Contact departure on one two two point five.`,cs); renderChipsFor('twrCall','#chipsTWR'); };
+q('#btnLanding').onclick=()=>{ const civ=q('#civilCS').checked, cs=callsignUpper(q('#twrCall').value); if(!cs){q('#twrOut').textContent="fix: callsign";q('#twrPlain').textContent="";return;} const ap=q('#twrAp').value, rw=pickRunway(ap,q('#twrOps').value); basicOut('#twrOut','#twrPlain',[`${ap} tower clears ${cs} to land ${rw}.`,`exit runway when able;`,`contact ground 122.3.`],`${ap} Tower, ${civ?cs:spellCS(cs)}, cleared to land ${sayRunway(rw)}. Exit runway when able; contact ground on one two two point three.`,cs); renderChipsFor('twrCall','#chipsTWR'); };
+q('#btnGoAround').onclick=()=>{ const civ=q('#civilCS').checked, cs=callsignUpper(q('#twrCall').value); if(!cs){q('#twrOut').textContent="fix: callsign";q('#twrPlain').textContent="";return;} const ap=q('#twrAp').value; basicOut('#twrOut','#twrPlain',[`${ap} tower instructs ${cs} go around,`,`runway heading,`,`climb to pattern altitude.`],`${ap} Tower, ${civ?cs:spellCS(cs)}, go around, runway heading, climb to pattern altitude.`,cs); renderChipsFor('twrCall','#chipsTWR'); };
+q('#btnTwrAction').onclick=()=>{ const civ=q('#civilCS').checked, cs=callsignUpper(q('#twrCall').value); if(!cs){q('#twrOut').textContent="fix: callsign";q('#twrPlain').textContent="";return;} const ap=q('#twrAp').value, rw=q('#twrRunway').value, a=q('#twrAction').value; const map={hold_short:[`${ap} tower ${cs}`,`hold short ${rw}.`],stop:[`${ap} tower ${cs}`,`stop immediately.`],hold_pos:[`${ap} tower ${cs}`,`hold position.`],cross:[`${ap} tower ${cs}`,`cross ${rw}.`],luaw:[`${ap} tower ${cs}`,`line up and wait ${rw}.`]}; const seg=map[a]||[]; const plain=seg.join(' ').replace(`${ap} tower `,`${ap} Tower, `).replace(cs, (civ?cs:spellCS(cs))+', '); basicOut('#twrOut','#twrPlain',seg,plain,cs); renderChipsFor('twrCall','#chipsTWR'); };
 
-/* ===================== CLEAR / INIT ===================== */
-q('#clearATC').onclick=()=>{ ['#atisOut','#atisPlain','#clrOut','#clrPlain','#gndOut','#gndPlain','#twrOut','#twrPlain','#dapOut','#dapPlain','#ctrOut','#ctrPlain','#emgOut','#adOut'].forEach(s=>{ const el=q(s); if(el) el.textContent=""; }); };
-q('#clearPILOT').onclick=()=>{ ['#pAtisOut','#pClrOut','#pgOut','#ptOut','#pDapOut','#pCtrOut'].forEach(s=>{ const el=q(s); if(el) el.textContent=""; }); };
-['#chipsATC','#chipsGND','#chipsTWR','#chipsDAP','#chipsCTR','#chipsEMG'].forEach(renderChips);
+q('#btnDAPGen').onclick=()=>{ const civ=q('#civilCS').checked, cs=callsignUpper(q('#dapCall').value); if(!cs){q('#dapOut').textContent="fix: callsign"; q('#dapPlain').textContent=""; return;} const phase=q('#dapPhase').value, ap=q('#dapAp').value, dir=q('#dapDir').value, alt=q('#dapAlt').value, hdg=q('#dapHdg').value; if(phase==="Departure"){ basicOut('#dapOut','#dapPlain',[`${ap} departure clears ${cs}`,`climb and maintain ${alt.toUpperCase()}.`,`fly heading ${hdg}.`],`${ap} Departure, ${civ?cs:spellCS(cs)}, climb and maintain ${sayAlt(alt)}. Fly heading ${sayHeading(hdg)}.`,cs); } else { basicOut('#dapOut','#dapPlain',[`${ap} approach clears ${cs}`,`descend and maintain ${alt.toUpperCase()}.`,`proceed inbound from the ${dir} sector, then vectors.`],`${ap} Approach, ${civ?cs:spellCS(cs)}, descend and maintain ${sayAlt(alt)}. Proceed inbound from the ${dir} sector.`,cs); } renderChipsFor('dapCall','#chipsDAP'); };
+
+q('#btnCTRGen').onclick=()=>{ const civ=q('#civilCS').checked, cs=callsignUpper(q('#ctrCall').value); if(!cs){q('#ctrOut').textContent="fix: callsign"; q('#ctrPlain').textContent=""; return;} const inst=q('#ctrInst').value, alt=q('#ctrAlt').value, hdg=q('#ctrHdg').value, fix=q('#ctrFix').value||"fix"; let seg=[], plain=""; if(inst==="Climb"){seg=[`center ${cs}`,`climb and maintain ${alt.toUpperCase()}.`];plain=`Center, ${civ?cs:spellCS(cs)}, climb and maintain ${sayAlt(alt)}.`} if(inst==="Descend"){seg=[`center ${cs}`,`descend and maintain ${alt.toUpperCase()}.`];plain=`Center, ${civ?cs:spellCS(cs)}, descend and maintain ${sayAlt(alt)}.`} if(inst==="Heading"){seg=[`center ${cs}`,`fly heading ${hdg}.`];plain=`Center, ${civ?cs:spellCS(cs)}, fly heading ${sayHeading(hdg)}.`} if(inst==="Direct to Fix"){seg=[`center ${cs}`,`proceed direct ${fix}.`];plain=`Center, ${civ?cs:spellCS(cs)}, proceed direct ${fix}.`} if(inst==="Handoff"){seg=[`center ${cs}`,`contact next sector 122.7.`];plain=`Center, ${civ?cs:spellCS(cs)}, contact next sector on one two two point seven.`} basicOut('#ctrOut','#ctrPlain',seg,plain,cs); renderChipsFor('ctrCall','#chipsCTR'); };
+
+/* ================= Emergencies ================= */
+q('#btnEMGGen').onclick=()=>{ const cs=callsignUpper(q('#emgCall').value); if(!cs){ q('#emgOut').textContent="fix: callsign"; return; } const ap=q('#emgAp').value, ev=q('#emgType').value; const ctrl=q('#emgCB').value||"controller"; const msg=gmePrefix+COLOR_CYCLE[0]+`${ap} ${ev.toLowerCase()} involving ${cs}. `+COLOR_CYCLE[1]+`controller callback ${ctrl}.`; q('#emgOut').textContent=msg; copy(msg); pushRecent(cs); renderChipsFor('emgCall','#chipsEMG'); };
+q('#btn911Short').onclick=()=>{ const cs=callsignUpper(q('#emgCall').value), ap=q('#emgAp').value; const msg=`/911 aircraft ${cs} incident at ${ap}. Immediate response requested.`; q('#emgOut').textContent=msg; copy(msg); };
+q('#btn911Long').onclick=()=>{ const cs=callsignUpper(q('#emgCall').value), ap=q('#emgAp').value; const msg=`/911 aircraft ${cs} incident at ${ap}. Fire/EMS to respond; staging per standard. Controller callback ${q('#emgCB').value}.`; q('#emgOut').textContent=msg; copy(msg); };
+
+/* ================= ADS builder ================= */
+(function initADS(){
+  function listOperational(){
+    if(q('#adAll').checked) return "all airports operational";
+    const picks=[...document.querySelectorAll('.adAp:checked')].map(x=>x.value);
+    return (picks.length? picks.join(", ")+" operational" : "no airports operational");
+  }
+  function adLine(len){
+    const SAFR=q('#adSAFR').value, train=q('#adTrain').value, fuel=q('#adFuel').value;
+    const ops=listOperational();
+    const core = (SAFR==='Online' && train==='Not Active') ? "emergencies permitted" :
+                 (SAFR==='Offline') ? "emergencies not available (SAFR offline)" :
+                 "no emergencies during training";
+    const seg = (len==='short')
+      ? [`FAA ${ops}; fuel ${fuel.toLowerCase()}; ${core}.`]
+      : [`FAA ${ops}; fuel ${fuel.toLowerCase()}; SAFR ${SAFR.toLowerCase()}; training ${train.toLowerCase()}; ${core}.`];
+    return gmeColorSegments(seg);
+  }
+  q('#adAll').addEventListener('change',(e)=>{ const on=e.target.checked; document.querySelectorAll('.adAp').forEach(cb=>cb.disabled=on); });
+  q('#btnAdShort').onclick=()=>{ const m=adLine('short'); q('#adOut').textContent=m; copy(m); };
+  q('#btnAdMedium').onclick=()=>{ const m=adLine('medium'); q('#adOut').textContent=m; copy(m); };
+})();
+
+/* ================= Hazard Map (code-driven only) ================= */
+/* Categories & colors */
+const CATS = {
+  'Fire Station': '#ef4444',
+  'Hospital': '#ef4444',
+  'Police Station': '#3b82f6',
+  'Windfarm / Turbines': '#06b6d4',
+  'Power / Wires': '#22c55e',
+  'Port Cranes': '#0ea5a5',
+  'Wire Endpoints': '#7c3aed',
+  'Bridges / Overpasses': '#f59e0b'
+};
+const LEGEND_ITEMS = Object.entries(CATS).map(([label,color])=>({label,color}));
+
+/* Default hazards (edit freely) */
+const HAZARD_POINTS=[
+  {x:780,y:160,label:'Grapeseed Windmills',agl:450,cat:'Windfarm / Turbines',size:5,opacity:1},
+  {x:220,y:290,label:'Maze Bank Tower',agl:900,cat:'Bridges / Overpasses',size:5,opacity:1},
+  {x:920,y:360,label:'Port Crane Cluster',agl:250,cat:'Port Cranes',size:5,opacity:1},
+  {x:300,y:1180,label:'LS Fire HQ',agl:120,cat:'Fire Station',size:4,opacity:1},
+  {x:560,y:1100,label:'Pillbox Hill Medical',agl:120,cat:'Hospital',size:3,opacity:1},
+  {x:260,y:1060,label:'LSPD HQ',agl:120,cat:'Police Station',size:4,opacity:1},
+  {x:112,y:1340,label:'Del Perro Bridge',agl:180,cat:'Bridges / Overpasses',size:4,opacity:1}
+];
+const HAZARD_LINES=[
+  {x1:200,y1:900,x2:520,y2:980,label:'Powerline Span',cat:'Power / Wires',width:6,opacity:1},
+  {x1:260,y1:420,x2:940,y2:420,label:'Valley Span',cat:'Power / Wires',width:3,opacity:1}
+];
+
+(function renderHaz(){
+  const svg=q('#hazSVG'), list=q('#hazItems'), legend=q('#legend'), catPanel=q('#catPanel');
+
+  legend.innerHTML = '<h4>Legend</h4>'+LEGEND_ITEMS.map(i=>`<div class="item"><span class="sw" style="background:${i.color}"></span>${i.label}</div>`).join('');
+  catPanel.innerHTML = '<b>Highlight Categories</b>' + Object.entries(CATS).map(([name,color])=>`
+    <label><span class="catSw" style="background:${color}"></span><input type="checkbox" class="catToggle" value="${name}"> ${name}</label>
+  `).join('');
+
+  function clearRendered(){ while(svg.firstChild) svg.removeChild(svg.firstChild); list.innerHTML=''; }
+
+  function draw(){
+    clearRendered();
+    // Lines
+    HAZARD_LINES.forEach((L,idx)=>{
+      const g=document.createElementNS("http://www.w3.org/2000/svg","g"); g.classList.add('hazL'); g.dataset.cat=L.cat||'Power / Wires'; g.dataset.key=`L${idx}`;
+      const a=document.createElementNS("http://www.w3.org/2000/svg","circle");
+      const b=document.createElementNS("http://www.w3.org/2000/svg","circle");
+      const ln=document.createElementNS("http://www.w3.org/2000/svg","line");
+      const lbl=document.createElementNS("http://www.w3.org/2000/svg","text");
+      a.setAttribute('cx',L.x1); a.setAttribute('cy',L.y1); a.setAttribute('r',4); a.setAttribute('fill',CATS['Wire Endpoints']); a.setAttribute('opacity',0.95);
+      b.setAttribute('cx',L.x2); b.setAttribute('cy',L.y2); b.setAttribute('r',4); b.setAttribute('fill',CATS['Wire Endpoints']); b.setAttribute('opacity',0.95);
+      ln.setAttribute('x1',L.x1); ln.setAttribute('y1',L.y1); ln.setAttribute('x2',L.x2); ln.setAttribute('y2',L.y2);
+      ln.setAttribute('stroke',CATS[L.cat]||'#22c55e'); ln.setAttribute('stroke-width',L.width||3); ln.setAttribute('opacity',L.opacity??1);
+      lbl.setAttribute('x',L.x2+10); lbl.setAttribute('y',L.y2); lbl.setAttribute('font-size','12'); lbl.setAttribute('fill','#cfe1ff'); lbl.textContent=L.label||'Line';
+      g.append(a,ln,b,lbl); svg.appendChild(g);
+      list.insertAdjacentHTML('beforeend',`<div class="hazItem" data-i="L${idx}" data-cat="${g.dataset.cat}">${L.label} <span class="muted">(${g.dataset.cat})</span></div>`);
+    });
+    // Points
+    HAZARD_POINTS.forEach((P,idx)=>{
+      const g=document.createElementNS("http://www.w3.org/2000/svg","g"); g.classList.add('hazP'); g.dataset.cat=P.cat||'Fire Station'; g.dataset.key=`P${idx}`;
+      const c=document.createElementNS("http://www.w3.org/2000/svg","circle");
+      const t=document.createElementNS("http://www.w3.org/2000/svg","text");
+      g.setAttribute('transform',`translate(${P.x},${P.y})`);
+      c.setAttribute('r',P.size||4); c.setAttribute('fill',CATS[P.cat]||'#ef4444'); c.setAttribute('opacity',P.opacity??1);
+      t.setAttribute('x',14); t.setAttribute('y',4); t.setAttribute('font-size','12'); t.setAttribute('fill','#cfe1ff'); t.textContent=`${P.label}${P.agl?` ~${P.agl} AGL`:''}`;
+      g.append(c,t); svg.appendChild(g);
+      list.insertAdjacentHTML('beforeend',`<div class="hazItem" data-i="P${idx}" data-cat="${g.dataset.cat}">${P.label} <span class="muted">${P.agl?`~${P.agl} AGL`:''} (${g.dataset.cat})</span></div>`);
+    });
+  }
+  draw();
+
+  q('#btnClearHaz').onclick=()=>{ while(svg.firstChild) svg.removeChild(svg.firstChild); q('#hazItems').innerHTML='(cleared for view)'; };
+
+  q('#hazList').addEventListener('click',e=>{
+    const cell=e.target.closest('.hazItem'); if(!cell) return;
+    const key=cell.dataset.i; const node=[...q('#hazSVG').children].find(n=>n.dataset.key===key);
+    if(node){ node.classList.remove('pulse'); void node.offsetWidth; node.classList.add('pulse'); node.scrollIntoView({block:'center',behavior:'smooth'}); }
+  });
+
+  q('#hazSearch').addEventListener('input',e=>{
+    const s=e.target.value.toLowerCase();
+    [...q('#hazItems').children].forEach(row=>{
+      row.style.display = row.textContent.toLowerCase().includes(s) ? '' : 'none';
+    });
+  });
+
+  q('#condenseList').addEventListener('change',e=>{
+    q('#hazList').classList.toggle('compact', e.target.checked);
+  });
+
+  q('#catPanel').addEventListener('change',()=>{
+    const active=[...q('#catPanel').querySelectorAll('.catToggle:checked')].map(i=>i.value);
+    const all=[...q('#hazSVG').children];
+    if(active.length===0){ all.forEach(g=>{ g.classList.remove('dimmed','highlight'); }); return; }
+    all.forEach(g=>{
+      const cat=g.dataset.cat||'';
+      if(active.includes(cat)){ g.classList.remove('dimmed'); g.classList.add('highlight'); }
+      else { g.classList.add('dimmed'); g.classList.remove('highlight'); }
+    });
+  });
+})();
+
+/* ====== Tabs ====== */
+(function tabWire(){
+  const root=q('#atcTabs');
+  root.querySelectorAll('.tab').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      root.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
+      qa('#sub_console .panel').forEach(p=>p.classList.remove('active'));
+      btn.classList.add('active');
+      q('#panel_'+btn.dataset.tab).classList.add('active');
+    });
+  });
+})();
+
+/* ====== Chips init & clear active tab ====== */
+['clr','gnd','twr','dap','ctr','emg'].forEach(id=>renderChipsFor(id+'Call','#chips'+id.toUpperCase()));
+q('#clearATC').onclick=()=>{ const activePanel = qa('#sub_console .panel.active')[0]; if(!activePanel) return; [...activePanel.querySelectorAll('.gme,.plain')].forEach(el=>el.textContent=''); };
 </script>
 </body>
 </html>
